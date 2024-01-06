@@ -31,7 +31,7 @@ namespace StatusHud
             }
             else
             {
-                time = DateTime.Now.ToString("hh':'mm");
+                time = DateTime.Now.ToString("HH':'mm");
             }
 
             this.renderer.setText(time);
