@@ -34,6 +34,8 @@ namespace StatusHud {
 
 		public LoadedTexture light;
 
+		public LoadedTexture network;
+
 		public LoadedTexture players;
 
 		public LoadedTexture riftCalm;
@@ -145,6 +147,8 @@ namespace StatusHud {
 			this.load("latitude_needle", ref this.latitudeNeedle);
 
 			this.load("light", ref this.light);
+
+			this.load("network", ref this.network);
 
 			this.load("players", ref this.players);
 

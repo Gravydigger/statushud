@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Text;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
-using Vintagestory.API.Config;
 
 namespace StatusHud
 {
@@ -41,6 +40,7 @@ namespace StatusHud
             typeof(StatusHudDurabilityElement),
             typeof(StatusHudLatitudeElement),
             typeof(StatusHudLightElement),
+            typeof(StatusHudPingElement),
             typeof(StatusHudPlayersElement),
             typeof(StatusHudRiftActivityElement),
             typeof(StatusHudRoomElement),
@@ -85,15 +85,17 @@ namespace StatusHud
                 case StatusHudBodyheatElement.name:
                     return new StatusHudBodyheatElement(this, slot, config);
                 case StatusHudCompassElement.name:
-                    return new StatusHudCompassElement(this, slot, textConfig, this.config.Get().compassAbsolute);
+                    return new StatusHudCompassElement(this, slot, textConfig, config.compassAbsolute);
                 case StatusHudDateElement.name:
-                    return new StatusHudDateElement(this, slot, textConfig, this.config.Get().months);
+                    return new StatusHudDateElement(this, slot, textConfig, config.months);
                 case StatusHudDurabilityElement.name:
                     return new StatusHudDurabilityElement(this, slot, textConfig);
                 case StatusHudLatitudeElement.name:
                     return new StatusHudLatitudeElement(this, slot, textConfig);
                 case StatusHudLightElement.name:
                     return new StatusHudLightElement(this, slot, textConfig);
+                case StatusHudPingElement.name:
+                    return new StatusHudPingElement(this, slot, textConfig);
                 case StatusHudPlayersElement.name:
                     return new StatusHudPlayersElement(this, slot, textConfig);
                 case StatusHudRiftActivityElement.name:
