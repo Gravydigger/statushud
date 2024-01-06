@@ -70,6 +70,11 @@ namespace StatusHud
 
         private void getUUID(IClientPlayer byPlayer)
         {
+            if (byPlayer == null)
+            {
+                return;
+            }
+
             if (this.uuid == null)
             {
                 this.uuid = byPlayer.PlayerUID;
