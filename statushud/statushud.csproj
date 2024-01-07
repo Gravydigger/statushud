@@ -1,47 +1,56 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <OutputPath>bin\$(Configuration)\Mods\mod</OutputPath>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net7.0</TargetFramework>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		<OutputPath>bin\$(Configuration)\Mods\mod</OutputPath>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Reference Include="0Harmony">
-      <HintPath>$(VINTAGE_STORY)//Lib/0Harmony.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="cairo-sharp">
-      <HintPath>F:\Non-Steam Games\Vintagestory/Lib/cairo-sharp.dll</HintPath>
-		<Private>False</Private>
-    </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>F:\Non-Steam Games\Vintagestory\Lib\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="VintagestoryAPI">
-      <HintPath>$(VINTAGE_STORY)/VintagestoryAPI.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="VintagestoryLib">
-      <HintPath>F:\Non-Steam Games\Vintagestory\VintagestoryLib.dll</HintPath>
-    </Reference>
-    <Reference Include="VSEssentials">
-      <HintPath>$(VINTAGE_STORY)/Mods/VSEssentials.dll</HintPath>
-		<Private>False</Private>
-    </Reference>
-    <Reference Include="VSSurvivalMod">
-      <HintPath>$(VINTAGE_STORY)/Mods/VSSurvivalMod.dll</HintPath>
-		<Private>False</Private>
-    </Reference>
-  </ItemGroup>
+	<ItemGroup>
+		<Reference Include="0Harmony">
+			<HintPath>$(VINTAGE_STORY)/Lib/0Harmony.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="cairo-sharp">
+			<HintPath>$(VINTAGE_STORY)/Lib/cairo-sharp.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="ImGui.NET">
+			<HintPath>$(VINTAGE_STORY_DATA)/Mods/vsimgui_0.2.1/ImGui.NET.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="Newtonsoft.Json">
+			<HintPath>$(VINTAGE_STORY)/Lib/Newtonsoft.Json.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="VintagestoryAPI">
+			<HintPath>$(VINTAGE_STORY)/VintagestoryAPI.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="VintagestoryLib">
+			<HintPath>$(VINTAGE_STORY)/VintagestoryLib.dll</HintPath>
+		</Reference>
+		<Reference Include="VSEssentials">
+			<HintPath>$(VINTAGE_STORY)/Mods/VSEssentials.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="VSImGui">
+			<HintPath>$(VINTAGE_STORY_DATA)/Mods/vsimgui_0.2.1/VSImGui.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="VSSurvivalMod">
+			<HintPath>$(VINTAGE_STORY)/Mods/VSSurvivalMod.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+	</ItemGroup>
 
-<ItemGroup>
-  <Content Include="assets\**">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-  </Content>
-  <Content Include="modinfo.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-  </Content>
-</ItemGroup>
+	<ItemGroup>
+		<Content Include="assets\**">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="modinfo.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
 
 </Project>

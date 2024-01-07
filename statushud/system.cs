@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
@@ -31,8 +30,6 @@ namespace StatusHud
         public const string domain = "statushud";
         protected const int slowListenInterval = 1000;
         protected const int fastListenInterval = 100;
-
-        private string uuid = null;
 
         protected static readonly Type[] elementTypes = {
             typeof(StatusHudAltitudeElement),
@@ -66,6 +63,9 @@ namespace StatusHud
         protected IList<StatusHudElement> slowElements;
         protected IList<StatusHudElement> fastElements;
         public StatusHudTextures textures;
+        protected StatusHudGui gui;
+
+        private string uuid = null;
         public bool showHidden
         {
             get
@@ -148,6 +148,7 @@ namespace StatusHud
             this.slowElements = new List<StatusHudElement>();
             this.fastElements = new List<StatusHudElement>();
             this.textures = new StatusHudTextures(this.capi, this.config.Get().iconSize);
+            this.gui = new StatusHudGui(this.capi);
 
             this.config.LoadElements(this);
 
@@ -237,9 +238,20 @@ namespace StatusHud
 
             capi.Event.PlayerJoin += SetUUID;
             capi.Event.PlayerJoin += Reload;
+
+            capi.Input.RegisterHotKey("statushudgui", "StatusHud Gui", GlKeys.P, HotkeyType.GUIOrOtherControls);
+            capi.Input.SetHotKeyHandler("statushudgui", ToggleGui);
 #if DEBUG
             this.capi.Logger.Debug(print("Debug logging Enabled"));
 #endif
+        }
+
+        private bool ToggleGui(KeyCombination comb)
+        {
+            if (this.gui.IsOpened()) this.gui.TryClose();
+            else this.gui.TryOpen();
+
+            return true;
         }
 
         public override void Dispose()
