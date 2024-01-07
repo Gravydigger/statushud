@@ -1,3 +1,4 @@
+using ConfigLib;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -148,7 +149,7 @@ namespace StatusHud
             this.slowElements = new List<StatusHudElement>();
             this.fastElements = new List<StatusHudElement>();
             this.textures = new StatusHudTextures(this.capi, this.config.Get().iconSize);
-            this.gui = new StatusHudGui(this.capi);
+            this.gui = new StatusHudGui(this);
 
             this.config.LoadElements(this);
 
@@ -239,20 +240,12 @@ namespace StatusHud
             capi.Event.PlayerJoin += SetUUID;
             capi.Event.PlayerJoin += Reload;
 
-            capi.Input.RegisterHotKey("statushudgui", "StatusHud Gui", GlKeys.P, HotkeyType.GUIOrOtherControls);
-            capi.Input.SetHotKeyHandler("statushudgui", ToggleGui);
+            capi.ModLoader.GetModSystem<ConfigLibModSystem>().RegisterCustomConfig("statushudcont", gui.DrawConfigLibSettings);
 #if DEBUG
             this.capi.Logger.Debug(print("Debug logging Enabled"));
 #endif
         }
 
-        private bool ToggleGui(KeyCombination comb)
-        {
-            if (this.gui.IsOpened()) this.gui.TryClose();
-            else this.gui.TryOpen();
-
-            return true;
-        }
 
         public override void Dispose()
         {

@@ -10,6 +10,8 @@ namespace StatusHud
         public const string name = "element";
         public const string desc = "No description available.";
 
+        public virtual string Name => name;
+
         protected StatusHudSystem system;
         protected int slot;
 
@@ -28,6 +30,11 @@ namespace StatusHud
         public void Pos(int halign, int x, int valign, int y)
         {
             this.pos.set(halign, x, valign, y);
+            this.getRenderer().Pos(this.pos);
+        }
+
+        public void Pos()
+        {
             this.getRenderer().Pos(this.pos);
         }
 

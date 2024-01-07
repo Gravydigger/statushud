@@ -15,6 +15,10 @@
 			<HintPath>$(VINTAGE_STORY)/Lib/cairo-sharp.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
+		<Reference Include="configlib">
+		  <HintPath>$(VINTAGE_STORY_DATA)/Mods/configlib_0.3.1/configlib.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
 		<Reference Include="ImGui.NET">
 			<HintPath>$(VINTAGE_STORY_DATA)/Mods/vsimgui_0.2.1/ImGui.NET.dll</HintPath>
 			<Private>False</Private>
