@@ -25,7 +25,7 @@ namespace StatusHud {
 			return textKey;
 		}
 
-		public override void Tick() {
+        public override void Tick() {
 			if(this.system.capi.World.Player.CurrentBlockSelection != null) {
 				this.renderer.setText(this.system.capi.World.BlockAccessor.GetLightLevel(this.system.capi.World.Player.CurrentBlockSelection.Position, EnumLightLevelType.MaxTimeOfDayLight).ToString());
 				this.active = true;

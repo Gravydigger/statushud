@@ -17,15 +17,13 @@ namespace StatusHud
 
         protected StatusHudPingRenderer renderer;
 
-        public StatusHudPingElement(StatusHudSystem system, int slot, StatusHudTextConfig config) : base(system, slot, true)
+        public StatusHudPingElement(StatusHudSystem system, int slot, StatusHudTextConfig config) : base(system, slot)
         {
             this.renderer = new StatusHudPingRenderer(system, slot, this, config);
             this.system.capi.Event.RegisterRenderer(this.renderer, EnumRenderStage.Ortho);
             this.system.capi.Event.PlayerJoin += getUUID;
 
             this.active = this.system.capi.IsSinglePlayer ? false : true;
-
-            if (!this.active) this.renderer.setText("");
         }
 
         protected override StatusHudRenderer getRenderer()
@@ -42,6 +40,7 @@ namespace StatusHud
         {
             if (!this.active)
             {
+                this.renderer.setText("");
                 return;
             }
 
@@ -52,7 +51,7 @@ namespace StatusHud
 
             if (player == null)
             {
-                this.renderer.setText(string.Format(""));
+                this.renderer.setText("");
                 return;
             }
 

@@ -7,6 +7,6 @@
   "description": "Displays status information on the HUD.",
   "side": "Client",
   "dependencies": {
-    "game": "1.19.0-rc.5"
+    "game": "1.19.0-rc.6"
   }
 }

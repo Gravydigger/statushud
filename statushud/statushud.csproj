@@ -17,7 +17,6 @@
     </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>F:\Non-Steam Games\Vintagestory\Lib\Newtonsoft.Json.dll</HintPath>
-      <Private>False</Private>
     </Reference>
     <Reference Include="VintagestoryAPI">
       <HintPath>$(VINTAGE_STORY)/VintagestoryAPI.dll</HintPath>
@@ -25,7 +24,6 @@
     </Reference>
     <Reference Include="VintagestoryLib">
       <HintPath>F:\Non-Steam Games\Vintagestory\VintagestoryLib.dll</HintPath>
-      <Private>False</Private>
     </Reference>
     <Reference Include="VSEssentials">
       <HintPath>$(VINTAGE_STORY)/Mods/VSEssentials.dll</HintPath>

@@ -49,9 +49,9 @@ namespace StatusHud
         {
             TimeSpan ts = TimeSpan.FromHours(this.system.capi.World.Calendar.HourOfDay);
             this.timeFormat = config.options.timeFormat;
-            
+
             string time;
-            
+
             if (this.timeFormat == "12hr")
             {
                 DateTime dateTime = new DateTime(ts.Ticks);

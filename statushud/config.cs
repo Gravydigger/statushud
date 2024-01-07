@@ -84,11 +84,7 @@ namespace StatusHud
             this.capi = capi;
 
             // Load or create config file.
-            try
-            {
-                this.config = this.capi.LoadModConfig<StatusHudConfig>(StatusHudConfigManager.filename);
-            }
-            catch (Exception) { }
+            Load();
 
             if (this.config == null)
             {
@@ -102,7 +98,17 @@ namespace StatusHud
         {
             return this.config;
         }
-        public void Load(StatusHudSystem system)
+
+        public void Load()
+        {
+            try
+            {
+                this.config = this.capi.LoadModConfig<StatusHudConfig>(StatusHudConfigManager.filename);
+            }
+            catch (Exception) { }
+        }
+
+        public void LoadElements(StatusHudSystem system)
         {
             foreach (KeyValuePair<int, StatusHudConfigElement> kvp in this.config.elements)
             {

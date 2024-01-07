@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
@@ -115,7 +116,7 @@ namespace StatusHud
                 case StatusHudTimeLocalElement.name:
                     return new StatusHudTimeLocalElement(this, slot, config);
                 case StatusHudWeatherElement.name:
-                    return new StatusHudWeatherElement(this, slot,  config);
+                    return new StatusHudWeatherElement(this, slot, config);
                 case StatusHudWetElement.name:
                     return new StatusHudWetElement(this, slot, textConfig);
                 case StatusHudWindElement.name:
@@ -146,7 +147,7 @@ namespace StatusHud
             this.fastElements = new List<StatusHudElement>();
             this.textures = new StatusHudTextures(this.capi, this.config.Get().iconSize);
 
-            this.config.Load(this);
+            this.config.LoadElements(this);
 
             capi.ChatCommands.Create("shud")
                 .WithDescription("Configure Status HUD")
@@ -214,7 +215,9 @@ namespace StatusHud
                         .WithDescription("Show status HUD command help")
                         .HandleWith(this.cmdHelp)
                     .EndSubCommand();
-
+#if DEBUG
+            capi.ChatCommands.GetOrCreate("shud").BeginSubCommand("reload").HandleWith(this.cmdReload);
+#endif
             this.slowListenerId = this.capi.Event.RegisterGameTickListener(this.SlowTick, slowListenInterval);
             this.fastListenerId = this.capi.Event.RegisterGameTickListener(this.FastTick, fastListenInterval);
 
@@ -229,6 +232,9 @@ namespace StatusHud
                 this.config.Get().installed = true;
                 this.saveConfig();
             }
+#if DEBUG
+            this.capi.Logger.Debug(print("Debug logging Enabled"));
+#endif
         }
 
         public override void Dispose()
@@ -319,6 +325,37 @@ namespace StatusHud
             return true;
         }
 
+        public bool Unset(int slot)
+        {
+            if (this.elements.ContainsKey(slot))
+            {
+                StatusHudElement element = this.elements[slot];
+
+                if (element.fast)
+                {
+                    this.fastElements.Remove(element);
+                }
+                else
+                {
+                    this.slowElements.Remove(element);
+                }
+
+                this.elements[slot].Dispose();
+                this.elements.Remove(slot);
+                return true;
+            }
+
+            return false;
+        }
+
+        // Will reload elements in memory, but not in file.
+        public void Reload()
+        {
+            //config.Load();
+            this.clear();
+            config.LoadElements(this);
+        }
+
         public void Pos(int slot, int halign, int x, int valign, int y)
         {
             this.elements[slot].Pos(halign, x, valign, y);
@@ -368,26 +405,9 @@ namespace StatusHud
         {
             int slot = (int)args[0];
 
-            if (slot == 0)
+            if (!Unset(slot))
             {
                 return TextCommandResult.Error(print("Error: # must be positive or negative."));
-            }
-
-            if (this.elements.ContainsKey(slot))
-            {
-                StatusHudElement element = this.elements[slot];
-
-                if (element.fast)
-                {
-                    this.fastElements.Remove(element);
-                }
-                else
-                {
-                    this.slowElements.Remove(element);
-                }
-
-                this.elements[slot].Dispose();
-                this.elements.Remove(slot);
             }
 
             this.saveConfig();
@@ -556,6 +576,16 @@ namespace StatusHud
             return TextCommandResult.Success(message);
         }
 
+#if DEBUG
+        protected TextCommandResult cmdReload(TextCommandCallingArgs args)
+        {
+            string message = "Elements Reloaded";
+
+            Reload();
+
+            return TextCommandResult.Success(print(message));
+        }
+#endif
         protected void installDefault()
         {
             this.clear();
