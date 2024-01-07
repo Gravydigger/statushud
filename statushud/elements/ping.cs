@@ -13,7 +13,9 @@ namespace StatusHud
         protected const string textKey = "shud-ping";
 
         public bool active;
-        public string uuid;
+        private bool noRenderText;
+        private string uuid;
+        private ClientPlayer player;
 
         protected StatusHudPingRenderer renderer;
 
@@ -21,9 +23,15 @@ namespace StatusHud
         {
             this.renderer = new StatusHudPingRenderer(system, slot, this, config);
             this.system.capi.Event.RegisterRenderer(this.renderer, EnumRenderStage.Ortho);
-            this.system.capi.Event.PlayerJoin += getUUID;
 
+            this.uuid = system.UUID;
+            this.player = null;
+
+#if DEBUG
+            this.active = true;
+#else
             this.active = this.system.capi.IsSinglePlayer ? false : true;
+#endif
         }
 
         protected override StatusHudRenderer getRenderer()
@@ -40,23 +48,33 @@ namespace StatusHud
         {
             if (!this.active)
             {
-                this.renderer.setText("");
+                // render text only once
+                if (!this.noRenderText)
+                {
+                    this.renderer.setText("");
+                    this.noRenderText = false;
+                }
                 return;
             }
 
-            IPlayer[] players = this.system.capi.World.AllOnlinePlayers;
-
-            // Get the mod users player object
-            ClientPlayer player = (ClientPlayer)players.FirstOrDefault(player => player.PlayerUID == this.uuid);
-
-            if (player == null)
+            if (this.player == null)
             {
+                IPlayer[] players = this.system.capi.World.AllOnlinePlayers;
+
+                // Get the mod users player object
+                this.player = (ClientPlayer)players.FirstOrDefault(player => player.PlayerUID == this.uuid);
                 this.renderer.setText("");
+
                 return;
             }
+
+#if DEBUG
+            IPlayer[] tplayers = this.system.capi.World.AllOnlinePlayers;
+            ClientPlayer tplayer = (ClientPlayer)tplayers.FirstOrDefault(player => player.PlayerUID == this.uuid);
+#endif
 
             float ping = player.Ping * 1000;
-            string msg = string.Format("{0}", Math.Min(ping, 999));
+            string msg = string.Format("{0}", Math.Min(ping, 9999));
 
             this.renderer.setText(msg);
         }
@@ -65,19 +83,6 @@ namespace StatusHud
         {
             this.renderer.Dispose();
             this.system.capi.Event.UnregisterRenderer(this.renderer, EnumRenderStage.Ortho);
-        }
-
-        private void getUUID(IClientPlayer byPlayer)
-        {
-            if (byPlayer == null)
-            {
-                return;
-            }
-
-            if (this.uuid == null)
-            {
-                this.uuid = byPlayer.PlayerUID;
-            }
         }
     }
 

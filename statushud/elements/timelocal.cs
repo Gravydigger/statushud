@@ -19,11 +19,6 @@ namespace StatusHud
             return textKey;
         }
 
-        public override string GetName()
-        {
-            return name;
-        }
-
         public override void Tick()
         {
             this.timeFormat = config.options.timeFormat;

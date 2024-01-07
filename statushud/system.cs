@@ -32,6 +32,8 @@ namespace StatusHud
         protected const int slowListenInterval = 1000;
         protected const int fastListenInterval = 100;
 
+        private string uuid = null;
+
         protected static readonly Type[] elementTypes = {
             typeof(StatusHudAltitudeElement),
             typeof(StatusHudArmourElement),
@@ -232,6 +234,9 @@ namespace StatusHud
                 this.config.Get().installed = true;
                 this.saveConfig();
             }
+
+            capi.Event.PlayerJoin += SetUUID;
+            capi.Event.PlayerJoin += Reload;
 #if DEBUG
             this.capi.Logger.Debug(print("Debug logging Enabled"));
 #endif
@@ -249,6 +254,8 @@ namespace StatusHud
             }
 
             this.textures.Dispose();
+            capi.Event.PlayerJoin -= SetUUID;
+            capi.Event.PlayerJoin -= Reload;
         }
 
         public void SlowTick(float dt)
@@ -356,6 +363,14 @@ namespace StatusHud
             config.LoadElements(this);
         }
 
+        public void Reload(IClientPlayer byPlayer)
+        {
+            if (byPlayer != null && byPlayer.PlayerUID == UUID)
+            {
+                Reload();
+            }
+        }
+
         public void Pos(int slot, int halign, int x, int valign, int y)
         {
             this.elements[slot].Pos(halign, x, valign, y);
@@ -375,6 +390,16 @@ namespace StatusHud
                 this.elements.Clear();
             }
         }
+
+        private void SetUUID(IClientPlayer byPlayer)
+        {
+            if (uuid == null && byPlayer != null)
+            {
+                uuid = byPlayer.PlayerUID;
+            }
+        }
+
+        public string UUID { get { return uuid; } }
 
         protected TextCommandResult cmdDefault(TextCommandCallingArgs args)
         {
