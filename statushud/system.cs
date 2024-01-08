@@ -28,7 +28,7 @@ namespace StatusHud
         public static readonly string[] timeFormatWords = new string[] { "12hr", "24hr" };
         public static readonly string[] tempScaleWords = new string[] { "C", "F", "K" };
 
-        public const string domain = "statushud";
+        public const string domain = "statushudcont";
         protected const int slowListenInterval = 1000;
         protected const int fastListenInterval = 100;
 
@@ -240,7 +240,7 @@ namespace StatusHud
             capi.Event.PlayerJoin += SetUUID;
             capi.Event.PlayerJoin += Reload;
 
-            capi.ModLoader.GetModSystem<ConfigLibModSystem>().RegisterCustomConfig("statushudcont", gui.DrawConfigLibSettings);
+            capi.ModLoader.GetModSystem<ConfigLibModSystem>().RegisterCustomConfig(domain, gui.DrawConfigLibSettings);
 #if DEBUG
             this.capi.Logger.Debug(print("Debug logging Enabled"));
 #endif
