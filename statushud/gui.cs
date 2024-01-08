@@ -28,21 +28,21 @@ namespace StatusHud
             if (controlButtons.Save) this.system.saveConfig();
             bool textChanged = DrawConfigEditor(id);
 
-            DrawAddElement();
+            DrawAddElement(id);
 
             var sortedElementsByName = elements.OrderBy(name => name.Value.elementName)
                 .ToDictionary(element => element.Key, x => x.Value);
 
-            foreach ((int elementId, StatusHudElement element) in sortedElementsByName)
+            foreach ((int elementSlot, StatusHudElement element) in sortedElementsByName)
             {
-                DrawElementSettings($"{id}{elementId}", element);
+                DrawElementSettings(id, elementSlot, element);
             }
         }
 
-        private void DrawAddElement()
+        private void DrawAddElement(string id)
         {
-            ImGui.Combo("ElementList", ref selectedElement, elementNames, elementNames.Length);
-            if (ImGui.Button("ElementSet"))
+            ImGui.Combo($"ElementList##{id}", ref selectedElement, elementNames, elementNames.Length);
+            if (ImGui.Button($"Add Element##{id}"))
             {
                 elementExists = 0;
                 // Find if elemnt is already displayed
@@ -117,12 +117,18 @@ namespace StatusHud
             return changed;
         }
 
-        private void DrawElementSettings(string elementId, StatusHudElement element)
+        private void DrawElementSettings(string id, int elementSlot, StatusHudElement element)
         {
+            string elementId = $"{id}{elementSlot}";
+
             if (!ImGui.CollapsingHeader($"{element.elementName}##{elementId}")) return;
             if (StatusHudPosEditor(element.pos, $"hudelement{elementId}"))
             {
                 element.Pos();
+            }
+            if (ImGui.Button($"Remove Element##{elementId}"))
+            {
+                system.Unset(elementSlot);
             }
         }
 
