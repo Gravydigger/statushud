@@ -75,7 +75,7 @@ namespace StatusHud
             ClientPlayer tplayer = (ClientPlayer)tplayers.FirstOrDefault(player => player.PlayerUID == this.uuid);
 #endif
 
-            float ping = player.Ping * 1000;
+            int ping = (int)player.Ping * 1000;
             string msg = string.Format("{0}", Math.Min(ping, 9999));
 
             this.renderer.setText(msg);
