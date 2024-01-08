@@ -101,11 +101,11 @@ namespace StatusHud
             // Generate empty texture.
             this.empty = new LoadedTexture(this.capi);
             surface = new ImageSurface(Format.Argb32, this.size, this.size);
-            context = new Context(surface);
 
             this.capi.Gui.LoadOrUpdateCairoTexture(surface, true, ref this.empty);
-            context.Dispose();
             surface.Dispose();
+
+            textures.Add(this.empty);
 
             // Generate ping texture.
             this.ping = new LoadedTexture(this.capi);
@@ -125,6 +125,8 @@ namespace StatusHud
             this.capi.Gui.LoadOrUpdateCairoTexture(surface, true, ref this.ping);
             context.Dispose();
             surface.Dispose();
+
+            textures.Add(this.ping);
 
             // Load texture files.
             this.load("armour", ref this.armour);

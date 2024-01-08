@@ -88,7 +88,7 @@ namespace StatusHud
             this.element = element;
         }
 
-        public override void Reload(StatusHudTextConfig config)  { }
+        public override void Reload(StatusHudTextConfig config) { }
 
         protected override void render()
         {
@@ -116,6 +116,9 @@ namespace StatusHud
             this.ghy = (float)(this.y - GuiElement.scaled(this.system.textures.size));
         }
 
-        public override void Dispose() { }
+        public override void Dispose()
+        {
+            base.Dispose();
+        }
     }
 }

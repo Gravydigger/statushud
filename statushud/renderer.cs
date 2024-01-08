@@ -63,14 +63,16 @@ namespace StatusHud
 
             this.pos = new StatusHudPos();
 
+            MeshData quadMesh = QuadMeshUtil.GetQuad();
+
             this.ping = false;
-            this.pingMesh = system.capi.Render.UploadMesh(QuadMeshUtil.GetQuad());
+            this.pingMesh = system.capi.Render.UploadMesh(quadMesh);
             this.pingMatrix = new Matrixf();
             this.pingRgba = new Vec4f(1, 1, 1, 0);
             this.pingTime = 0;
             this.pingScale = 1;
 
-            this.hiddenMesh = system.capi.Render.UploadMesh(QuadMeshUtil.GetQuad());
+            this.hiddenMesh = system.capi.Render.UploadMesh(quadMesh);
             this.hiddenMatrix = new Matrixf();
         }
 

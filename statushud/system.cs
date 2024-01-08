@@ -241,7 +241,6 @@ namespace StatusHud
             }
 
             capi.Event.PlayerJoin += SetUUID;
-            capi.Event.PlayerJoin += Reload;
 
 #if GUI
             capi.ModLoader.GetModSystem<ConfigLibModSystem>().RegisterCustomConfig(domain, gui.DrawConfigLibSettings);
@@ -265,7 +264,6 @@ namespace StatusHud
 
             this.textures.Dispose();
             capi.Event.PlayerJoin -= SetUUID;
-            capi.Event.PlayerJoin -= Reload;
         }
 
         public void SlowTick(float dt)

@@ -121,6 +121,7 @@ namespace StatusHud
 
         public override void Dispose()
         {
+            base.Dispose();
             this.text.Dispose();
         }
     }
