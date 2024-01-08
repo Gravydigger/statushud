@@ -28,6 +28,17 @@ namespace StatusHud
             if (controlButtons.Save) this.system.saveConfig();
             bool textChanged = DrawConfigEditor(id);
 
+            if (ImGui.Button($"Reset to Defaults##{id}"))
+            {
+                this.system.installDefault();
+            }
+            ImGui.SameLine();
+            if (ImGui.Button($"Show Hidden Elements##{id}"))
+            {
+                config.showHidden = !config.showHidden;
+            }
+
+            ImGui.NewLine();
             DrawAddElement(id);
 
             var sortedElementsByName = elements.OrderBy(name => name.Value.elementName)
@@ -41,7 +52,8 @@ namespace StatusHud
 
         private void DrawAddElement(string id)
         {
-            ImGui.Combo($"ElementList##{id}", ref selectedElement, elementNames, elementNames.Length);
+            ImGui.Combo($"##{id}", ref selectedElement, elementNames, elementNames.Length);
+            ImGui.SameLine();
             if (ImGui.Button($"Add Element##{id}"))
             {
                 elementExists = 0;
@@ -81,7 +93,6 @@ namespace StatusHud
                 }
             }
 
-            ImGui.SameLine();
             switch (elementExists)
             {
                 case 0:

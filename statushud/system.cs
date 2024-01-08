@@ -616,7 +616,7 @@ namespace StatusHud
             return TextCommandResult.Success(print(message));
         }
 #endif
-        protected void installDefault()
+        public void installDefault()
         {
             this.clear();
 
