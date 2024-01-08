@@ -149,7 +149,7 @@ namespace StatusHud
             this.slowElements = new List<StatusHudElement>();
             this.fastElements = new List<StatusHudElement>();
             this.textures = new StatusHudTextures(this.capi, this.config.Get().iconSize);
-            this.gui = new StatusHudGui(this);
+            this.gui = new StatusHudGui(this, this.config.Get(), this.elements, elementNames);
 
             this.config.LoadElements(this);
 
@@ -655,7 +655,7 @@ namespace StatusHud
             this.Pos(4, StatusHudPos.halignRight, sideX, StatusHudPos.valignBottom, bottomY);
         }
 
-        protected void saveConfig()
+        public void saveConfig()
         {
             this.config.Save(this.elements);
             this.config.Save();

@@ -13,6 +13,8 @@ namespace StatusHud
         public new const string desc = "The 'weather' element displays the current temperature and an icon for the current condition.";
         protected const string textKey = "shud-weather";
 
+        public override string elementName => name;
+
         protected WeatherSystemBase weatherSystem;
         protected StatusHudWeatherRenderer renderer;
         protected StatusHudConfig config;

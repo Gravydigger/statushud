@@ -5,10 +5,11 @@ namespace StatusHud {
 	public class StatusHudLightElement: StatusHudElement {
 		public new const string name = "light";
 		public new const string desc = "The 'light' element displays the selected block's light level. If no block is selected, it is hidden.";
-		
 		protected const string textKey = "shud-light";
 
-		public bool active;
+        public override string elementName => name;
+
+        public bool active;
 
 		protected StatusHudLightRenderer renderer;
 

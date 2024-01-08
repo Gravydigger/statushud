@@ -11,6 +11,8 @@ namespace StatusHud
         public new const string desc = "The 'altitude' element displays the player's current height (in meters) in relation to sea level.";
         protected const string textKey = "shud-altitude";
 
+        public override string elementName => name;
+
         protected WeatherSystemBase weatherSystem;
         protected StatusHudAltitudeRenderer renderer;
 

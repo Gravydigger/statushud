@@ -12,6 +12,8 @@ namespace StatusHud
         public new const string desc = "The 'wind' element displays the current wind speed (in %) at the player's position, and wind direction relative to the player.";
         protected const string textKey = "shud-wind";
 
+        public override string elementName => name;
+
         protected WeatherSystemBase weatherSystem;
         protected StatusHudWindRenderer renderer;
 

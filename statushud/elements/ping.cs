@@ -12,6 +12,8 @@ namespace StatusHud
         public new const string desc = "The 'ping' element displays your current ping to the server.";
         protected const string textKey = "shud-ping";
 
+        public override string elementName => name;
+
         public bool active;
         private bool noRenderText;
         private string uuid;

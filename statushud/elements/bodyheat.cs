@@ -13,6 +13,8 @@ namespace StatusHud
         public new const string desc = "The 'bodyheat' element displays the player's body heat (in %). If at maximum, it is hidden.";
         protected const string textKey = "shud-bodyheat";
 
+        public override string elementName => name;
+
         protected const float cfratio = (9f / 5f);
 
         public const float tempIdeal = 37;

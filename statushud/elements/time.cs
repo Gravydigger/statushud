@@ -11,6 +11,8 @@ namespace StatusHud
         public new const string desc = "The 'time' element displays the current time and an icon for the position of the sun relative to the horizon.";
         protected const string textKey = "shud-time";
 
+        public override string elementName => name;
+
         public int textureId;
         protected string timeFormat;
         public static readonly string[] timeFormatWords = new string[] { "12hr", "24hr" };

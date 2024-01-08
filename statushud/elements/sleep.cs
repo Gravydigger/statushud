@@ -10,6 +10,8 @@ namespace StatusHud
         public new const string desc = "The 'sleep' element displays a countdown until the next time the player is able to sleep. If the player can sleep, it is hidden.";
         protected const string textKey = "shud-sleep";
 
+        public override string elementName => name;
+
         protected const float threshold = 8;        // Hard-coded in BlockBed.
         protected const float ratio = 0.75f;        // Hard-coded in EntityBehaviorTiredness.
         public bool active;

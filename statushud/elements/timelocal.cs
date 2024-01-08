@@ -9,6 +9,8 @@ namespace StatusHud
         public new const string desc = "The 'time-local' element displays the system's local time.";
         protected new const string textKey = "shud-timelocal";
 
+        public override string elementName => name;
+
         public StatusHudTimeLocalElement(StatusHudSystem system, int slot, StatusHudConfig config) : base(system, slot, config)
         {
             this.textureId = this.system.textures.timeLocal.TextureId;

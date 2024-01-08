@@ -10,6 +10,8 @@ namespace StatusHud
         public new const string desc = "The 'speed' element displays the player's current speed (in m/s).";
         protected const string textKey = "shud-speed";
 
+        public override string elementName => name;
+
         protected StatusHudSpeedRenderer renderer;
 
         public StatusHudSpeedElement(StatusHudSystem system, int slot, StatusHudTextConfig config) : base(system, slot)

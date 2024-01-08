@@ -12,6 +12,8 @@ namespace StatusHud
         public new const string desc = "The 'armour' element displays the equipped armour's durability average (in %). If no armour is equipped, it is hidden.";
         protected const string textKey = "shud-armour";
 
+        public override string elementName => name;
+
         // Hard-coded.
         protected static readonly int[] slots = {
             12,		// Head.

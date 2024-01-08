@@ -10,7 +10,7 @@ namespace StatusHud
         public const string name = "element";
         public const string desc = "No description available.";
 
-        public virtual string Name => name;
+        public virtual string elementName => name;
 
         protected StatusHudSystem system;
         protected int slot;
