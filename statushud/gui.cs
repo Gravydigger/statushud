@@ -1,7 +1,7 @@
 ﻿using ImGuiNET;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
-using System.Xml.Linq;
 
 namespace StatusHud
 {
@@ -30,7 +30,10 @@ namespace StatusHud
 
             DrawAddElement();
 
-            foreach ((int elementId, StatusHudElement element) in elements)
+            var sortedElementsByName = elements.OrderBy(name => name.Value.elementName)
+                .ToDictionary(element => element.Key, x => x.Value);
+
+            foreach ((int elementId, StatusHudElement element) in sortedElementsByName)
             {
                 DrawElementSettings($"{id}{elementId}", element);
             }
@@ -68,6 +71,8 @@ namespace StatusHud
                     if (slot != 0)
                     {
                         system.Set(slot, elementNames[selectedElement]);
+                        this.elements[slot].Pos();
+                        this.elements[slot].Ping();
                     }
                     else
                     {
