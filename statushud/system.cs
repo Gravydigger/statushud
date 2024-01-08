@@ -363,7 +363,6 @@ namespace StatusHud
         // Will reload elements in memory, but not in file.
         public void Reload()
         {
-            //config.Load();
             this.clear();
             config.LoadElements(this);
         }

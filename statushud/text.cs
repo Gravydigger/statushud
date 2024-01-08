@@ -185,6 +185,11 @@ namespace StatusHud
             this.text.RecomposeText();
         }
 
+        public void Reload()
+        {
+            this.colour = config.colour.ToVec4f();
+        }
+
         protected void compose(EnumDialogArea area, float x, float y)
         {
             if (this.composed)

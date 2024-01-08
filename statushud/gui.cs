@@ -1,7 +1,9 @@
 ﻿using ImGuiNET;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using Vintagestory.API.Util;
 
 namespace StatusHud
 {
@@ -14,6 +16,8 @@ namespace StatusHud
 
         static int elementExists = -1;
         static int selectedElement = 0;
+        static int selectedTempScale;
+        static int selectedTimeFormat;
 
         public StatusHudGui(StatusHudSystem system, StatusHudConfig config, IDictionary<int, StatusHudElement> elements, string[] elementNames)
         {
@@ -21,13 +25,17 @@ namespace StatusHud
             this.config = config;
             this.elements = elements;
             this.elementNames = elementNames;
+
+            selectedTempScale = Array.IndexOf(StatusHudSystem.tempScaleWords, config.options.temperatureScale.ToString());
+            selectedTimeFormat = Array.IndexOf(StatusHudSystem.timeFormatWords, config.options.timeFormat);
         }
 
         public void DrawConfigLibSettings(string id, ConfigLib.ControlButtons controlButtons)
         {
             if (controlButtons.Save) this.system.saveConfig();
-            bool textChanged = DrawConfigEditor(id);
 
+            ImGui.Text("Element Visuals");
+            DrawConfigEditor(id);
             if (ImGui.Button($"Reset to Defaults##{id}"))
             {
                 this.system.installDefault();
@@ -38,7 +46,15 @@ namespace StatusHud
                 config.showHidden = !config.showHidden;
             }
 
+
             ImGui.NewLine();
+            ImGui.Text("Element Options");
+
+            DrawConfigOptions(id);
+
+            ImGui.NewLine();
+            ImGui.Text("Element Placement");
+
             DrawAddElement(id);
 
             var sortedElementsByName = elements.OrderBy(name => name.Value.elementName)
@@ -47,6 +63,24 @@ namespace StatusHud
             foreach ((int elementSlot, StatusHudElement element) in sortedElementsByName)
             {
                 DrawElementSettings(id, elementSlot, element);
+            }
+        }
+
+        private void DrawConfigOptions(string id)
+        {
+            int selectedTempScaleLocal = selectedTempScale;
+            int selectedTimeFormatLocal = selectedTimeFormat;
+
+            ImGui.Combo($"Temperature Scale##{id}", ref selectedTempScale, StatusHudSystem.tempScaleWords, StatusHudSystem.tempScaleWords.Length);
+            ImGui.Combo($"Time Format##{id}", ref selectedTimeFormat, StatusHudSystem.timeFormatWords, StatusHudSystem.timeFormatWords.Length);
+
+            if (selectedTempScaleLocal != selectedTempScale)
+            {
+                this.config.options.temperatureScale = StatusHudSystem.tempScaleWords[selectedTempScale][0];
+            }
+            if (selectedTimeFormatLocal != selectedTimeFormat)
+            {
+                this.config.options.timeFormat = StatusHudSystem.timeFormatWords[selectedTimeFormat];
             }
         }
 
@@ -110,7 +144,7 @@ namespace StatusHud
             }
         }
 
-        private bool DrawConfigEditor(string id)
+        private void DrawConfigEditor(string id)
         {
             Vector4 value = new()
             {
@@ -120,12 +154,20 @@ namespace StatusHud
                 W = config.text.colour.a
             };
             ImGui.ColorEdit4($"Text color##{id}", ref value);
-            bool changed = config.text.colour.r != value.X || config.text.colour.g != value.Y || config.text.colour.b != value.Z || config.text.colour.a != value.W;
-            config.text.colour.r = value.X;
-            config.text.colour.g = value.Y;
-            config.text.colour.b = value.Z;
-            config.text.colour.a = value.W;
-            return changed;
+            bool changed = config.text.colour.r != value.X |
+                config.text.colour.g != value.Y |
+                config.text.colour.b != value.Z |
+                config.text.colour.a != value.W;
+
+            if (changed)
+            {
+                config.text.colour.r = value.X;
+                config.text.colour.g = value.Y;
+                config.text.colour.b = value.Z;
+                config.text.colour.a = value.W;
+                system.Reload();
+            }
+
         }
 
         private void DrawElementSettings(string id, int elementSlot, StatusHudElement element)
@@ -146,10 +188,18 @@ namespace StatusHud
         private bool StatusHudPosEditor(StatusHudPos value, string id)
         {
             bool changed = false;
-            if (IntEditor($"Horizontal offset##{id}", ref value.x)) changed = true;
-            if (IntEditor($"Vertical offset##{id}", ref value.y)) changed = true;
-            if (AlignEditor($"Horizontal align##{id}", ref value.halign, horizontal: true)) changed = true;
-            if (AlignEditor($"Vertical align##{id}", ref value.valign, horizontal: false)) changed = true;
+
+            changed =
+                IntEditor($"Horizontal offset##{id}", ref value.x) |
+                IntEditor($"Vertical offset##{id}", ref value.y) |
+                AlignEditor($"Horizontal align##{id}", ref value.halign) |
+                AlignEditor($"Vertical align##{id}", ref value.valign, false);
+
+            //if (IntEditor($"Horizontal offset##{id}", ref value.x)) changed = true;
+            //if (IntEditor($"Vertical offset##{id}", ref value.y)) changed = true;
+            //if (AlignEditor($"Horizontal align##{id}", ref value.halign, horizontal: true)) changed = true;
+            //if (AlignEditor($"Vertical align##{id}", ref value.valign, horizontal: false)) changed = true;
+
             return changed;
         }
 
@@ -172,7 +222,7 @@ namespace StatusHud
             "Center",
             "Bottom"
         };
-        private static bool AlignEditor(string title, ref int value, bool horizontal)
+        private static bool AlignEditor(string title, ref int value, bool horizontal = true)
         {
             int shiftedValue = value + 1;
             if (horizontal)
