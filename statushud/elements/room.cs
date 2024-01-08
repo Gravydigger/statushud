@@ -24,7 +24,7 @@ namespace StatusHud
             this.system.capi.Event.RegisterRenderer(this.renderer, EnumRenderStage.Ortho);
         }
 
-        protected override StatusHudRenderer getRenderer()
+        public override StatusHudRenderer getRenderer()
         {
             return this.renderer;
         }
@@ -87,6 +87,8 @@ namespace StatusHud
         {
             this.element = element;
         }
+
+        public override void Reload(StatusHudTextConfig config)  { }
 
         protected override void render()
         {

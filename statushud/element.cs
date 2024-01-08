@@ -59,6 +59,6 @@ namespace StatusHud
         public abstract void Tick();
         public abstract void Dispose();
 
-        protected abstract StatusHudRenderer getRenderer();
+        public abstract StatusHudRenderer getRenderer();
     }
 }

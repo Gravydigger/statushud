@@ -143,6 +143,8 @@ namespace StatusHud
             this.hiddenMesh.Dispose();
         }
 
+        public abstract void Reload(StatusHudTextConfig config);
+
         protected abstract void render();
 
         protected virtual void update()

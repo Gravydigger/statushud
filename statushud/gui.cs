@@ -35,7 +35,14 @@ namespace StatusHud
             if (controlButtons.Save) this.system.saveConfig();
 
             ImGui.Text("Element Visuals");
-            DrawConfigEditor(id);
+
+            if (DrawConfigEditor(id)){
+                foreach ((int elementSlot, StatusHudElement element) in elements)
+                {
+                    element.getRenderer().Reload(config.text);
+                }
+            }
+
             if (ImGui.Button($"Reset to Defaults##{id}"))
             {
                 this.system.installDefault();
@@ -144,7 +151,7 @@ namespace StatusHud
             }
         }
 
-        private void DrawConfigEditor(string id)
+        private bool DrawConfigEditor(string id)
         {
             Vector4 value = new()
             {
@@ -165,9 +172,9 @@ namespace StatusHud
                 config.text.colour.g = value.Y;
                 config.text.colour.b = value.Z;
                 config.text.colour.a = value.W;
-                system.Reload();
             }
 
+            return changed;
         }
 
         private void DrawElementSettings(string id, int elementSlot, StatusHudElement element)
@@ -194,11 +201,6 @@ namespace StatusHud
                 IntEditor($"Vertical offset##{id}", ref value.y) |
                 AlignEditor($"Horizontal align##{id}", ref value.halign) |
                 AlignEditor($"Vertical align##{id}", ref value.valign, false);
-
-            //if (IntEditor($"Horizontal offset##{id}", ref value.x)) changed = true;
-            //if (IntEditor($"Vertical offset##{id}", ref value.y)) changed = true;
-            //if (AlignEditor($"Horizontal align##{id}", ref value.halign, horizontal: true)) changed = true;
-            //if (AlignEditor($"Vertical align##{id}", ref value.valign, horizontal: false)) changed = true;
 
             return changed;
         }
