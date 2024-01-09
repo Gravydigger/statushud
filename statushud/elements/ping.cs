@@ -15,19 +15,16 @@ namespace StatusHud
         public override string elementName => name;
 
         public bool active;
+        private static readonly int maxPing = 999;
         private bool noRenderText;
-        private string uuid;
         private ClientPlayer player;
 
         protected StatusHudPingRenderer renderer;
 
-        public StatusHudPingElement(StatusHudSystem system, int slot, StatusHudTextConfig config) : base(system, slot)
+        public StatusHudPingElement(StatusHudSystem system, int slot, StatusHudTextConfig config) : base(system, slot, true)
         {
             this.renderer = new StatusHudPingRenderer(system, slot, this, config);
             this.system.capi.Event.RegisterRenderer(this.renderer, EnumRenderStage.Ortho);
-
-            this.uuid = system.UUID;
-            this.player = null;
 
 #if DEBUG
             this.active = true;
@@ -64,19 +61,14 @@ namespace StatusHud
                 IPlayer[] players = this.system.capi.World.AllOnlinePlayers;
 
                 // Get the mod users player object
-                this.player = (ClientPlayer)players.FirstOrDefault(player => player.PlayerUID == this.uuid);
+                this.player = (ClientPlayer)players.FirstOrDefault(player => player.PlayerUID == system.UUID);
                 this.renderer.setText("");
 
                 return;
             }
 
-#if DEBUG
-            IPlayer[] tplayers = this.system.capi.World.AllOnlinePlayers;
-            ClientPlayer tplayer = (ClientPlayer)tplayers.FirstOrDefault(player => player.PlayerUID == this.uuid);
-#endif
-
-            int ping = (int)player.Ping * 1000;
-            string msg = string.Format("{0}", Math.Min(ping, 9999));
+            int ping = (int)(player.Ping * 1000f);
+            string msg = ping < maxPing ? string.Format("{0}", Math.Min(ping, maxPing)) : "+" + maxPing;
 
             this.renderer.setText(msg);
         }

@@ -32,7 +32,7 @@ namespace StatusHud
             this.renderer = new StatusHudRiftAvtivityRenderer(system, slot, this, config);
             this.system.capi.Event.RegisterRenderer(this.renderer, EnumRenderStage.Ortho);
 
-            this.textureId = this.system.textures.ping.TextureId;
+            this.textureId = this.system.textures.empty.TextureId;
 
             string riftsWorldConf = this.system.capi.World.Config.GetString("temporalRifts");
 

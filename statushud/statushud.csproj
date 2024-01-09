@@ -46,6 +46,7 @@
 		</Reference>
 		<Reference Include="VintagestoryLib">
 			<HintPath>$(VINTAGE_STORY)/VintagestoryLib.dll</HintPath>
+			<Private>False</Private>
 		</Reference>
 		<Reference Include="VSEssentials">
 			<HintPath>$(VINTAGE_STORY)/Mods/VSEssentials.dll</HintPath>
