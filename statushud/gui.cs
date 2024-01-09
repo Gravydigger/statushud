@@ -141,7 +141,7 @@ namespace StatusHud
                 if (elementExists == 0)
                 {
                     int slot = 0;
-                    for (int i = StatusHudSystem.slotMin; i <= StatusHudSystem.slotMin; i++)
+                    for (int i = StatusHudSystem.slotMin; i <= StatusHudSystem.slotMax; i++)
                     {
                         // Element can't be set to zero
                         if (i == 0 || elements.ContainsKey(i)) continue;
@@ -153,7 +153,7 @@ namespace StatusHud
                     if (slot != 0)
                     {
                         system.Set(slot, elementNames[selectedElement]);
-                        this.elements[slot].Pos();
+                        this.elements[slot].Pos(0,0,0,0); // Position at center of screen
                         this.elements[slot].Ping();
                     }
                     else
@@ -166,7 +166,7 @@ namespace StatusHud
             switch (elementExists)
             {
                 case 0:
-                    ImGui.Text("Element Created!");
+                    ImGui.Text("Element created at centre of screen");
                     break;
                 case 1:
                     ImGui.Text("Selected element already exists");
