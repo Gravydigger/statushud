@@ -213,12 +213,13 @@ namespace StatusHud
             if (!ImGui.CollapsingHeader($"{element.elementName}##{elementId}")) return;
 
             bool changedInt =
-                IntEditor($"Horizontal offset##{id}", ref element.pos.x) |
-                IntEditor($"Vertical offset##{id}", ref element.pos.y);
+                IntEditor($"Vertical offset##{id}", ref element.pos.y) |
+                IntEditor($"Horizontal offset##{id}", ref element.pos.x);
+
 
             bool changedAlign =
-                AlignEditor($"Horizontal align##{id}", ref element.pos.halign) |
-                AlignEditor($"Vertical align##{id}", ref element.pos.valign, false);
+                AlignEditor($"Vertical align##{id}", ref element.pos.valign, false) |
+                AlignEditor($"Horizontal align##{id}", ref element.pos.halign);
 
             if (changedAlign || changedInt)
             {

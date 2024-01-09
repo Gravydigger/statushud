@@ -40,33 +40,31 @@ namespace StatusHud
             int frameWidthMin = 0;
             int frameHeightMin = 0;
 
-            switch (this.pos.halign)
+            switch (this.pos.valign)
             {
-                case -1: // Left
-                    frameWidthMax /= 2;
+                case -1: // Top
                     break;
                 case 0: // Centre
-                    frameWidthMax /= 2;
-                    frameWidthMin = -1 * frameWidthMax;
+                    frameHeightMax /= 2;
+                    frameHeightMin = -frameHeightMax;
                     break;
-                case 1: // Right
-                    //frameWidthMin = frameWidthMax / 2;
+                case 1: // Bottom
+                    frameHeightMin = 0;
                     break;
                 default:
                     break;
             }
 
-            switch (this.pos.valign)
+            switch (this.pos.halign)
             {
-                case -1: // Top
-                    frameHeightMax /= 2;
+                case -1: // Left
                     break;
                 case 0: // Centre
-                    frameHeightMax /= 2;
-                    frameHeightMin = -1 * frameHeightMax;
+                    frameWidthMax /= 2;
+                    frameWidthMin = -frameWidthMax;
                     break;
-                case 1: // Bottom
-                    //frameHeightMin = frameHeightMax / 2;
+                case 1: // Right
+                    frameWidthMin = 0;
                     break;
                 default:
                     break;
