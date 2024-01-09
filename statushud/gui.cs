@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using Vintagestory.API.Util;
 
 namespace StatusHud
 {
@@ -18,6 +17,8 @@ namespace StatusHud
         static int selectedElement = 0;
         static int selectedTempScale;
         static int selectedTimeFormat;
+        static int numActiveElements;
+        static Dictionary<int, StatusHudElement> sortedElementsByName;
 
         public StatusHudGui(StatusHudSystem system, StatusHudConfig config, IDictionary<int, StatusHudElement> elements, string[] elementNames)
         {
@@ -25,9 +26,14 @@ namespace StatusHud
             this.config = config;
             this.elements = elements;
             this.elementNames = elementNames;
+            numActiveElements = elements.Count;
 
             selectedTempScale = Array.IndexOf(StatusHudSystem.tempScaleWords, config.options.temperatureScale.ToString());
             selectedTimeFormat = Array.IndexOf(StatusHudSystem.timeFormatWords, config.options.timeFormat);
+
+            sortedElementsByName = elements.OrderBy(name => name.Value.elementName)
+                .ToDictionary(element => element.Key, x => x.Value);
+
         }
 
         public void DrawConfigLibSettings(string id, ConfigLib.ControlButtons controlButtons)
@@ -64,8 +70,11 @@ namespace StatusHud
 
             DrawAddElement(id);
 
-            var sortedElementsByName = elements.OrderBy(name => name.Value.elementName)
+            if (numActiveElements != elements.Count)
+            {
+                sortedElementsByName = elements.OrderBy(name => name.Value.elementName)
                 .ToDictionary(element => element.Key, x => x.Value);
+            }
 
             foreach ((int elementSlot, StatusHudElement element) in sortedElementsByName)
             {
@@ -93,7 +102,27 @@ namespace StatusHud
 
         private void DrawAddElement(string id)
         {
-            ImGui.Combo($"##{id}", ref selectedElement, elementNames, elementNames.Length);
+            if (ImGui.BeginCombo($"##{id}", elementNames[selectedElement]))
+            {
+                for (int n = 0; n < elementNames.Length; n++)
+                {
+                    // IF element is already active, disable in the list
+                    if (elements.Any(kv => kv.Value.elementName == elementNames[n]))
+                    {
+                        ImGui.TextDisabled(elementNames[n]);
+                        continue;
+                    }
+
+                    bool is_selected = (selectedElement == n);
+                    if (ImGui.Selectable(elementNames[n], is_selected))
+                        selectedElement = n;
+
+                    // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+                    if (is_selected)
+                        ImGui.SetItemDefaultFocus();
+                }
+                ImGui.EndCombo();
+            }
             ImGui.SameLine();
             if (ImGui.Button($"Add Element##{id}"))
             {

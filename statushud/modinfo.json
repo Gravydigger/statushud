@@ -2,7 +2,7 @@
   "type": "code",
   "name": "Status HUD",
   "modid": "statushudcont",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "authors": [ "Gravydigger", "Rangelost" ],
   "description": "Displays status information on the HUD.",
   "side": "Client",

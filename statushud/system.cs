@@ -153,7 +153,6 @@ namespace StatusHud
 #if GUI
             this.gui = new StatusHudGui(this, this.config.Get(), this.elements, elementNames);
 #endif
-
             this.config.LoadElements(this);
 
             capi.ChatCommands.Create("shud")
