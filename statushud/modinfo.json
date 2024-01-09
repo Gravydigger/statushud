@@ -8,6 +8,6 @@
   "side": "Client",
   "dependencies": {
     "game": "1.19.0-rc.6",
-    "configlib": "0.3.1"
+    "configlib": "0.3.0"
   }
 }
