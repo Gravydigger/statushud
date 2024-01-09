@@ -42,7 +42,7 @@ namespace StatusHud
         public override void Tick()
         {
             float altitude = (int)Math.Round(this.system.capi.World.Player.Entity.Pos.Y - this.system.capi.World.SeaLevel, 0);
-            this.renderer.setText(altitude.ToString());
+            this.renderer.SetText(altitude.ToString());
 
             float ratio = -(altitude / (this.system.capi.World.BlockAccessor.MapSizeY / 2));
             this.needleOffset = (float)(GameMath.Clamp(ratio, -1, 1) * (this.system.textures.size / 2f) * 0.75f);
@@ -72,7 +72,7 @@ namespace StatusHud
             this.text.ReloadText(config, this.pos);
         }
 
-        public void setText(string value)
+        public void SetText(string value)
         {
             this.text.Set(value);
         }

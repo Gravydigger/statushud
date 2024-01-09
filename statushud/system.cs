@@ -249,7 +249,6 @@ namespace StatusHud
 #endif
         }
 
-
         public override void Dispose()
         {
             base.Dispose();

@@ -14,7 +14,7 @@ namespace StatusHud
         public int valign;
         public int y;
 
-        public void set(int halign, int x, int valign, int y)
+        public void Set(int halign, int x, int valign, int y)
         {
             this.halign = halign;
             this.x = x;
@@ -22,12 +22,9 @@ namespace StatusHud
             this.y = y;
         }
 
-        public void set(StatusHudPos pos)
+        public void Set(StatusHudPos pos)
         {
-            this.halign = pos.halign;
-            this.x = pos.x;
-            this.valign = pos.valign;
-            this.y = pos.y;
+            Set(pos.halign, pos.x, pos.valign, pos.y);
         }
     }
 }

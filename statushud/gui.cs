@@ -42,7 +42,8 @@ namespace StatusHud
 
             ImGui.Text("Element Visuals");
 
-            if (DrawConfigEditor(id)){
+            if (DrawConfigEditor(id))
+            {
                 foreach ((int elementSlot, StatusHudElement element) in elements)
                 {
                     element.getRenderer().Reload(config.text);
@@ -153,7 +154,6 @@ namespace StatusHud
                     if (slot != 0)
                     {
                         system.Set(slot, elementNames[selectedElement]);
-                        this.elements[slot].Pos(0,0,0,0); // Position at center of screen
                         this.elements[slot].Ping();
                     }
                     else
@@ -211,27 +211,27 @@ namespace StatusHud
             string elementId = $"{id}{elementSlot}";
 
             if (!ImGui.CollapsingHeader($"{element.elementName}##{elementId}")) return;
-            if (StatusHudPosEditor(element.pos, $"hudelement{elementId}"))
+
+            bool changedInt =
+                IntEditor($"Horizontal offset##{id}", ref element.pos.x) |
+                IntEditor($"Vertical offset##{id}", ref element.pos.y);
+
+            bool changedAlign =
+                AlignEditor($"Horizontal align##{id}", ref element.pos.halign) |
+                AlignEditor($"Vertical align##{id}", ref element.pos.valign, false);
+
+            if (changedAlign || changedInt)
             {
                 element.Pos();
+                if (changedAlign)
+                {
+                    element.Ping();
+                }
             }
             if (ImGui.Button($"Remove Element##{elementId}"))
             {
                 system.Unset(elementSlot);
             }
-        }
-
-        private bool StatusHudPosEditor(StatusHudPos value, string id)
-        {
-            bool changed = false;
-
-            changed =
-                IntEditor($"Horizontal offset##{id}", ref value.x) |
-                IntEditor($"Vertical offset##{id}", ref value.y) |
-                AlignEditor($"Horizontal align##{id}", ref value.halign) |
-                AlignEditor($"Vertical align##{id}", ref value.valign, false);
-
-            return changed;
         }
 
         private static bool IntEditor(string title, ref int value)

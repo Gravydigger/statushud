@@ -78,7 +78,7 @@ namespace StatusHud
 
         public void Pos(StatusHudPos pos)
         {
-            this.pos.set(pos);
+            this.pos.Set(pos);
             this.update();
         }
 
