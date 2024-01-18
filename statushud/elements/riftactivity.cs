@@ -22,7 +22,7 @@ namespace StatusHud
         protected StatusHudRiftAvtivityRenderer renderer;
         protected Harmony harmony;
 
-        protected static SpawnPatternPacket msg;
+        protected static CurrentPattern riftActivityData;
 
         public StatusHudRiftActivityElement(StatusHudSystem system, int slot, StatusHudTextConfig config) : base(system, slot)
         {
@@ -55,7 +55,7 @@ namespace StatusHud
 
         public static void receiveData(SpawnPatternPacket msg)
         {
-            StatusHudRiftActivityElement.msg = msg;
+            riftActivityData = msg.Pattern;
         }
 
         public override StatusHudRenderer getRenderer()
@@ -75,26 +75,19 @@ namespace StatusHud
                 return;
             }
 
-            if (this.riftSystem == null)
+            if (this.riftSystem == null || riftActivityData == null)
             {
                 return;
             }
-
-            if (StatusHudRiftActivityElement.msg == null)
-            {
-                return;
-            }
-
-            CurrentPattern cp = StatusHudRiftActivityElement.msg.Pattern;
 
             double hours = this.system.capi.World.Calendar.TotalHours;
-            double nextRiftChange = Math.Max(cp.UntilTotalHours - hours, 0);
+            double nextRiftChange = Math.Max(riftActivityData.UntilTotalHours - hours, 0);
 
             TimeSpan ts = TimeSpan.FromHours(nextRiftChange);
             string text = (int)nextRiftChange + ":" + ts.ToString("mm");
 
             this.renderer.setText(text);
-            updateTexture(cp.Code);
+            updateTexture(riftActivityData.Code);
         }
 
         public override void Dispose()
