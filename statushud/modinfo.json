@@ -9,6 +9,6 @@
   "dependencies": {
     "game": "1.19.0",
     "configlib": "0.3.3",
-    "vsimgui": "0.3.2"
+    "vsimgui": "0.3.3"
   }
 }
