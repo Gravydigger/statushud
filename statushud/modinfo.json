@@ -7,8 +7,6 @@
   "description": "Displays status information on the HUD.",
   "side": "Client",
   "dependencies": {
-    "game": "1.19.0",
-    "configlib": "0.3.3",
-    "vsimgui": "0.3.3"
+    "game": "1.19.0"
   }
 }

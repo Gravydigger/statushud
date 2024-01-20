@@ -1,4 +1,3 @@
-using ConfigLib;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -64,9 +63,7 @@ namespace StatusHud
         protected IList<StatusHudElement> slowElements;
         protected IList<StatusHudElement> fastElements;
         public StatusHudTextures textures;
-#if GUI
-        protected StatusHudGui gui;
-#endif
+
         private string uuid = null;
         public bool showHidden
         {
@@ -150,9 +147,7 @@ namespace StatusHud
             this.slowElements = new List<StatusHudElement>();
             this.fastElements = new List<StatusHudElement>();
             this.textures = new StatusHudTextures(this.capi, this.config.Get().iconSize);
-#if GUI
-            this.gui = new StatusHudGui(this, this.config.Get(), this.elements, elementNames);
-#endif
+
             this.config.LoadElements(this);
 
             capi.ChatCommands.Create("shud")
@@ -240,10 +235,6 @@ namespace StatusHud
             }
 
             capi.Event.PlayerJoin += SetUUID;
-
-#if GUI
-            capi.ModLoader.GetModSystem<ConfigLibModSystem>().RegisterCustomConfig(domain, gui.DrawConfigLibSettings);
-#endif
 #if DEBUG
             this.capi.Logger.Debug(print("Debug logging Enabled"));
 #endif
