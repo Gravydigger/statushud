@@ -235,6 +235,7 @@ namespace StatusHud
             }
 
             capi.Event.PlayerJoin += SetUUID;
+            this.capi.Logger.Notification("Mod is running without config GUI.");
 #if DEBUG
             this.capi.Logger.Debug(print("Debug logging Enabled"));
 #endif

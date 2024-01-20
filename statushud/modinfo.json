@@ -1,6 +1,6 @@
 {
   "type": "code",
-  "name": "Status HUD",
+  "name": "Status HUD - No Config GUI",
   "modid": "statushudcont",
   "version": "2.1.1",
   "authors": [ "Gravydigger", "Rangelost" ],
