@@ -211,7 +211,7 @@ namespace StatusHud
                             .HandleWith(this.cmdTimeFormat)
                             .EndSubCommand()
                         .BeginSubCommand("tempscale")
-                            .WithDescription("Change temperature scale to °C, °F, or °K")
+                            .WithDescription("Change temperature scale to ï¿½C, ï¿½F, or ï¿½K")
                             .WithArgs(capi.ChatCommands.Parsers.WordRange("C/F/K", tempScaleWords))
                             .HandleWith(this.cmdTempScale)
                             .EndSubCommand()
@@ -575,7 +575,7 @@ namespace StatusHud
 
             this.config.Get().options.temperatureScale = tempScale[0];
 
-            string message = "Temperature scale now set to °" + tempScale;
+            string message = "Temperature scale now set to ï¿½" + tempScale;
 
 
             this.saveConfig();
@@ -636,10 +636,13 @@ namespace StatusHud
             this.Pos(-3, StatusHudPos.halignLeft, sideX + (int)(offset * 3.5f), StatusHudPos.valignBottom, bottomY);
 
             this.Set(-2, StatusHudStabilityElement.name);
+            this.Pos(-2, StatusHudPos.halignCenter, sideX + (int)(offset * 9f), StatusHudPos.valignBottom, bottomY);
 
             this.Set(-1, StatusHudArmourElement.name);
+            this.Pos(-1, StatusHudPos.halignCenter, sideX + (int)(offset * 10f), StatusHudPos.valignBottom, bottomY);
 
             this.Set(1, StatusHudRoomElement.name);
+            this.Pos(1, StatusHudPos.halignCenter, -1* (sideX + (int)(offset * 9f)), StatusHudPos.valignBottom, bottomY);
 
             this.Set(2, StatusHudSleepElement.name);
             this.Pos(2, StatusHudPos.halignRight, sideMinimapX + offset, StatusHudPos.valignTop, topY);

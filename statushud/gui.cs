@@ -18,6 +18,7 @@ namespace StatusHud
         static int selectedTempScale;
         static int selectedTimeFormat;
         static int numActiveElements;
+        string saveMessage = "";
         static Dictionary<int, StatusHudElement> sortedElementsByName;
 
         public StatusHudGui(StatusHudSystem system, StatusHudConfig config, IDictionary<int, StatusHudElement> elements, string[] elementNames)
@@ -38,8 +39,21 @@ namespace StatusHud
 
         public void DrawConfigLibSettings(string id, ConfigLib.ControlButtons controlButtons)
         {
-            if (controlButtons.Save) this.system.saveConfig();
+            if (controlButtons.Save)
+            {
+                this.system.saveConfig();
+                saveMessage = "Config Saved! |";
+            }
 
+            if (controlButtons.Defaults)
+            {
+                this.system.installDefault();
+                saveMessage = "Config Set To Defaults |";
+            }
+
+            ImGui.Text(saveMessage);
+            ImGui.SameLine();
+            
             ImGui.Text("Element Visuals");
 
             if (DrawConfigEditor(id))
@@ -50,11 +64,6 @@ namespace StatusHud
                 }
             }
 
-            if (ImGui.Button($"Reset to Defaults##{id}"))
-            {
-                this.system.installDefault();
-            }
-            ImGui.SameLine();
             if (ImGui.Button($"Show Hidden Elements##{id}"))
             {
                 config.showHidden = !config.showHidden;
