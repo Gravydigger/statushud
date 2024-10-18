@@ -2,13 +2,13 @@
   "type": "code",
   "name": "Status HUD",
   "modid": "statushudcont",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "authors": [ "Gravydigger", "Rangelost" ],
   "description": "Displays status information on the HUD.",
   "side": "Client",
   "dependencies": {
-    "game": "1.19.0",
-    "configlib": "0.3.3",
-    "vsimgui": "0.3.3"
+    "game": "1.19.8",
+    "configlib": "1.3.0",
+    "vsimgui": "1.1.0"
   }
 }
