@@ -34,16 +34,12 @@ namespace StatusHud
 
             this.textureId = this.system.textures.empty.TextureId;
 
-            // // World has to be reloaded for changes to apply
             this.active = this.system.capi.World.Config.GetString("temporalRifts") != "off" ? true : false;
 
-            // if (this.riftSystem != null && this.active)
-            // {
+            // World has to be reloaded for changes to apply
             this.harmony = new Harmony(harmonyId);
-
             this.harmony.Patch(typeof(ModSystemRiftWeather).GetMethod("onPacket", BindingFlags.Instance | BindingFlags.NonPublic),
                     postfix: new HarmonyMethod(typeof(StatusHudRiftActivityElement).GetMethod(nameof(StatusHudRiftActivityElement.receiveData))));
-            // }
 
             if (!this.active)
             {

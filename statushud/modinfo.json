@@ -8,7 +8,7 @@
   "side": "Client",
   "dependencies": {
     "game": "1.19.8",
-    "configlib": "1.3.0",
-    "vsimgui": "1.1.0"
+    "configlib": "1.3.13",
+    "vsimgui": "1.1.5"
   }
 }
