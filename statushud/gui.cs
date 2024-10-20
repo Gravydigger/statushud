@@ -41,13 +41,13 @@ namespace StatusHud
         {
             if (controlButtons.Save)
             {
-                system.saveConfig();
+                system.SaveConfig();
                 saveMessage = "Config Saved! |";
             }
 
             if (controlButtons.Defaults)
             {
-                system.installDefault();
+                system.InstallDefault();
                 saveMessage = "Config Set To Defaults |";
             }
 

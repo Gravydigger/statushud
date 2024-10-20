@@ -82,13 +82,6 @@ namespace StatusHud
 
         public bool Repos()
         {
-            //int sign = Math.Sign(this.slot);
-
-            //this.pos.Set(StatusHudPos.halignCenter,
-            //        (sign * StatusHudElement.offsetX) + (int)((this.slot - sign) * (this.system.textures.size * 1.5f)),
-            //        StatusHudPos.valignBottom,
-            //        StatusHudElement.offsetY);
-
             pos.Set(0,0,0,0);
 
             getRenderer().Pos(pos);

@@ -43,7 +43,7 @@ namespace StatusHud
             // Config error checking
             if (!tempFormatWords.Any(str => str.Contains(tempScale)))
             {
-                system.capi.Logger.Warning("[" + getTextKey() + "] " + tempScale + " is not a valid value for temperatureFormat. Defaulting to C");
+                system.capi.Logger.Warning("[{0}] {1} is not a valid value for temperatureFormat. Defaulting to C", getTextKey(), tempScale);
             }
         }
 
@@ -193,13 +193,13 @@ namespace StatusHud
             text.Set(value);
         }
 
-        protected override void update()
+        protected override void Update()
         {
-            base.update();
+            base.Update();
             text.Pos(pos);
         }
 
-        protected override void render()
+        protected override void Render()
         {
             system.capi.Render.RenderTexture(element.textureId, x, y, w, h);
         }

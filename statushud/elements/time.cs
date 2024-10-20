@@ -33,7 +33,7 @@ namespace StatusHud
             // Config error checking
             if (!timeFormatWords.Any(str => str.Contains(timeFormat)))
             {
-                system.capi.Logger.Warning("[" + getTextKey() + "] " + timeFormat + " is not a valid value for timeFormat. Defaulting to 24hr");
+                system.capi.Logger.Warning("[{0}] {1} is not a valid value for timeFormat. Defaulting to 24hr", getTextKey(), timeFormat);
             }
         }
 
@@ -122,13 +122,13 @@ namespace StatusHud
             text.Set(value);
         }
 
-        protected override void update()
+        protected override void Update()
         {
-            base.update();
+            base.Update();
             text.Pos(pos);
         }
 
-        protected override void render()
+        protected override void Render()
         {
             system.capi.Render.RenderTexture(element.textureId, x, y, w, h);
         }

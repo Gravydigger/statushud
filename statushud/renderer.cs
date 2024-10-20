@@ -79,7 +79,7 @@ namespace StatusHud
         public void Pos(StatusHudPos pos)
         {
             this.pos.Set(pos);
-            update();
+            Update();
         }
 
         public void Ping()
@@ -94,20 +94,20 @@ namespace StatusHud
             if (scale != RuntimeEnv.GUIScale)
             {
                 // GUI scale changed.
-                update();
+                Update();
             }
 
             if (frameWidth != system.capi.Render.FrameWidth
                     || frameHeight != system.capi.Render.FrameHeight)
             {
                 // Resolution changed.
-                update();
+                Update();
             }
 
             if (ping)
             {
-                pingScale = Math.Max(1 + (((pingTime - pingTimeHalf) / (float)pingTimeHalf) * pingScaleInit), 1);
-                pingRgba.A = (float)Math.Sin(((pingTimeInit - pingTime) / (float)pingTimeInit) * Math.PI);
+                pingScale = Math.Max(1 + ((pingTime - pingTimeHalf) / (float)pingTimeHalf * pingScaleInit), 1);
+                pingRgba.A = (float)Math.Sin((pingTimeInit - pingTime) / (float)pingTimeInit * Math.PI);
 
                 IShaderProgram prog = system.capi.Render.GetEngineShader(EnumShaderProgram.Gui);
                 prog.Uniform("rgbaIn", pingRgba);
@@ -136,7 +136,7 @@ namespace StatusHud
                 }
             }
 
-            render();
+            Render();
         }
 
         public virtual void Dispose()
@@ -147,15 +147,15 @@ namespace StatusHud
 
         public abstract void Reload(StatusHudTextConfig config);
 
-        protected abstract void render();
+        protected abstract void Render();
 
-        protected virtual void update()
+        protected virtual void Update()
         {
-            w = solveW();
-            h = solveH();
+            w = SolveW();
+            h = SolveH();
 
-            x = solveX(w);
-            y = solveY(h);
+            x = SolveX(w);
+            y = SolveY(h);
 
             scale = RuntimeEnv.GUIScale;
             frameWidth = system.capi.Render.FrameWidth;
@@ -181,7 +181,7 @@ namespace StatusHud
             }
         }
 
-        protected float solveX(float w)
+        protected float SolveX(float w)
         {
             switch (pos.halign)
             {
@@ -195,7 +195,7 @@ namespace StatusHud
             return 0;
         }
 
-        protected float solveY(float h)
+        protected float SolveY(float h)
         {
             switch (pos.valign)
             {
@@ -209,17 +209,17 @@ namespace StatusHud
             return 0;
         }
 
-        protected float solveW()
+        protected float SolveW()
         {
             return (float)GuiElement.scaled(system.textures.size);
         }
 
-        protected float solveH()
+        protected float SolveH()
         {
             return (float)GuiElement.scaled(system.textures.size);
         }
 
-        protected void renderHidden(int textureId)
+        protected void RenderHidden(int textureId)
         {
             IShaderProgram prog = system.capi.Render.GetEngineShader(EnumShaderProgram.Gui);
             prog.Uniform("rgbaIn", StatusHudRenderer.hiddenRgba);

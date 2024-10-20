@@ -90,13 +90,13 @@ namespace StatusHud
 
         public override void Reload(StatusHudTextConfig config) { }
 
-        protected override void render()
+        protected override void Render()
         {
             if (!element.inside)
             {
                 if (system.showHidden)
                 {
-                    this.renderHidden(system.textures.texturesDict["room_room"].TextureId);
+                    this.RenderHidden(system.textures.texturesDict["room_room"].TextureId);
                 }
                 return;
             }
@@ -109,9 +109,9 @@ namespace StatusHud
             }
         }
 
-        protected override void update()
+        protected override void Update()
         {
-            base.update();
+            base.Update();
 
             ghy = (float)(y - GuiElement.scaled(system.textures.size));
         }

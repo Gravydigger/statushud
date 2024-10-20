@@ -63,13 +63,13 @@ namespace StatusHud
             text.Set(value);
         }
 
-        protected override void update()
+        protected override void Update()
         {
-            base.update();
+            base.Update();
             text.Pos(pos);
         }
 
-        protected override void render()
+        protected override void Render()
         {
             system.capi.Render.RenderTexture(system.textures.texturesDict["players"].TextureId, x, y, w, h);
         }

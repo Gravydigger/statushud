@@ -68,13 +68,13 @@ namespace StatusHud
             text.Set(value);
         }
 
-        protected override void update()
+        protected override void Update()
         {
-            base.update();
+            base.Update();
             text.Pos(pos);
         }
 
-        protected override void render()
+        protected override void Render()
         {
             int direction = (mod((int)Math.Round(-system.capi.World.Player.CameraYaw * GameMath.RAD2DEG, 0), 360) + 90) % 360;
             text.Set(direction + "°");

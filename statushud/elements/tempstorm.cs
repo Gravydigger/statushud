@@ -146,19 +146,19 @@ namespace StatusHud
             text.Set(value);
         }
 
-        protected override void update()
+        protected override void Update()
         {
-            base.update();
+            base.Update();
             text.Pos(pos);
         }
 
-        protected override void render()
+        protected override void Render()
         {
             if (!element.active)
             {
                 if (system.showHidden)
                 {
-                    this.renderHidden(system.textures.texturesDict["tempstorm_incoming"].TextureId);
+                    this.RenderHidden(system.textures.texturesDict["tempstorm_incoming"].TextureId);
                 }
                 return;
             }
