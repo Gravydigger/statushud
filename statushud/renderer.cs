@@ -61,88 +61,88 @@ namespace StatusHud
             this.system = system;
             this.slot = slot;
 
-            this.pos = new StatusHudPos();
+            pos = new StatusHudPos();
 
             MeshData quadMesh = QuadMeshUtil.GetQuad();
 
-            this.ping = false;
-            this.pingMesh = system.capi.Render.UploadMesh(quadMesh);
-            this.pingMatrix = new Matrixf();
-            this.pingRgba = new Vec4f(1, 1, 1, 0);
-            this.pingTime = 0;
-            this.pingScale = 1;
+            ping = false;
+            pingMesh = system.capi.Render.UploadMesh(quadMesh);
+            pingMatrix = new Matrixf();
+            pingRgba = new Vec4f(1, 1, 1, 0);
+            pingTime = 0;
+            pingScale = 1;
 
-            this.hiddenMesh = system.capi.Render.UploadMesh(quadMesh);
-            this.hiddenMatrix = new Matrixf();
+            hiddenMesh = system.capi.Render.UploadMesh(quadMesh);
+            hiddenMatrix = new Matrixf();
         }
 
         public void Pos(StatusHudPos pos)
         {
             this.pos.Set(pos);
-            this.update();
+            update();
         }
 
         public void Ping()
         {
-            this.ping = true;
-            this.pingTime = pingTimeInit;
-            this.pingScale = pingScaleInit;
+            ping = true;
+            pingTime = pingTimeInit;
+            pingScale = pingScaleInit;
         }
 
         public void OnRenderFrame(float deltaTime, EnumRenderStage stage)
         {
-            if (this.scale != RuntimeEnv.GUIScale)
+            if (scale != RuntimeEnv.GUIScale)
             {
                 // GUI scale changed.
-                this.update();
+                update();
             }
 
-            if (this.frameWidth != this.system.capi.Render.FrameWidth
-                    || this.frameHeight != this.system.capi.Render.FrameHeight)
+            if (frameWidth != system.capi.Render.FrameWidth
+                    || frameHeight != system.capi.Render.FrameHeight)
             {
                 // Resolution changed.
-                this.update();
+                update();
             }
 
-            if (this.ping)
+            if (ping)
             {
-                this.pingScale = Math.Max(1 + (((this.pingTime - pingTimeHalf) / (float)pingTimeHalf) * pingScaleInit), 1);
-                this.pingRgba.A = (float)Math.Sin(((pingTimeInit - this.pingTime) / (float)pingTimeInit) * Math.PI);
+                pingScale = Math.Max(1 + (((pingTime - pingTimeHalf) / (float)pingTimeHalf) * pingScaleInit), 1);
+                pingRgba.A = (float)Math.Sin(((pingTimeInit - pingTime) / (float)pingTimeInit) * Math.PI);
 
-                IShaderProgram prog = this.system.capi.Render.GetEngineShader(EnumShaderProgram.Gui);
-                prog.Uniform("rgbaIn", this.pingRgba);
+                IShaderProgram prog = system.capi.Render.GetEngineShader(EnumShaderProgram.Gui);
+                prog.Uniform("rgbaIn", pingRgba);
                 prog.Uniform("extraGlow", 0);
                 prog.Uniform("applyColor", 0);
                 prog.Uniform("noTexture", 0f);
-                prog.BindTexture2D("tex2d", this.system.textures.ping.TextureId, 0);
+                prog.BindTexture2D("tex2d", system.textures.texturesDict["ping"].TextureId, 0);
 
-                float w = (float)GuiElement.scaled(this.system.textures.ping.Width) * this.pingScale;
-                float h = (float)GuiElement.scaled(this.system.textures.ping.Height) * this.pingScale;
+                float w = (float)GuiElement.scaled(system.textures.texturesDict["ping"].Width) * pingScale;
+                float h = (float)GuiElement.scaled(system.textures.texturesDict["ping"].Height) * pingScale;
 
-                this.pingMatrix.Set(this.system.capi.Render.CurrentModelviewMatrix)
-                        .Translate(this.x + (this.w / 2f), this.y + (this.h / 2f), 50)
+                pingMatrix.Set(system.capi.Render.CurrentModelviewMatrix)
+                        .Translate(x + (this.w / 2f), y + (this.h / 2f), 50)
                         .Scale(w, h, 0)
                         .Scale(0.75f, 0.75f, 0);
 
-                prog.UniformMatrix("projectionMatrix", this.system.capi.Render.CurrentProjectionMatrix);
-                prog.UniformMatrix("modelViewMatrix", this.pingMatrix.Values);
+                prog.UniformMatrix("projectionMatrix", system.capi.Render.CurrentProjectionMatrix);
+                prog.UniformMatrix("modelViewMatrix", pingMatrix.Values);
 
-                this.system.capi.Render.RenderMesh(this.pingMesh);
+                system.capi.Render.RenderMesh(pingMesh);
 
-                this.pingTime--;
-                if (this.pingTime <= 0)
+                pingTime--;
+                if (pingTime <= 0)
                 {
-                    this.ping = false;
+                    ping = false;
                 }
             }
 
-            this.render();
+            render();
         }
 
         public virtual void Dispose()
         {
-            this.pingMesh.Dispose();
-            this.hiddenMesh.Dispose();
+            pingMesh.Dispose();
+            hiddenMesh.Dispose();
         }
 
         public abstract void Reload(StatusHudTextConfig config);
@@ -151,92 +151,92 @@ namespace StatusHud
 
         protected virtual void update()
         {
-            this.w = this.solveW();
-            this.h = this.solveH();
+            w = solveW();
+            h = solveH();
 
-            this.x = this.solveX(this.w);
-            this.y = this.solveY(this.h);
+            x = solveX(w);
+            y = solveY(h);
 
-            this.scale = RuntimeEnv.GUIScale;
-            this.frameWidth = this.system.capi.Render.FrameWidth;
-            this.frameHeight = this.system.capi.Render.FrameHeight;
+            scale = RuntimeEnv.GUIScale;
+            frameWidth = system.capi.Render.FrameWidth;
+            frameHeight = system.capi.Render.FrameHeight;
 
             // Keep inside frame.
-            if (this.x < 0)
+            if (x < 0)
             {
-                this.x = 0;
+                x = 0;
             }
-            else if (this.x + this.w > this.frameWidth)
+            else if (x + w > frameWidth)
             {
-                this.x = this.frameWidth - this.w;
+                x = frameWidth - w;
             }
 
-            if (this.y < 0)
+            if (y < 0)
             {
-                this.y = 0;
+                y = 0;
             }
-            else if (this.y + this.h > this.frameHeight)
+            else if (y + h > frameHeight)
             {
-                this.y = this.frameHeight - this.h;
+                y = frameHeight - h;
             }
         }
 
         protected float solveX(float w)
         {
-            switch (this.pos.halign)
+            switch (pos.halign)
             {
                 case StatusHudPos.halignLeft:
-                    return (float)GuiElement.scaled(this.pos.x);
+                    return (float)GuiElement.scaled(pos.x);
                 case StatusHudPos.halignCenter:
-                    return (float)((this.system.capi.Render.FrameWidth / 2f) - (w / 2f) + GuiElement.scaled(this.pos.x));
+                    return (float)((system.capi.Render.FrameWidth / 2f) - (w / 2f) + GuiElement.scaled(pos.x));
                 case StatusHudPos.halignRight:
-                    return (float)(this.system.capi.Render.FrameWidth - w - GuiElement.scaled(this.pos.x));
+                    return (float)(system.capi.Render.FrameWidth - w - GuiElement.scaled(pos.x));
             }
             return 0;
         }
 
         protected float solveY(float h)
         {
-            switch (this.pos.valign)
+            switch (pos.valign)
             {
                 case StatusHudPos.valignTop:
-                    return (float)GuiElement.scaled(this.pos.y);
+                    return (float)GuiElement.scaled(pos.y);
                 case StatusHudPos.valignMiddle:
-                    return (float)((this.system.capi.Render.FrameHeight / 2f) - (h / 2f) + GuiElement.scaled(this.pos.y));
+                    return (float)((system.capi.Render.FrameHeight / 2f) - (h / 2f) + GuiElement.scaled(pos.y));
                 case StatusHudPos.valignBottom:
-                    return (float)(this.system.capi.Render.FrameHeight - h - GuiElement.scaled(this.pos.y));
+                    return (float)(system.capi.Render.FrameHeight - h - GuiElement.scaled(pos.y));
             }
             return 0;
         }
 
         protected float solveW()
         {
-            return (float)GuiElement.scaled(this.system.textures.size);
+            return (float)GuiElement.scaled(system.textures.size);
         }
 
         protected float solveH()
         {
-            return (float)GuiElement.scaled(this.system.textures.size);
+            return (float)GuiElement.scaled(system.textures.size);
         }
 
         protected void renderHidden(int textureId)
         {
-            IShaderProgram prog = this.system.capi.Render.GetEngineShader(EnumShaderProgram.Gui);
+            IShaderProgram prog = system.capi.Render.GetEngineShader(EnumShaderProgram.Gui);
             prog.Uniform("rgbaIn", StatusHudRenderer.hiddenRgba);
             prog.Uniform("extraGlow", 0);
             prog.Uniform("applyColor", 0);
             prog.Uniform("noTexture", 0f);
             prog.BindTexture2D("tex2d", textureId, 0);
 
-            this.hiddenMatrix.Set(this.system.capi.Render.CurrentModelviewMatrix)
-                    .Translate(this.x + (this.w / 2f), this.y + (this.h / 2f), 50)
+            hiddenMatrix.Set(system.capi.Render.CurrentModelviewMatrix)
+                    .Translate(x + (w / 2f), y + (h / 2f), 50)
                     .Scale(w, h, 0)
                     .Scale(0.5f, 0.5f, 0);
 
-            prog.UniformMatrix("projectionMatrix", this.system.capi.Render.CurrentProjectionMatrix);
-            prog.UniformMatrix("modelViewMatrix", this.hiddenMatrix.Values);
+            prog.UniformMatrix("projectionMatrix", system.capi.Render.CurrentProjectionMatrix);
+            prog.UniformMatrix("modelViewMatrix", hiddenMatrix.Values);
 
-            this.system.capi.Render.RenderMesh(this.hiddenMesh);
+            system.capi.Render.RenderMesh(hiddenMesh);
         }
     }
 }

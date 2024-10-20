@@ -21,17 +21,17 @@ namespace StatusHud
 
         public StatusHudStabilityElement(StatusHudSystem system, int slot, StatusHudTextConfig config) : base(system, slot)
         {
-            this.stabilitySystem = this.system.capi.ModLoader.GetModSystem<SystemTemporalStability>();
+            stabilitySystem = this.system.capi.ModLoader.GetModSystem<SystemTemporalStability>();
 
-            this.renderer = new StatusHudStabilityRenderer(system, slot, this, config);
-            this.system.capi.Event.RegisterRenderer(this.renderer, EnumRenderStage.Ortho);
+            renderer = new StatusHudStabilityRenderer(system, slot, this, config);
+            this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
-            this.active = false;
+            active = false;
         }
 
         public override StatusHudRenderer getRenderer()
         {
-            return this.renderer;
+            return renderer;
         }
 
         public virtual string getTextKey()
@@ -41,33 +41,33 @@ namespace StatusHud
 
         public override void Tick()
         {
-            if (this.stabilitySystem == null)
+            if (stabilitySystem == null)
             {
                 return;
             }
 
-            float stability = this.stabilitySystem.GetTemporalStability(this.system.capi.World.Player.Entity.Pos.AsBlockPos);
+            float stability = stabilitySystem.GetTemporalStability(system.capi.World.Player.Entity.Pos.AsBlockPos);
 
             if (stability < maxStability)
             {
-                this.renderer.setText((int)Math.Floor(stability * 100) + "%");
-                this.active = true;
+                renderer.setText((int)Math.Floor(stability * 100) + "%");
+                active = true;
             }
             else
             {
-                if (this.active)
+                if (active)
                 {
                     // Only set text once.
-                    this.renderer.setText("");
+                    renderer.setText("");
                 }
-                this.active = false;
+                active = false;
             }
         }
 
         public override void Dispose()
         {
-            this.renderer.Dispose();
-            this.system.capi.Event.UnregisterRenderer(this.renderer, EnumRenderStage.Ortho);
+            renderer.Dispose();
+            system.capi.Event.UnregisterRenderer(renderer, EnumRenderStage.Ortho);
         }
     }
 
@@ -81,43 +81,43 @@ namespace StatusHud
         {
             this.element = element;
 
-            this.text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
+            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
         }
 
         public override void Reload(StatusHudTextConfig config)
         {
-            this.text.ReloadText(config, this.pos);
+            text.ReloadText(config, pos);
         }
 
         public void setText(string value)
         {
-            this.text.Set(value);
+            text.Set(value);
         }
 
         protected override void update()
         {
             base.update();
-            this.text.Pos(this.pos);
+            text.Pos(pos);
         }
 
         protected override void render()
         {
-            if (!this.element.active)
+            if (!element.active)
             {
-                if (this.system.showHidden)
+                if (system.showHidden)
                 {
-                    this.renderHidden(this.system.textures.stability.TextureId);
+                    this.renderHidden(system.textures.texturesDict["stability"].TextureId);
                 }
                 return;
             }
 
-            this.system.capi.Render.RenderTexture(this.system.textures.stability.TextureId, this.x, this.y, this.w, this.h);
+            system.capi.Render.RenderTexture(system.textures.texturesDict["stability"].TextureId, x, y, w, h);
         }
 
         public override void Dispose()
         {
             base.Dispose();
-            this.text.Dispose();
+            text.Dispose();
         }
     }
 }

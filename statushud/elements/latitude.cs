@@ -19,17 +19,17 @@ namespace StatusHud
 
         public StatusHudLatitudeElement(StatusHudSystem system, int slot, StatusHudTextConfig config) : base(system, slot)
         {
-            this.weatherSystem = this.system.capi.ModLoader.GetModSystem<WeatherSystemBase>();
+            weatherSystem = this.system.capi.ModLoader.GetModSystem<WeatherSystemBase>();
 
-            this.renderer = new StatusHudLatitudeRenderer(this.system, slot, this, config);
-            this.system.capi.Event.RegisterRenderer(this.renderer, EnumRenderStage.Ortho);
+            renderer = new StatusHudLatitudeRenderer(this.system, slot, this, config);
+            this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
-            this.needleOffset = 0;
+            needleOffset = 0;
         }
 
         public override StatusHudRenderer getRenderer()
         {
-            return this.renderer;
+            return renderer;
         }
 
         public virtual string getTextKey()
@@ -39,15 +39,15 @@ namespace StatusHud
 
         public override void Tick()
         {
-            double latitude = this.system.capi.World.Calendar.OnGetLatitude(this.system.capi.World.Player.Entity.Pos.Z);
-            this.renderer.setText((float)((int)Math.Round(latitude * 900, 0) / 10f) + "°");
-            this.needleOffset = (float)(-latitude * (this.system.textures.size / 2f) * 0.75f);
+            double latitude = system.capi.World.Calendar.OnGetLatitude(system.capi.World.Player.Entity.Pos.Z);
+            renderer.setText((float)((int)Math.Round(latitude * 900, 0) / 10f) + "°");
+            needleOffset = (float)(-latitude * (system.textures.size / 2f) * 0.75f);
         }
 
         public override void Dispose()
         {
-            this.renderer.Dispose();
-            this.system.capi.Event.UnregisterRenderer(this.renderer, EnumRenderStage.Ortho);
+            renderer.Dispose();
+            system.capi.Event.UnregisterRenderer(renderer, EnumRenderStage.Ortho);
         }
     }
 
@@ -60,35 +60,35 @@ namespace StatusHud
         {
             this.element = element;
 
-            this.text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size); 
+            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size); 
         }
 
         public override void Reload(StatusHudTextConfig config)
         {
-            this.text.ReloadText(config, this.pos);
+            text.ReloadText(config, pos);
         }
 
         public void setText(string value)
         {
-            this.text.Set(value);
+            text.Set(value);
         }
 
         protected override void update()
         {
             base.update();
-            this.text.Pos(this.pos);
+            text.Pos(pos);
         }
 
         protected override void render()
         {
-            this.system.capi.Render.RenderTexture(this.system.textures.latitude.TextureId, this.x, this.y, this.w, this.h);
-            this.system.capi.Render.RenderTexture(this.system.textures.latitudeNeedle.TextureId, this.x, this.y + GuiElement.scaled(this.element.needleOffset), this.w, this.h);
+            system.capi.Render.RenderTexture(system.textures.texturesDict["latitude"].TextureId, x, y, w, h);
+            system.capi.Render.RenderTexture(system.textures.texturesDict["latitude_needle"].TextureId, x, y + GuiElement.scaled(element.needleOffset), w, h);
         }
 
         public override void Dispose()
         {
             base.Dispose();
-            this.text.Dispose();
+            text.Dispose();
         }
     }
 }

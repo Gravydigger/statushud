@@ -13,7 +13,7 @@ namespace StatusHud
 
         public StatusHudTimeLocalElement(StatusHudSystem system, int slot, StatusHudConfig config) : base(system, slot, config)
         {
-            this.textureId = this.system.textures.timeLocal.TextureId;
+            textureId = this.system.textures.texturesDict["time_local"].TextureId;
         }
 
         public override string getTextKey()
@@ -23,11 +23,11 @@ namespace StatusHud
 
         public override void Tick()
         {
-            this.timeFormat = config.options.timeFormat;
+            timeFormat = config.options.timeFormat;
 
             string time;
 
-            if (this.timeFormat == "12hr")
+            if (timeFormat == "12hr")
             {
                 time = DateTime.Now.ToString("h:mmtt", CultureInfo.InvariantCulture);
             }
@@ -36,7 +36,7 @@ namespace StatusHud
                 time = DateTime.Now.ToString("HH':'mm");
             }
 
-            this.renderer.setText(time);
+            renderer.setText(time);
         }
     }
 }

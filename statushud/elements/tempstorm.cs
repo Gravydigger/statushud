@@ -31,19 +31,19 @@ namespace StatusHud
 
         public StatusHudTempstormElement(StatusHudSystem system, int slot, StatusHudTextConfig config) : base(system, slot)
         {
-            this.stabilitySystem = this.system.capi.ModLoader.GetModSystem<SystemTemporalStability>();
+            stabilitySystem = this.system.capi.ModLoader.GetModSystem<SystemTemporalStability>();
 
-            this.renderer = new StatusHudTempstormRenderer(system, slot, this, config);
-            this.system.capi.Event.RegisterRenderer(this.renderer, EnumRenderStage.Ortho);
+            renderer = new StatusHudTempstormRenderer(system, slot, this, config);
+            this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
-            this.active = false;
-            this.textureId = this.system.textures.empty.TextureId;
+            active = false;
+            textureId = this.system.textures.texturesDict["empty"].TextureId;
 
-            if (this.stabilitySystem != null)
+            if (stabilitySystem != null)
             {
-                this.harmony = new Harmony(harmonyId);
+                harmony = new Harmony(harmonyId);
 
-                this.harmony.Patch(typeof(SystemTemporalStability).GetMethod("onServerData", BindingFlags.Instance | BindingFlags.NonPublic),
+                harmony.Patch(typeof(SystemTemporalStability).GetMethod("onServerData", BindingFlags.Instance | BindingFlags.NonPublic),
                         postfix: new HarmonyMethod(typeof(StatusHudTempstormElement).GetMethod(nameof(StatusHudTempstormElement.receiveData))));
             }
         }
@@ -55,7 +55,7 @@ namespace StatusHud
 
         public override StatusHudRenderer getRenderer()
         {
-            return this.renderer;
+            return renderer;
         }
 
         public virtual string getTextKey()
@@ -65,7 +65,7 @@ namespace StatusHud
 
         public override void Tick()
         {
-            if (this.stabilitySystem == null)
+            if (stabilitySystem == null)
             {
                 return;
             }
@@ -75,19 +75,19 @@ namespace StatusHud
                 return;
             }
 
-            double nextStormDaysLeft = StatusHudTempstormElement.data.nextStormTotalDays - this.system.capi.World.Calendar.TotalDays;
+            double nextStormDaysLeft = StatusHudTempstormElement.data.nextStormTotalDays - system.capi.World.Calendar.TotalDays;
 
             if (nextStormDaysLeft > 0 && nextStormDaysLeft < approachingThreshold)
             {
                 // Preparing.
-                float hoursLeft = (float)((StatusHudTempstormElement.data.nextStormTotalDays - this.system.capi.World.Calendar.TotalDays) * this.system.capi.World.Calendar.HoursPerDay);
-                float approachingHours = (float)(approachingThreshold * this.system.capi.World.Calendar.HoursPerDay);
+                float hoursLeft = (float)((StatusHudTempstormElement.data.nextStormTotalDays - system.capi.World.Calendar.TotalDays) * system.capi.World.Calendar.HoursPerDay);
+                float approachingHours = (float)(approachingThreshold * system.capi.World.Calendar.HoursPerDay);
 
-                this.active = true;
-                this.textureId = this.system.textures.tempstormIncoming.TextureId;
+                active = true;
+                textureId = system.textures.texturesDict["tempstorm_incoming"].TextureId;
 
                 TimeSpan ts = TimeSpan.FromHours(Math.Max(hoursLeft, 0));
-                this.renderer.setText(ts.ToString("h':'mm"));
+                renderer.setText(ts.ToString("h':'mm"));
             }
             else
             {
@@ -95,31 +95,31 @@ namespace StatusHud
                 if (StatusHudTempstormElement.data.nowStormActive)
                 {
                     // Active.
-                    double hoursLeft = (StatusHudTempstormElement.data.stormActiveTotalDays - this.system.capi.World.Calendar.TotalDays) * this.system.capi.World.Calendar.HoursPerDay;
+                    double hoursLeft = (StatusHudTempstormElement.data.stormActiveTotalDays - system.capi.World.Calendar.TotalDays) * system.capi.World.Calendar.HoursPerDay;
 
-                    this.active = true;
-                    this.textureId = this.system.textures.tempstormDuration.TextureId;
+                    active = true;
+                    textureId = system.textures.texturesDict["tempstorm_duration"].TextureId;
 
                     TimeSpan ts = TimeSpan.FromHours(Math.Max(hoursLeft, 0));
-                    this.renderer.setText(ts.ToString("h':'mm"));
+                    renderer.setText(ts.ToString("h':'mm"));
                 }
-                else if (this.active)
+                else if (active)
                 {
                     // Ending.
-                    this.active = false;
-                    this.textureId = this.system.textures.empty.TextureId;
+                    active = false;
+                    textureId = system.textures.texturesDict["empty"].TextureId;
 
-                    this.renderer.setText("");
+                    renderer.setText("");
                 }
             }
         }
 
         public override void Dispose()
         {
-            this.harmony.UnpatchAll(harmonyId);
+            harmony.UnpatchAll(harmonyId);
 
-            this.renderer.Dispose();
-            this.system.capi.Event.UnregisterRenderer(this.renderer, EnumRenderStage.Ortho);
+            renderer.Dispose();
+            system.capi.Event.UnregisterRenderer(renderer, EnumRenderStage.Ortho);
         }
     }
 
@@ -133,43 +133,43 @@ namespace StatusHud
         {
             this.element = element;
 
-            this.text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
+            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
         }
 
         public override void Reload(StatusHudTextConfig config)
         {
-            this.text.ReloadText(config, this.pos);
+            text.ReloadText(config, pos);
         }
 
         public void setText(string value)
         {
-            this.text.Set(value);
+            text.Set(value);
         }
 
         protected override void update()
         {
             base.update();
-            this.text.Pos(this.pos);
+            text.Pos(pos);
         }
 
         protected override void render()
         {
-            if (!this.element.active)
+            if (!element.active)
             {
-                if (this.system.showHidden)
+                if (system.showHidden)
                 {
-                    this.renderHidden(this.system.textures.tempstormIncoming.TextureId);
+                    this.renderHidden(system.textures.texturesDict["tempstorm_incoming"].TextureId);
                 }
                 return;
             }
 
-            this.system.capi.Render.RenderTexture(this.element.textureId, this.x, this.y, this.w, this.h);
+            system.capi.Render.RenderTexture(element.textureId, x, y, w, h);
         }
 
         public override void Dispose()
         {
             base.Dispose();
-            this.text.Dispose();
+            text.Dispose();
         }
     }
 }

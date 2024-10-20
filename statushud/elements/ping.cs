@@ -23,11 +23,11 @@ namespace StatusHud
 
         public StatusHudPingElement(StatusHudSystem system, int slot, StatusHudTextConfig config) : base(system, slot, true)
         {
-            this.renderer = new StatusHudPingRenderer(system, slot, this, config);
-            this.system.capi.Event.RegisterRenderer(this.renderer, EnumRenderStage.Ortho);
+            renderer = new StatusHudPingRenderer(system, slot, this, config);
+            this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
 #if DEBUG
-            this.active = true;
+            active = true;
 #else
             this.active = this.system.capi.IsSinglePlayer ? false : true;
 #endif
@@ -35,7 +35,7 @@ namespace StatusHud
 
         public override StatusHudRenderer getRenderer()
         {
-            return this.renderer;
+            return renderer;
         }
 
         public virtual string getTextKey()
@@ -45,24 +45,24 @@ namespace StatusHud
 
         public override void Tick()
         {
-            if (!this.active)
+            if (!active)
             {
                 // render text only once
-                if (!this.noRenderText)
+                if (!noRenderText)
                 {
-                    this.renderer.setText("");
-                    this.noRenderText = false;
+                    renderer.setText("");
+                    noRenderText = false;
                 }
                 return;
             }
 
-            if (this.player == null)
+            if (player == null)
             {
-                IPlayer[] players = this.system.capi.World.AllOnlinePlayers;
+                IPlayer[] players = system.capi.World.AllOnlinePlayers;
 
                 // Get the mod users player object
-                this.player = (ClientPlayer)players.FirstOrDefault(player => player.PlayerUID == system.UUID);
-                this.renderer.setText("");
+                player = (ClientPlayer)players.FirstOrDefault(player => player.PlayerUID == system.UUID);
+                renderer.setText("");
 
                 return;
             }
@@ -70,13 +70,13 @@ namespace StatusHud
             int ping = (int)(player.Ping * 1000f);
             string msg = ping < maxPing ? string.Format("{0}", Math.Min(ping, maxPing)) : "+" + maxPing;
 
-            this.renderer.setText(msg);
+            renderer.setText(msg);
         }
 
         public override void Dispose()
         {
-            this.renderer.Dispose();
-            this.system.capi.Event.UnregisterRenderer(this.renderer, EnumRenderStage.Ortho);
+            renderer.Dispose();
+            system.capi.Event.UnregisterRenderer(renderer, EnumRenderStage.Ortho);
         }
     }
 
@@ -90,43 +90,43 @@ namespace StatusHud
         {
             this.element = element;
 
-            this.text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
+            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
         }
 
         public override void Reload(StatusHudTextConfig config)
         {
-            this.text.ReloadText(config, this.pos);
+            text.ReloadText(config, pos);
         }
 
         public void setText(string value)
         {
-            this.text.Set(value);
+            text.Set(value);
         }
 
         protected override void update()
         {
             base.update();
-            this.text.Pos(this.pos);
+            text.Pos(pos);
         }
 
         protected override void render()
         {
-            if (!this.element.active)
+            if (!element.active)
             {
-                if (this.system.showHidden)
+                if (system.showHidden)
                 {
-                    this.renderHidden(this.system.textures.network.TextureId);
+                    this.renderHidden(system.textures.texturesDict["network"].TextureId);
                 }
                 return;
             }
 
-            this.system.capi.Render.RenderTexture(this.system.textures.network.TextureId, this.x, this.y, this.w, this.h);
+            system.capi.Render.RenderTexture(system.textures.texturesDict["network"].TextureId, x, y, w, h);
         }
 
         public override void Dispose()
         {
             base.Dispose();
-            this.text.Dispose();
+            text.Dispose();
         }
     }
 }

@@ -16,13 +16,13 @@ namespace StatusHud
 
         public StatusHudSpeedElement(StatusHudSystem system, int slot, StatusHudTextConfig config) : base(system, slot)
         {
-            this.renderer = new StatusHudSpeedRenderer(system, slot, this, config);
-            this.system.capi.Event.RegisterRenderer(this.renderer, EnumRenderStage.Ortho);
+            renderer = new StatusHudSpeedRenderer(system, slot, this, config);
+            this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
         }
 
         public override StatusHudRenderer getRenderer()
         {
-            return this.renderer;
+            return renderer;
         }
 
         public virtual string getTextKey()
@@ -34,8 +34,8 @@ namespace StatusHud
 
         public override void Dispose()
         {
-            this.renderer.Dispose();
-            this.system.capi.Event.UnregisterRenderer(this.renderer, EnumRenderStage.Ortho);
+            renderer.Dispose();
+            system.capi.Event.UnregisterRenderer(renderer, EnumRenderStage.Ortho);
         }
     }
 
@@ -49,43 +49,43 @@ namespace StatusHud
         {
             this.element = element;
 
-            this.text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
+            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
         }
 
         public override void Reload(StatusHudTextConfig config)
         {
-            this.text.ReloadText(config, this.pos);
+            text.ReloadText(config, pos);
         }
 
         public void setText(string value)
         {
-            this.text.Set(value);
+            text.Set(value);
         }
 
         protected override void update()
         {
             base.update();
-            this.text.Pos(this.pos);
+            text.Pos(pos);
         }
 
         protected override void render()
         {
-            Entity mount = this.system.capi.World.Player.Entity.MountedOn?.MountSupplier as Entity;
+            Entity mount = system.capi.World.Player.Entity.MountedOn?.MountSupplier as Entity;
             if (mount != null)
             {
-                this.text.Set(((int)Math.Round(mount.Pos.Motion.Length() * 1000, 0) / 10f).ToString());
+                text.Set(((int)Math.Round(mount.Pos.Motion.Length() * 1000, 0) / 10f).ToString());
             }
             else
             {
-                this.text.Set(((int)Math.Round(this.system.capi.World.Player.Entity.Pos.Motion.Length() * 1000) / 10f).ToString());
+                text.Set(((int)Math.Round(system.capi.World.Player.Entity.Pos.Motion.Length() * 1000) / 10f).ToString());
             }
-            this.system.capi.Render.RenderTexture(this.system.textures.speed.TextureId, this.x, this.y, this.w, this.h);
+            system.capi.Render.RenderTexture(system.textures.texturesDict["speed"].TextureId, x, y, w, h);
         }
 
         public override void Dispose()
         {
             base.Dispose();
-            this.text.Dispose();
+            text.Dispose();
         }
     }
 }

@@ -20,13 +20,13 @@ namespace StatusHud
 
         public StatusHudRoomElement(StatusHudSystem system, int slot) : base(system, slot)
         {
-            this.renderer = new StatusHudRoomRenderer(system, slot, this);
-            this.system.capi.Event.RegisterRenderer(this.renderer, EnumRenderStage.Ortho);
+            renderer = new StatusHudRoomRenderer(system, slot, this);
+            this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
         }
 
         public override StatusHudRenderer getRenderer()
         {
-            return this.renderer;
+            return renderer;
         }
 
         public virtual string getTextKey()
@@ -36,44 +36,44 @@ namespace StatusHud
 
         public override void Tick()
         {
-            EntityPlayer entity = this.system.capi.World.Player.Entity;
+            EntityPlayer entity = system.capi.World.Player.Entity;
             if (entity == null)
             {
-                this.inside = false;
-                this.cellar = false;
-                this.greenhouse = false;
+                inside = false;
+                cellar = false;
+                greenhouse = false;
                 return;
             }
 
             Room room = entity.World.Api.ModLoader.GetModSystem<RoomRegistry>().GetRoomForPosition(entity.Pos.AsBlockPos);
             if (room == null)
             {
-                this.inside = false;
-                this.cellar = false;
-                this.greenhouse = false;
+                inside = false;
+                cellar = false;
+                greenhouse = false;
                 return;
             }
 
             if (room.ExitCount == 0)
             {
                 // Inside.
-                this.inside = true;
-                this.cellar = room.IsSmallRoom;
-                this.greenhouse = room.SkylightCount > room.NonSkylightCount;   // No room flag avaiable, based on FruitTreeRootBH.
+                inside = true;
+                cellar = room.IsSmallRoom;
+                greenhouse = room.SkylightCount > room.NonSkylightCount;   // No room flag avaiable, based on FruitTreeRootBH.
             }
             else
             {
                 // Outside.
-                this.inside = false;
-                this.cellar = false;
-                this.greenhouse = false;
+                inside = false;
+                cellar = false;
+                greenhouse = false;
             }
         }
 
         public override void Dispose()
         {
-            this.renderer.Dispose();
-            this.system.capi.Event.UnregisterRenderer(this.renderer, EnumRenderStage.Ortho);
+            renderer.Dispose();
+            system.capi.Event.UnregisterRenderer(renderer, EnumRenderStage.Ortho);
         }
     }
 
@@ -92,20 +92,20 @@ namespace StatusHud
 
         protected override void render()
         {
-            if (!this.element.inside)
+            if (!element.inside)
             {
-                if (this.system.showHidden)
+                if (system.showHidden)
                 {
-                    this.renderHidden(this.system.textures.roomRoom.TextureId);
+                    this.renderHidden(system.textures.texturesDict["room_room"].TextureId);
                 }
                 return;
             }
 
-            this.system.capi.Render.RenderTexture(this.element.cellar ? this.system.textures.roomCellar.TextureId : this.system.textures.roomRoom.TextureId, this.x, this.y, this.w, this.h);
+            system.capi.Render.RenderTexture(element.cellar ? system.textures.texturesDict["room_cellar"].TextureId : system.textures.texturesDict["room_room"].TextureId, x, y, w, h);
 
-            if (this.element.greenhouse)
+            if (element.greenhouse)
             {
-                this.system.capi.Render.RenderTexture(this.system.textures.roomGreenhouse.TextureId, this.x, this.ghy, this.w, this.h);
+                system.capi.Render.RenderTexture(system.textures.texturesDict["room_greenhouse"].TextureId, x, ghy, w, h);
             }
         }
 
@@ -113,7 +113,7 @@ namespace StatusHud
         {
             base.update();
 
-            this.ghy = (float)(this.y - GuiElement.scaled(this.system.textures.size));
+            ghy = (float)(y - GuiElement.scaled(system.textures.size));
         }
 
         public override void Dispose()

@@ -28,18 +28,18 @@ namespace StatusHud
 
         public StatusHudBodyheatElement(StatusHudSystem system, int slot, StatusHudConfig config) : base(system, slot)
         {
-            this.renderer = new StatusHudBodyheatRenderer(this.system, this.slot, this, config.text);
-            this.system.capi.Event.RegisterRenderer(this.renderer, EnumRenderStage.Ortho);
+            renderer = new StatusHudBodyheatRenderer(this.system, this.slot, this, config.text);
+            this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
-            this.textureId = this.system.textures.empty.TextureId;
+            textureId = this.system.textures.texturesDict["empty"].TextureId;
             this.config = config;
 
-            this.active = false;
+            active = false;
         }
 
         public override StatusHudRenderer getRenderer()
         {
-            return this.renderer;
+            return renderer;
         }
 
         public virtual string getTextKey()
@@ -49,7 +49,7 @@ namespace StatusHud
 
         public override void Tick()
         {
-            ITreeAttribute tempTree = this.system.capi.World.Player.Entity.WatchedAttributes.GetTreeAttribute("bodyTemp");
+            ITreeAttribute tempTree = system.capi.World.Player.Entity.WatchedAttributes.GetTreeAttribute("bodyTemp");
 
             if (tempTree == null)
             {
@@ -66,36 +66,36 @@ namespace StatusHud
                 switch (config.options.temperatureScale)
                 {
                     case 'F':
-                        textRender = string.Format("{0:N1}", tempDiff * cfratio) + "°F";
+                        textRender = string.Format("{0:N1}", tempDiff * cfratio) + "ï¿½F";
                         break;
                     case 'K':
-                        textRender = string.Format("{0:N1}", tempDiff) + "°K";
+                        textRender = string.Format("{0:N1}", tempDiff) + "ï¿½K";
                         break;
                     case 'C':
                     default:
-                        textRender = string.Format("{0:N1}", tempDiff) + "°C";
+                        textRender = string.Format("{0:N1}", tempDiff) + "ï¿½C";
                         break;
                 }
 
-                this.active = true;
-                this.renderer.setText(textRender);
+                active = true;
+                renderer.setText(textRender);
             }
             else
             {
-                if (this.active)
+                if (active)
                 {
-                    this.renderer.setText("");
+                    renderer.setText("");
                 }
 
-                this.active = false;
+                active = false;
             }
-            this.updateTexture(tempDiff);
+            updateTexture(tempDiff);
         }
 
         public override void Dispose()
         {
-            this.renderer.Dispose();
-            this.system.capi.Event.UnregisterRenderer(this.renderer, EnumRenderStage.Ortho);
+            renderer.Dispose();
+            system.capi.Event.UnregisterRenderer(renderer, EnumRenderStage.Ortho);
         }
 
         protected void updateTexture(float tempDiff)
@@ -103,11 +103,11 @@ namespace StatusHud
             // If body temp ~33C, the player will start freezing
             if (tempDiff > -4)
             {
-                this.textureId = this.system.textures.bodyheat.TextureId;
+                textureId = system.textures.texturesDict["bodyheat"].TextureId;
             }
             else
             {
-                this.textureId = this.system.textures.bodyheatCold.TextureId;
+                textureId = system.textures.texturesDict["bodyheat_cold"].TextureId;
             }
         }
     }
@@ -122,43 +122,43 @@ namespace StatusHud
         {
             this.element = element;
 
-            this.text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
+            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
         }
 
         public override void Reload(StatusHudTextConfig config)
         {
-            this.text.ReloadText(config, this.pos);
+            text.ReloadText(config, pos);
         }
 
         public void setText(string value)
         {
-            this.text.Set(value);
+            text.Set(value);
         }
 
         protected override void update()
         {
             base.update();
-            this.text.Pos(this.pos);
+            text.Pos(pos);
         }
 
         protected override void render()
         {
-            if (!this.element.active)
+            if (!element.active)
             {
-                if (this.system.showHidden)
+                if (system.showHidden)
                 {
-                    this.renderHidden(this.system.textures.bodyheat.TextureId);
+                    renderHidden(system.textures.texturesDict["bodyheat"].TextureId);
                 }
                 return;
             }
 
-            this.system.capi.Render.RenderTexture(this.element.textureId, this.x, this.y, this.w, this.h);
+            system.capi.Render.RenderTexture(element.textureId, x, y, w, h);
         }
 
         public override void Dispose()
         {
             base.Dispose();
-            this.text.Dispose();
+            text.Dispose();
         }
     }
 }
