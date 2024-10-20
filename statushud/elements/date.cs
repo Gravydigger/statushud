@@ -18,17 +18,17 @@ namespace StatusHud
 
         public StatusHudDateElement(StatusHudSystem system, int slot, StatusHudTextConfig config, string[] monthNames) : base(system, slot)
         {
-            this.renderer = new StatusHudDateRenderer(this.system, this.slot, this, config);
+            renderer = new StatusHudDateRenderer(this.system, this.slot, this, config);
             this.monthNames = monthNames;
 
-            this.system.capi.Event.RegisterRenderer(this.renderer, EnumRenderStage.Ortho);
+            this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
-            this.textureId = this.system.textures.empty.TextureId;
+            textureId = this.system.textures.texturesDict["empty"].TextureId;
         }
 
         public override StatusHudRenderer getRenderer()
         {
-            return this.renderer;
+            return renderer;
         }
 
         public virtual string getTextKey()
@@ -39,40 +39,40 @@ namespace StatusHud
         public override void Tick()
         {
             // Add '+ 1' because months start on the 1st.
-            int day = (int)(this.system.capi.World.Calendar.DayOfYear % this.system.capi.World.Calendar.DaysPerMonth) + 1;
+            int day = (int)(system.capi.World.Calendar.DayOfYear % system.capi.World.Calendar.DaysPerMonth) + 1;
 
-            if (this.system.capi.World.Calendar.Month >= 1 && this.system.capi.World.Calendar.Month <= 12
-                    && this.monthNames.Length >= this.system.capi.World.Calendar.Month)
+            if (system.capi.World.Calendar.Month >= 1 && system.capi.World.Calendar.Month <= 12
+                    && monthNames.Length >= system.capi.World.Calendar.Month)
             {
-                this.renderer.setText(day + " " + this.monthNames[this.system.capi.World.Calendar.Month - 1]);
+                renderer.setText(day + " " + monthNames[system.capi.World.Calendar.Month - 1]);
             }
             else
             {
                 // Unknown month.
-                this.renderer.setText(day.ToString());
+                renderer.setText(day.ToString());
             }
 
             // Season.
-            switch (this.system.capi.World.Calendar.GetSeason(this.system.capi.World.Player.Entity.Pos.AsBlockPos))
+            switch (system.capi.World.Calendar.GetSeason(system.capi.World.Player.Entity.Pos.AsBlockPos))
             {
                 case EnumSeason.Spring:
                     {
-                        this.textureId = this.system.textures.dateSpring.TextureId;
+                        textureId = system.textures.texturesDict["date_spring"].TextureId;
                         break;
                     }
                 case EnumSeason.Summer:
                     {
-                        this.textureId = this.system.textures.dateSummer.TextureId;
+                        textureId = system.textures.texturesDict["date_summer"].TextureId;
                         break;
                     }
                 case EnumSeason.Fall:
                     {
-                        this.textureId = this.system.textures.dateAutumn.TextureId;
+                        textureId = system.textures.texturesDict["date_autumn"].TextureId;
                         break;
                     }
                 case EnumSeason.Winter:
                     {
-                        this.textureId = this.system.textures.dateWinter.TextureId;
+                        textureId = system.textures.texturesDict["date_winter"].TextureId;
                         break;
                     }
             }
@@ -80,8 +80,8 @@ namespace StatusHud
 
         public override void Dispose()
         {
-            this.renderer.Dispose();
-            this.system.capi.Event.UnregisterRenderer(this.renderer, EnumRenderStage.Ortho);
+            renderer.Dispose();
+            system.capi.Event.UnregisterRenderer(renderer, EnumRenderStage.Ortho);
         }
     }
 
@@ -95,34 +95,34 @@ namespace StatusHud
         {
             this.element = element;
 
-            this.text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
+            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
         }
 
         public override void Reload(StatusHudTextConfig config)
         {
-            this.text.ReloadText(config, this.pos);
+            text.ReloadText(config, pos);
         }
 
         public void setText(string value)
         {
-            this.text.Set(value);
+            text.Set(value);
         }
 
-        protected override void update()
+        protected override void Update()
         {
-            base.update();
-            this.text.Pos(this.pos);
+            base.Update();
+            text.Pos(pos);
         }
 
-        protected override void render()
+        protected override void Render()
         {
-            this.system.capi.Render.RenderTexture(this.element.textureId, this.x, this.y, this.w, this.h);
+            system.capi.Render.RenderTexture(element.textureId, x, y, w, h);
         }
 
         public override void Dispose()
         {
             base.Dispose();
-            this.text.Dispose();
+            text.Dispose();
         }
     }
 }

@@ -22,18 +22,18 @@ namespace StatusHud
 
         public StatusHudWindElement(StatusHudSystem system, int slot, StatusHudTextConfig config) : base(system, slot)
         {
-            this.weatherSystem = this.system.capi.ModLoader.GetModSystem<WeatherSystemBase>();
+            weatherSystem = this.system.capi.ModLoader.GetModSystem<WeatherSystemBase>();
 
-            this.renderer = new StatusHudWindRenderer(system, slot, this, config);
-            this.system.capi.Event.RegisterRenderer(this.renderer, EnumRenderStage.Ortho);
+            renderer = new StatusHudWindRenderer(system, slot, this, config);
+            this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
-            this.directional = false;
-            this.dirAngle = 0;
+            directional = false;
+            dirAngle = 0;
         }
 
         public override StatusHudRenderer getRenderer()
         {
-            return this.renderer;
+            return renderer;
         }
 
         public virtual string getTextKey()
@@ -43,29 +43,29 @@ namespace StatusHud
 
         public override void Tick()
         {
-            EntityPlayer entity = this.system.capi.World.Player.Entity;
+            EntityPlayer entity = system.capi.World.Player.Entity;
 
-            double speed = this.weatherSystem.WeatherDataSlowAccess.GetWindSpeed(entity.Pos.AsBlockPos.ToVec3d());
-            this.renderer.setText((int)Math.Round(speed * 100, 0) + "%");
+            double speed = weatherSystem.WeatherDataSlowAccess.GetWindSpeed(entity.Pos.AsBlockPos.ToVec3d());
+            renderer.setText((int)Math.Round(speed * 100, 0) + "%");
 
-            Vec3d dir = this.system.capi.World.BlockAccessor.GetWindSpeedAt(entity.Pos.AsBlockPos);
+            Vec3d dir = system.capi.World.BlockAccessor.GetWindSpeedAt(entity.Pos.AsBlockPos);
             if (speed != 0 && dir.Length() != 0)
             {
-                this.dirAngle = (float)Math.Atan2(-dir.Z, dir.X);
+                dirAngle = (float)Math.Atan2(-dir.Z, dir.X);
 
-                this.directional = true;
+                directional = true;
             }
             else
             {
                 // No wind direction.
-                this.directional = false;
+                directional = false;
             }
         }
 
         public override void Dispose()
         {
-            this.renderer.Dispose();
-            this.system.capi.Event.UnregisterRenderer(this.renderer, EnumRenderStage.Ortho);
+            renderer.Dispose();
+            system.capi.Event.UnregisterRenderer(renderer, EnumRenderStage.Ortho);
         }
     }
 
@@ -80,62 +80,62 @@ namespace StatusHud
         {
             this.element = element;
 
-            this.text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
+            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
         }
 
         public override void Reload(StatusHudTextConfig config)
         {
-            this.text.ReloadText(config, this.pos);
+            text.ReloadText(config, pos);
         }
 
         public void setText(string value)
         {
-            this.text.Set(value);
+            text.Set(value);
         }
 
-        protected override void update()
+        protected override void Update()
         {
-            base.update();
-            this.text.Pos(this.pos);
+            base.Update();
+            text.Pos(pos);
         }
 
-        protected override void render()
+        protected override void Render()
         {
-            if (this.element.directional)
+            if (element.directional)
             {
-                this.system.capi.Render.RenderTexture(this.system.textures.windDir.TextureId, this.x, this.y, this.w, this.h);
+                system.capi.Render.RenderTexture(system.textures.texturesDict["wind_dir"].TextureId, x, y, w, h);
 
-                IShaderProgram prog = this.system.capi.Render.GetEngineShader(EnumShaderProgram.Gui);
+                IShaderProgram prog = system.capi.Render.GetEngineShader(EnumShaderProgram.Gui);
                 prog.Uniform("rgbaIn", ColorUtil.WhiteArgbVec);
                 prog.Uniform("extraGlow", 0);
                 prog.Uniform("applyColor", 0);
                 prog.Uniform("noTexture", 0f);
-                prog.BindTexture2D("tex2d", this.system.textures.windDirArrow.TextureId, 0);
+                prog.BindTexture2D("tex2d", system.textures.texturesDict["wind_dir_arrow"].TextureId, 0);
 
-                float angle = this.element.dirAngle - this.system.capi.World.Player.CameraYaw + StatusHudWindRenderer.dirAdjust;
+                float angle = element.dirAngle - system.capi.World.Player.CameraYaw + StatusHudWindRenderer.dirAdjust;
 
                 // Use hidden matrix and mesh because this element is never hidden.
-                this.hiddenMatrix.Set(this.system.capi.Render.CurrentModelviewMatrix)
-                        .Translate(this.x + (this.w / 2f), this.y + (this.h / 2f), 50)
-                        .Scale(this.w, this.h, 0)
+                hiddenMatrix.Set(system.capi.Render.CurrentModelviewMatrix)
+                        .Translate(x + (w / 2f), y + (h / 2f), 50)
+                        .Scale(w, h, 0)
                         .Scale(0.5f, 0.5f, 0)
                         .RotateZ(-angle);
 
-                prog.UniformMatrix("projectionMatrix", this.system.capi.Render.CurrentProjectionMatrix);
-                prog.UniformMatrix("modelViewMatrix", this.hiddenMatrix.Values);
+                prog.UniformMatrix("projectionMatrix", system.capi.Render.CurrentProjectionMatrix);
+                prog.UniformMatrix("modelViewMatrix", hiddenMatrix.Values);
 
-                this.system.capi.Render.RenderMesh(this.hiddenMesh);
+                system.capi.Render.RenderMesh(hiddenMesh);
             }
             else
             {
-                this.system.capi.Render.RenderTexture(this.system.textures.wind.TextureId, this.x, this.y, this.w, this.h);
+                system.capi.Render.RenderTexture(system.textures.texturesDict["wind"].TextureId, x, y, w, h);
             }
         }
 
         public override void Dispose()
         {
             base.Dispose();
-            this.text.Dispose();
+            text.Dispose();
         }
     }
 }

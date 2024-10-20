@@ -30,26 +30,26 @@ namespace StatusHud
 
         public StatusHudWeatherElement(StatusHudSystem system, int slot, StatusHudConfig config) : base(system, slot)
         {
-            this.weatherSystem = this.system.capi.ModLoader.GetModSystem<WeatherSystemBase>();
+            weatherSystem = this.system.capi.ModLoader.GetModSystem<WeatherSystemBase>();
 
-            this.renderer = new StatusHudWeatherRenderer(system, slot, this, config.text);
-            this.system.capi.Event.RegisterRenderer(this.renderer, EnumRenderStage.Ortho);
+            renderer = new StatusHudWeatherRenderer(system, slot, this, config.text);
+            this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
             this.config = config;
 
-            this.tempScale = config.options.temperatureScale;
-            this.textureId = this.system.textures.empty.TextureId;
+            tempScale = config.options.temperatureScale;
+            textureId = this.system.textures.texturesDict["empty"].TextureId;
 
             // Config error checking
             if (!tempFormatWords.Any(str => str.Contains(tempScale)))
             {
-                system.capi.Logger.Warning("[" + this.getTextKey() + "] " + tempScale + " is not a valid value for temperatureFormat. Defaulting to C");
+                system.capi.Logger.Warning("[{0}] {1} is not a valid value for temperatureFormat. Defaulting to C", getTextKey(), tempScale);
             }
         }
 
         public override StatusHudRenderer getRenderer()
         {
-            return this.renderer;
+            return renderer;
         }
 
         public virtual string getTextKey()
@@ -59,8 +59,8 @@ namespace StatusHud
 
         public override void Tick()
         {
-            ClimateCondition cc = this.system.capi.World.BlockAccessor.GetClimateAt(this.system.capi.World.Player.Entity.Pos.AsBlockPos, EnumGetClimateMode.NowValues);
-            this.tempScale = config.options.temperatureScale;
+            ClimateCondition cc = system.capi.World.BlockAccessor.GetClimateAt(system.capi.World.Player.Entity.Pos.AsBlockPos, EnumGetClimateMode.NowValues);
+            tempScale = config.options.temperatureScale;
 
             string temperature;
 
@@ -77,14 +77,14 @@ namespace StatusHud
                     break;
             }
 
-            this.renderer.setText(temperature);
-            this.updateTexture(cc);
+            renderer.setText(temperature);
+            updateTexture(cc);
         }
 
         public override void Dispose()
         {
-            this.renderer.Dispose();
-            this.system.capi.Event.UnregisterRenderer(this.renderer, EnumRenderStage.Ortho);
+            renderer.Dispose();
+            system.capi.Event.UnregisterRenderer(renderer, EnumRenderStage.Ortho);
         }
 
         protected void updateTexture(ClimateCondition cc)
@@ -92,40 +92,40 @@ namespace StatusHud
             if (cc.Rainfall > 0)
             {
                 // Show precipitation.
-                switch (this.weatherSystem.WeatherDataSlowAccess.GetPrecType(this.system.capi.World.Player.Entity.Pos.XYZ))
+                switch (weatherSystem.WeatherDataSlowAccess.GetPrecType(system.capi.World.Player.Entity.Pos.XYZ))
                 {
                     case EnumPrecipitationType.Rain:
                         {
-                            this.textureId = cc.Rainfall >= 0.5
-                                    ? this.system.textures.weatherRainHeavy.TextureId
-                                    : this.system.textures.weatherRainLight.TextureId;
+                            textureId = cc.Rainfall >= 0.5
+                                    ? system.textures.texturesDict["weather_rain_heavy"].TextureId
+                                    : system.textures.texturesDict["weather_rain_light"].TextureId;
                             break;
                         }
                     case EnumPrecipitationType.Snow:
                         {
-                            this.textureId = cc.Rainfall >= 0.5
-                                    ? this.system.textures.weatherSnowHeavy.TextureId
-                                    : this.system.textures.weatherSnowLight.TextureId;
+                            textureId = cc.Rainfall >= 0.5
+                                    ? system.textures.texturesDict["weather_snow_heavy"].TextureId
+                                    : system.textures.texturesDict["weather_snow_light"].TextureId;
                             break;
                         }
                     case EnumPrecipitationType.Hail:
                         {
-                            this.textureId = this.system.textures.weatherHail.TextureId;
+                            textureId = system.textures.texturesDict["weather_hail"].TextureId;
                             break;
                         }
                     case EnumPrecipitationType.Auto:
                         {
-                            if (cc.Temperature < this.weatherSystem.WeatherDataSlowAccess.BlendedWeatherData.snowThresholdTemp)
+                            if (cc.Temperature < weatherSystem.WeatherDataSlowAccess.BlendedWeatherData.snowThresholdTemp)
                             {
-                                this.textureId = cc.Rainfall >= 0.5
-                                        ? this.system.textures.weatherSnowHeavy.TextureId
-                                        : this.system.textures.weatherSnowLight.TextureId;
+                                textureId = cc.Rainfall >= 0.5
+                                    ? system.textures.texturesDict["weather_snow_heavy"].TextureId
+                                    : system.textures.texturesDict["weather_snow_light"].TextureId;
                             }
                             else
                             {
-                                this.textureId = cc.Rainfall >= 0.5
-                                        ? this.system.textures.weatherRainHeavy.TextureId
-                                        : this.system.textures.weatherRainLight.TextureId;
+                                textureId = cc.Rainfall >= 0.5
+                                    ? system.textures.texturesDict["weather_rain_heavy"].TextureId
+                                    : system.textures.texturesDict["weather_rain_light"].TextureId;
                             }
                             break;
                         }
@@ -134,18 +134,18 @@ namespace StatusHud
             else
             {
                 // Show clouds.
-                BlockPos pos = this.system.capi.World.Player.Entity.Pos.AsBlockPos;
-                int regionX = (int)pos.X / this.system.capi.World.BlockAccessor.RegionSize;
-                int regionZ = (int)pos.Z / this.system.capi.World.BlockAccessor.RegionSize;
+                BlockPos pos = system.capi.World.Player.Entity.Pos.AsBlockPos;
+                int regionX = (int)pos.X / system.capi.World.BlockAccessor.RegionSize;
+                int regionZ = (int)pos.Z / system.capi.World.BlockAccessor.RegionSize;
 
                 WeatherSimulationRegion weatherSim;
-                long index2d = this.weatherSystem.MapRegionIndex2D(regionX, regionZ);
-                this.weatherSystem.weatherSimByMapRegion.TryGetValue(index2d, out weatherSim);
+                long index2d = weatherSystem.MapRegionIndex2D(regionX, regionZ);
+                weatherSystem.weatherSimByMapRegion.TryGetValue(index2d, out weatherSim);
 
                 if (weatherSim == null)
                 {
                     // Simulation not available.
-                    this.textureId = this.system.textures.empty.TextureId;
+                    textureId = system.textures.texturesDict["empty"].TextureId;
                     return;
                 }
 
@@ -153,17 +153,17 @@ namespace StatusHud
                 {
                     case "clearsky":
                         {
-                            this.textureId = this.system.textures.weatherClear.TextureId;
+                            textureId = system.textures.texturesDict["weather_clear"].TextureId;
                             break;
                         }
                     case "overcast":
                         {
-                            this.textureId = this.system.textures.weatherCloudy.TextureId;
+                            textureId = system.textures.texturesDict["weather_cloudy"].TextureId;
                             break;
                         }
                     default:
                         {
-                            this.textureId = this.system.textures.weatherFair.TextureId;
+                            textureId = system.textures.texturesDict["weather_fair"].TextureId;
                             break;
                         }
                 }
@@ -180,34 +180,34 @@ namespace StatusHud
         {
             this.element = element;
 
-            this.text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
+            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
         }
 
         public override void Reload(StatusHudTextConfig config)
         {
-            this.text.ReloadText(config, this.pos);
+            text.ReloadText(config, pos);
         }
 
         public void setText(string value)
         {
-            this.text.Set(value);
+            text.Set(value);
         }
 
-        protected override void update()
+        protected override void Update()
         {
-            base.update();
-            this.text.Pos(this.pos);
+            base.Update();
+            text.Pos(pos);
         }
 
-        protected override void render()
+        protected override void Render()
         {
-            this.system.capi.Render.RenderTexture(this.element.textureId, this.x, this.y, this.w, this.h);
+            system.capi.Render.RenderTexture(element.textureId, x, y, w, h);
         }
 
         public override void Dispose()
         {
             base.Dispose();
-            this.text.Dispose();
+            text.Dispose();
         }
     }
 }

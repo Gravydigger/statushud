@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
 using Vintagestory.API.Client;
 using Vintagestory.API.MathTools;
 
@@ -55,7 +54,7 @@ namespace StatusHud
 
         public Vec4f ToVec4f()
         {
-            return new Vec4f(this.r, this.g, this.b, this.a);
+            return new Vec4f(r, g, b, a);
         }
     }
 
@@ -86,31 +85,31 @@ namespace StatusHud
             // Load or create config file.
             Load();
 
-            if (this.config == null)
+            if (config == null)
             {
-                this.config = new StatusHudConfig();
+                config = new StatusHudConfig();
             }
             // Create new config file, or update current file to generate missing fields.
-            this.capi.StoreModConfig<StatusHudConfig>(this.config, StatusHudConfigManager.filename);
+            this.capi.StoreModConfig<StatusHudConfig>(config, StatusHudConfigManager.filename);
         }
 
         public StatusHudConfig Get()
         {
-            return this.config;
+            return config;
         }
 
         public void Load()
         {
             try
             {
-                this.config = this.capi.LoadModConfig<StatusHudConfig>(StatusHudConfigManager.filename);
+                config = capi.LoadModConfig<StatusHudConfig>(StatusHudConfigManager.filename);
             }
             catch (Exception) { }
         }
 
         public void LoadElements(StatusHudSystem system)
         {
-            foreach (KeyValuePair<int, StatusHudConfigElement> kvp in this.config.elements)
+            foreach (KeyValuePair<int, StatusHudConfigElement> kvp in config.elements)
             {
                 if (system.Set(kvp.Key, kvp.Value.name))
                 {
@@ -122,10 +121,10 @@ namespace StatusHud
         public void Save(IDictionary<int, StatusHudElement> elements)
         {
             // Save element data to config.
-            this.config.elements.Clear();
+            config.elements.Clear();
             foreach (KeyValuePair<int, StatusHudElement> kvp in elements)
             {
-                this.config.elements.Add(kvp.Key, new StatusHudConfigElement((string)kvp.Value.GetType().GetField("name").GetValue(null),
+                config.elements.Add(kvp.Key, new StatusHudConfigElement((string)kvp.Value.GetType().GetField("name").GetValue(null),
                         kvp.Value.pos.halign,
                         kvp.Value.pos.x,
                         kvp.Value.pos.valign,
@@ -133,12 +132,12 @@ namespace StatusHud
             }
 
             // Save config file.
-            this.capi.StoreModConfig<StatusHudConfig>(this.config, StatusHudConfigManager.filename);
+            capi.StoreModConfig<StatusHudConfig>(config, StatusHudConfigManager.filename);
         }
 
         public void Save()
         {
-            this.capi.StoreModConfig<StatusHudConfig>(this.config, StatusHudConfigManager.filename);
+            capi.StoreModConfig<StatusHudConfig>(config, StatusHudConfigManager.filename);
         }
     }
 

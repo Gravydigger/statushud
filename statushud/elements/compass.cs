@@ -18,15 +18,15 @@ namespace StatusHud
 
         public StatusHudCompassElement(StatusHudSystem system, int slot, StatusHudTextConfig config, bool absolute) : base(system, slot)
         {
-            this.weatherSystem = this.system.capi.ModLoader.GetModSystem<WeatherSystemBase>();
+            weatherSystem = this.system.capi.ModLoader.GetModSystem<WeatherSystemBase>();
 
-            this.renderer = new StatusHudCompassRenderer(this.system, slot, this, config, absolute);
-            this.system.capi.Event.RegisterRenderer(this.renderer, EnumRenderStage.Ortho);
+            renderer = new StatusHudCompassRenderer(this.system, slot, this, config, absolute);
+            this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
         }
 
         public override StatusHudRenderer getRenderer()
         {
-            return this.renderer;
+            return renderer;
         }
 
         public virtual string getTextKey()
@@ -38,8 +38,8 @@ namespace StatusHud
 
         public override void Dispose()
         {
-            this.renderer.Dispose();
-            this.system.capi.Event.UnregisterRenderer(this.renderer, EnumRenderStage.Ortho);
+            renderer.Dispose();
+            system.capi.Event.UnregisterRenderer(renderer, EnumRenderStage.Ortho);
         }
     }
 
@@ -55,42 +55,42 @@ namespace StatusHud
         {
             this.element = element;
             this.absolute = absolute;
-            this.text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
+            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
         }
 
         public override void Reload(StatusHudTextConfig config)
         {
-            this.text.ReloadText(config, this.pos);
+            text.ReloadText(config, pos);
         }
 
         public void setText(string value)
         {
-            this.text.Set(value);
+            text.Set(value);
         }
 
-        protected override void update()
+        protected override void Update()
         {
-            base.update();
-            this.text.Pos(this.pos);
+            base.Update();
+            text.Pos(pos);
         }
 
-        protected override void render()
+        protected override void Render()
         {
-            int direction = (this.mod((int)Math.Round(-this.system.capi.World.Player.CameraYaw * GameMath.RAD2DEG, 0), 360) + 90) % 360;
-            this.text.Set(direction + "°");
+            int direction = (mod((int)Math.Round(-system.capi.World.Player.CameraYaw * GameMath.RAD2DEG, 0), 360) + 90) % 360;
+            text.Set(direction + "°");
 
-            this.system.capi.Render.RenderTexture(this.system.textures.compass.TextureId, this.x, this.y, this.w, this.h);
+            system.capi.Render.RenderTexture(system.textures.texturesDict["compass"].TextureId, x, y, w, h);
 
-            IShaderProgram prog = this.system.capi.Render.GetEngineShader(EnumShaderProgram.Gui);
+            IShaderProgram prog = system.capi.Render.GetEngineShader(EnumShaderProgram.Gui);
             prog.Uniform("rgbaIn", ColorUtil.WhiteArgbVec);
             prog.Uniform("extraGlow", 0);
             prog.Uniform("applyColor", 0);
             prog.Uniform("noTexture", 0f);
-            prog.BindTexture2D("tex2d", this.system.textures.compassNeedle.TextureId, 0);
+            prog.BindTexture2D("tex2d", system.textures.texturesDict["compass_needle"].TextureId, 0);
 
-            float angle = this.system.capi.World.Player.CameraYaw;
+            float angle = system.capi.World.Player.CameraYaw;
 
-            if (this.absolute)
+            if (absolute)
             {
                 // Show player's absolute direction instead of relation to north.
                 angle *= -1;
@@ -101,16 +101,16 @@ namespace StatusHud
             }
 
             // Use hidden matrix and mesh because this element is never hidden.
-            this.hiddenMatrix.Set(this.system.capi.Render.CurrentModelviewMatrix)
-                    .Translate(this.x + (this.w / 2f), this.y + (this.h / 2f), 50)
-                    .Scale(this.w, this.h, 0)
+            hiddenMatrix.Set(system.capi.Render.CurrentModelviewMatrix)
+                    .Translate(x + (w / 2f), y + (h / 2f), 50)
+                    .Scale(w, h, 0)
                     .Scale(0.5f, 0.5f, 0)
                     .RotateZ(angle);
 
-            prog.UniformMatrix("projectionMatrix", this.system.capi.Render.CurrentProjectionMatrix);
-            prog.UniformMatrix("modelViewMatrix", this.hiddenMatrix.Values);
+            prog.UniformMatrix("projectionMatrix", system.capi.Render.CurrentProjectionMatrix);
+            prog.UniformMatrix("modelViewMatrix", hiddenMatrix.Values);
 
-            this.system.capi.Render.RenderMesh(this.hiddenMesh);
+            system.capi.Render.RenderMesh(hiddenMesh);
         }
 
         private int mod(int n, int m)
@@ -122,7 +122,7 @@ namespace StatusHud
         public override void Dispose()
         {
             base.Dispose();
-            this.text.Dispose();
+            text.Dispose();
         }
     }
 }

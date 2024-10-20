@@ -22,24 +22,24 @@ namespace StatusHud
 
         public StatusHudTimeElement(StatusHudSystem system, int slot, StatusHudConfig config) : base(system, slot)
         {
-            this.renderer = new StatusHudTimeRenderer(system, slot, this, config.text);
-            this.system.capi.Event.RegisterRenderer(this.renderer, EnumRenderStage.Ortho);
+            renderer = new StatusHudTimeRenderer(system, slot, this, config.text);
+            this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
             this.config = config;
 
-            this.textureId = this.system.textures.empty.TextureId;
-            this.timeFormat = config.options.timeFormat;
+            textureId = this.system.textures.texturesDict["empty"].TextureId;
+            timeFormat = config.options.timeFormat;
 
             // Config error checking
             if (!timeFormatWords.Any(str => str.Contains(timeFormat)))
             {
-                system.capi.Logger.Warning("[" + this.getTextKey() + "] " + timeFormat + " is not a valid value for timeFormat. Defaulting to 24hr");
+                system.capi.Logger.Warning("[{0}] {1} is not a valid value for timeFormat. Defaulting to 24hr", getTextKey(), timeFormat);
             }
         }
 
         public override StatusHudRenderer getRenderer()
         {
-            return this.renderer;
+            return renderer;
         }
 
         public virtual string getTextKey()
@@ -49,12 +49,12 @@ namespace StatusHud
 
         public override void Tick()
         {
-            TimeSpan ts = TimeSpan.FromHours(this.system.capi.World.Calendar.HourOfDay);
-            this.timeFormat = config.options.timeFormat;
+            TimeSpan ts = TimeSpan.FromHours(system.capi.World.Calendar.HourOfDay);
+            timeFormat = config.options.timeFormat;
 
             string time;
 
-            if (this.timeFormat == "12hr")
+            if (timeFormat == "12hr")
             {
                 DateTime dateTime = new DateTime(ts.Ticks);
                 time = dateTime.ToString("h:mmtt", CultureInfo.InvariantCulture);
@@ -64,39 +64,39 @@ namespace StatusHud
                 time = ts.ToString("hh':'mm");
             }
 
-            this.renderer.setText(time);
+            renderer.setText(time);
 
-            if (this.system.capi.World.Calendar.SunPosition.Y < -5)
+            if (system.capi.World.Calendar.SunPosition.Y < -5)
             {
-                // Night.
-                this.textureId = this.system.textures.timeNight.TextureId;
+                // Night
+                textureId = system.textures.texturesDict["time_night"].TextureId;
             }
-            else if (this.system.capi.World.Calendar.SunPosition.Y < 5)
+            else if (system.capi.World.Calendar.SunPosition.Y < 5)
             {
-                // Twilight.
-                this.textureId = this.system.textures.timeTwilight.TextureId;
+                // Twilight
+                textureId = system.textures.texturesDict["time_twilight"].TextureId;
             }
-            else if (this.system.capi.World.Calendar.SunPosition.Y < 15)
+            else if (system.capi.World.Calendar.SunPosition.Y < 15)
             {
-                // Low.
-                this.textureId = this.system.textures.timeDayLow.TextureId;
+                // Low
+                textureId = system.textures.texturesDict["time_day_low"].TextureId;
             }
-            else if (this.system.capi.World.Calendar.SunPosition.Y < 30)
+            else if (system.capi.World.Calendar.SunPosition.Y < 30)
             {
-                // Mid.
-                this.textureId = this.system.textures.timeDayMid.TextureId;
+                // Mid
+                textureId = system.textures.texturesDict["time_day_mid"].TextureId;
             }
             else
             {
-                // High.
-                this.textureId = this.system.textures.timeDayHigh.TextureId;
+                // High
+                textureId = system.textures.texturesDict["time_day_high"].TextureId;
             }
         }
 
         public override void Dispose()
         {
-            this.renderer.Dispose();
-            this.system.capi.Event.UnregisterRenderer(this.renderer, EnumRenderStage.Ortho);
+            renderer.Dispose();
+            system.capi.Event.UnregisterRenderer(renderer, EnumRenderStage.Ortho);
         }
     }
 
@@ -109,34 +109,34 @@ namespace StatusHud
         {
             this.element = element;
 
-            this.text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
+            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
         }
 
         public override void Reload(StatusHudTextConfig config)
         {
-            this.text.ReloadText(config, this.pos);
+            text.ReloadText(config, pos);
         }
 
         public void setText(string value)
         {
-            this.text.Set(value);
+            text.Set(value);
         }
 
-        protected override void update()
+        protected override void Update()
         {
-            base.update();
-            this.text.Pos(this.pos);
+            base.Update();
+            text.Pos(pos);
         }
 
-        protected override void render()
+        protected override void Render()
         {
-            this.system.capi.Render.RenderTexture(this.element.textureId, this.x, this.y, this.w, this.h);
+            system.capi.Render.RenderTexture(element.textureId, x, y, w, h);
         }
 
         public override void Dispose()
         {
             base.Dispose();
-            this.text.Dispose();
+            text.Dispose();
         }
     }
 }

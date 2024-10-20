@@ -26,24 +26,24 @@ namespace StatusHud
 
         public StatusHudRiftActivityElement(StatusHudSystem system, int slot, StatusHudTextConfig config) : base(system, slot)
         {
-            this.riftSystem = this.system.capi.ModLoader.GetModSystem<ModSystemRiftWeather>();
+            riftSystem = this.system.capi.ModLoader.GetModSystem<ModSystemRiftWeather>();
 
 
-            this.renderer = new StatusHudRiftAvtivityRenderer(system, slot, this, config);
-            this.system.capi.Event.RegisterRenderer(this.renderer, EnumRenderStage.Ortho);
+            renderer = new StatusHudRiftAvtivityRenderer(system, slot, this, config);
+            this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
-            this.textureId = this.system.textures.empty.TextureId;
+            textureId = this.system.textures.texturesDict["empty"].TextureId;
 
-            this.active = this.system.capi.World.Config.GetString("temporalRifts") != "off" ? true : false;
+            active = this.system.capi.World.Config.GetString("temporalRifts") != "off" ? true : false;
 
             // World has to be reloaded for changes to apply
-            this.harmony = new Harmony(harmonyId);
-            this.harmony.Patch(typeof(ModSystemRiftWeather).GetMethod("onPacket", BindingFlags.Instance | BindingFlags.NonPublic),
+            harmony = new Harmony(harmonyId);
+            harmony.Patch(typeof(ModSystemRiftWeather).GetMethod("onPacket", BindingFlags.Instance | BindingFlags.NonPublic),
                     postfix: new HarmonyMethod(typeof(StatusHudRiftActivityElement).GetMethod(nameof(StatusHudRiftActivityElement.receiveData))));
 
-            if (!this.active)
+            if (!active)
             {
-                this.Dispose();
+                Dispose();
             }
         }
 
@@ -54,7 +54,7 @@ namespace StatusHud
 
         public override StatusHudRenderer getRenderer()
         {
-            return this.renderer;
+            return renderer;
         }
 
         public virtual string getTextKey()
@@ -64,58 +64,44 @@ namespace StatusHud
 
         public override void Tick()
         {
-            if (!this.active)
+            if (!active)
             {
                 return;
             }
 
-            if (this.riftSystem == null || riftActivityData == null)
+            if (riftSystem == null || riftActivityData == null)
             {
                 return;
             }
 
-            double hours = this.system.capi.World.Calendar.TotalHours;
+            double hours = system.capi.World.Calendar.TotalHours;
             double nextRiftChange = Math.Max(riftActivityData.UntilTotalHours - hours, 0);
 
             TimeSpan ts = TimeSpan.FromHours(nextRiftChange);
             string text = (int)nextRiftChange + ":" + ts.ToString("mm");
 
-            this.renderer.setText(text);
+            renderer.setText(text);
             updateTexture(riftActivityData.Code);
         }
 
         public override void Dispose()
         {
-            this.harmony.UnpatchAll(harmonyId);
+            harmony.UnpatchAll(harmonyId);
 
-            this.renderer.Dispose();
-            this.system.capi.Event.UnregisterRenderer(this.renderer, EnumRenderStage.Ortho);
+            renderer.Dispose();
+            system.capi.Event.UnregisterRenderer(renderer, EnumRenderStage.Ortho);
         }
 
         protected void updateTexture(string activity)
         {
-            switch (activity)
+            try
             {
-                case "calm":
-                    this.textureId = this.system.textures.riftCalm.TextureId;
-                    break;
-                case "low":
-                    this.textureId = this.system.textures.riftLow.TextureId;
-                    break;
-                case "medium":
-                    this.textureId = this.system.textures.riftMedium.TextureId;
-                    break;
-                case "high":
-                    this.textureId = this.system.textures.riftHigh.TextureId;
-                    break;
-                case "veryhigh":
-                    this.textureId = this.system.textures.riftVeryHigh.TextureId;
-                    break;
-                case "apocalyptic":
-                    this.textureId = this.system.textures.riftApocalyptic.TextureId;
-                    break;
-                default:
-                    break;
+                textureId = system.textures.texturesDict["rift_" + activity].TextureId;
+            }
+            catch (System.Collections.Generic.KeyNotFoundException)
+            {
+                system.capi.Logger.Error("For {0} element, texture rift_{1} is not valid", name, activity);
+                throw;
             }
         }
     }
@@ -130,43 +116,43 @@ namespace StatusHud
         {
             this.element = element;
 
-            this.text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
+            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
         }
 
         public override void Reload(StatusHudTextConfig config)
         {
-            this.text.ReloadText(config, this.pos);
+            text.ReloadText(config, pos);
         }
 
         public void setText(string value)
         {
-            this.text.Set(value);
+            text.Set(value);
         }
 
-        protected override void update()
+        protected override void Update()
         {
-            base.update();
-            this.text.Pos(this.pos);
+            base.Update();
+            text.Pos(pos);
         }
 
-        protected override void render()
+        protected override void Render()
         {
-            if (!this.element.active)
+            if (!element.active)
             {
-                if (this.system.showHidden)
+                if (system.ShowHidden)
                 {
-                    this.renderHidden(this.system.textures.riftCalm.TextureId);
+                    this.RenderHidden(system.textures.texturesDict["rift_calm"].TextureId);
                 }
                 return;
             }
 
-            this.system.capi.Render.RenderTexture(this.element.textureId, this.x, this.y, this.w, this.h);
+            system.capi.Render.RenderTexture(element.textureId, x, y, w, h);
         }
 
         public override void Dispose()
         {
             base.Dispose();
-            this.text.Dispose();
+            text.Dispose();
         }
     }
 }

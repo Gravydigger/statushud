@@ -20,15 +20,15 @@ namespace StatusHud
 
         public StatusHudSleepElement(StatusHudSystem system, int slot, StatusHudTextConfig config) : base(system, slot)
         {
-            this.renderer = new StatusHudSleepRenderer(system, slot, this, config);
-            this.system.capi.Event.RegisterRenderer(this.renderer, EnumRenderStage.Ortho);
+            renderer = new StatusHudSleepRenderer(system, slot, this, config);
+            this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
-            this.active = false;
+            active = false;
         }
 
         public override StatusHudRenderer getRenderer()
         {
-            return this.renderer;
+            return renderer;
         }
 
         public virtual string getTextKey()
@@ -38,7 +38,7 @@ namespace StatusHud
 
         public override void Tick()
         {
-            EntityBehaviorTiredness ebt = this.system.capi.World.Player.Entity.GetBehavior("tiredness") as EntityBehaviorTiredness;
+            EntityBehaviorTiredness ebt = system.capi.World.Player.Entity.GetBehavior("tiredness") as EntityBehaviorTiredness;
 
             if (ebt == null)
             {
@@ -49,25 +49,25 @@ namespace StatusHud
                     && !ebt.IsSleeping)
             {
                 TimeSpan ts = TimeSpan.FromHours((threshold - ebt.Tiredness) / ratio);
-                this.renderer.setText(ts.ToString("h':'mm"));
+                renderer.setText(ts.ToString("h':'mm"));
 
-                this.active = true;
+                active = true;
             }
             else
             {
-                if (this.active)
+                if (active)
                 {
                     // Only set text once.
-                    this.renderer.setText("");
+                    renderer.setText("");
                 }
-                this.active = false;
+                active = false;
             }
         }
 
         public override void Dispose()
         {
-            this.renderer.Dispose();
-            this.system.capi.Event.UnregisterRenderer(this.renderer, EnumRenderStage.Ortho);
+            renderer.Dispose();
+            system.capi.Event.UnregisterRenderer(renderer, EnumRenderStage.Ortho);
         }
     }
 
@@ -81,43 +81,43 @@ namespace StatusHud
         {
             this.element = element;
 
-            this.text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
+            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
         }
         public override void Reload(StatusHudTextConfig config)
         {
-            this.text.ReloadText(config, this.pos);
+            text.ReloadText(config, pos);
         }
 
 
         public void setText(string value)
         {
-            this.text.Set(value);
+            text.Set(value);
         }
 
-        protected override void update()
+        protected override void Update()
         {
-            base.update();
-            this.text.Pos(this.pos);
+            base.Update();
+            text.Pos(pos);
         }
 
-        protected override void render()
+        protected override void Render()
         {
-            if (!this.element.active)
+            if (!element.active)
             {
-                if (this.system.showHidden)
+                if (system.ShowHidden)
                 {
-                    this.renderHidden(this.system.textures.sleep.TextureId);
+                    this.RenderHidden(system.textures.texturesDict["sleep"].TextureId);
                 }
                 return;
             }
 
-            this.system.capi.Render.RenderTexture(this.system.textures.sleep.TextureId, this.x, this.y, this.w, this.h);
+            system.capi.Render.RenderTexture(system.textures.texturesDict["sleep"].TextureId, x, y, w, h);
         }
 
         public override void Dispose()
         {
             base.Dispose();
-            this.text.Dispose();
+            text.Dispose();
         }
     }
 }

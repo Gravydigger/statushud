@@ -41,13 +41,13 @@ namespace StatusHud
         {
             if (controlButtons.Save)
             {
-                this.system.saveConfig();
+                system.SaveConfig();
                 saveMessage = "Config Saved! |";
             }
 
             if (controlButtons.Defaults)
             {
-                this.system.installDefault();
+                system.InstallDefault();
                 saveMessage = "Config Set To Defaults |";
             }
 
@@ -102,11 +102,11 @@ namespace StatusHud
 
             if (selectedTempScaleLocal != selectedTempScale)
             {
-                this.config.options.temperatureScale = StatusHudSystem.tempScaleWords[selectedTempScale][0];
+                config.options.temperatureScale = StatusHudSystem.tempScaleWords[selectedTempScale][0];
             }
             if (selectedTimeFormatLocal != selectedTimeFormat)
             {
-                this.config.options.timeFormat = StatusHudSystem.timeFormatWords[selectedTimeFormat];
+                config.options.timeFormat = StatusHudSystem.timeFormatWords[selectedTimeFormat];
             }
         }
 
@@ -163,7 +163,7 @@ namespace StatusHud
                     if (slot != 0)
                     {
                         system.Set(slot, elementNames[selectedElement]);
-                        this.elements[slot].Ping();
+                        elements[slot].Ping();
                     }
                     else
                     {

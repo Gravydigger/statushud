@@ -14,13 +14,13 @@ namespace StatusHud
 
         public StatusHudPlayersElement(StatusHudSystem system, int slot, StatusHudTextConfig config) : base(system, slot)
         {
-            this.renderer = new StatusHudPlayersRenderer(system, slot, this, config);
-            this.system.capi.Event.RegisterRenderer(this.renderer, EnumRenderStage.Ortho);
+            renderer = new StatusHudPlayersRenderer(system, slot, this, config);
+            this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
         }
 
         public override StatusHudRenderer getRenderer()
         {
-            return this.renderer;
+            return renderer;
         }
 
         public virtual string getTextKey()
@@ -30,13 +30,13 @@ namespace StatusHud
 
         public override void Tick()
         {
-            this.renderer.setText(this.system.capi.World.AllOnlinePlayers.Length.ToString());
+            renderer.setText(system.capi.World.AllOnlinePlayers.Length.ToString());
         }
 
         public override void Dispose()
         {
-            this.renderer.Dispose();
-            this.system.capi.Event.UnregisterRenderer(this.renderer, EnumRenderStage.Ortho);
+            renderer.Dispose();
+            system.capi.Event.UnregisterRenderer(renderer, EnumRenderStage.Ortho);
         }
     }
 
@@ -50,34 +50,34 @@ namespace StatusHud
         {
             this.element = element;
 
-            this.text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
+            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
         }
 
         public override void Reload(StatusHudTextConfig config)
         {
-            this.text.ReloadText(config, this.pos);
+            text.ReloadText(config, pos);
         }
 
         public void setText(string value)
         {
-            this.text.Set(value);
+            text.Set(value);
         }
 
-        protected override void update()
+        protected override void Update()
         {
-            base.update();
-            this.text.Pos(this.pos);
+            base.Update();
+            text.Pos(pos);
         }
 
-        protected override void render()
+        protected override void Render()
         {
-            this.system.capi.Render.RenderTexture(this.system.textures.players.TextureId, this.x, this.y, this.w, this.h);
+            system.capi.Render.RenderTexture(system.textures.texturesDict["players"].TextureId, x, y, w, h);
         }
 
         public override void Dispose()
         {
             base.Dispose();
-            this.text.Dispose();
+            text.Dispose();
         }
     }
 }

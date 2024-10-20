@@ -17,13 +17,13 @@ namespace StatusHud
 
         public StatusHudDurabilityElement(StatusHudSystem system, int slot, StatusHudTextConfig config) : base(system, slot, true)
         {
-            this.renderer = new StatusHudDurabilityRenderer(this.system, this.slot, this, config);
-            this.system.capi.Event.RegisterRenderer(this.renderer, EnumRenderStage.Ortho);
+            renderer = new StatusHudDurabilityRenderer(this.system, this.slot, this, config);
+            this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
         }
 
         public override StatusHudRenderer getRenderer()
         {
-            return this.renderer;
+            return renderer;
         }
 
         public virtual string getTextKey()
@@ -33,28 +33,28 @@ namespace StatusHud
 
         public override void Tick()
         {
-            CollectibleObject item = this.system.capi.World.Player.InventoryManager.ActiveHotbarSlot?.Itemstack?.Collectible;
+            CollectibleObject item = system.capi.World.Player.InventoryManager.ActiveHotbarSlot?.Itemstack?.Collectible;
 
             if (item != null
                     && item.Durability != 0)
             {
-                this.renderer.setText(item.GetRemainingDurability(this.system.capi.World.Player.InventoryManager.ActiveHotbarSlot.Itemstack).ToString());
-                this.active = true;
+                renderer.setText(item.GetRemainingDurability(system.capi.World.Player.InventoryManager.ActiveHotbarSlot.Itemstack).ToString());
+                active = true;
             }
             else
             {
-                if (this.active)
+                if (active)
                 {
-                    this.renderer.setText("");
+                    renderer.setText("");
                 }
-                this.active = false;
+                active = false;
             }
         }
 
         public override void Dispose()
         {
-            this.renderer.Dispose();
-            this.system.capi.Event.UnregisterRenderer(this.renderer, EnumRenderStage.Ortho);
+            renderer.Dispose();
+            system.capi.Event.UnregisterRenderer(renderer, EnumRenderStage.Ortho);
         }
     }
 
@@ -68,43 +68,43 @@ namespace StatusHud
         {
             this.element = element;
 
-            this.text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
+            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
         }
 
         public override void Reload(StatusHudTextConfig config)
         {
-            this.text.ReloadText(config, this.pos);
+            text.ReloadText(config, pos);
         }
 
         public void setText(string value)
         {
-            this.text.Set(value);
+            text.Set(value);
         }
 
-        protected override void update()
+        protected override void Update()
         {
-            base.update();
-            this.text.Pos(this.pos);
+            base.Update();
+            text.Pos(pos);
         }
 
-        protected override void render()
+        protected override void Render()
         {
-            if (!this.element.active)
+            if (!element.active)
             {
-                if (this.system.showHidden)
+                if (system.ShowHidden)
                 {
-                    this.renderHidden(this.system.textures.durability.TextureId);
+                    RenderHidden(system.textures.texturesDict["durability"].TextureId);
                 }
                 return;
             }
 
-            this.system.capi.Render.RenderTexture(this.system.textures.durability.TextureId, this.x, this.y, this.w, this.h);
+            system.capi.Render.RenderTexture(system.textures.texturesDict["durability"].TextureId, x, y, w, h);
         }
 
         public override void Dispose()
         {
             base.Dispose();
-            this.text.Dispose();
+            text.Dispose();
         }
     }
 }

@@ -24,23 +24,23 @@ namespace StatusHud
             this.slot = slot;
             this.fast = fast;
 
-            this.pos = new StatusHudPos();
+            pos = new StatusHudPos();
         }
 
         public void Pos(int halign, int x, int valign, int y)
         {
-            this.pos.Set(halign, x, valign, y);
+            pos.Set(halign, x, valign, y);
             Pos();
         }
 
         private void CheckPosBounds()
         {
-            int frameWidthMax = this.system.capi.Render.FrameWidth;
-            int frameHeightMax = this.system.capi.Render.FrameHeight;
+            int frameWidthMax = system.capi.Render.FrameWidth;
+            int frameHeightMax = system.capi.Render.FrameHeight;
             int frameWidthMin = 0;
             int frameHeightMin = 0;
 
-            switch (this.pos.halign)
+            switch (pos.halign)
             {
                 case -1: // Left
                     frameWidthMax /= 2;
@@ -55,7 +55,7 @@ namespace StatusHud
                     break;
             }
 
-            switch (this.pos.valign)
+            switch (pos.valign)
             {
                 case -1: // Top
                     frameHeightMax /= 2;
@@ -70,34 +70,27 @@ namespace StatusHud
                     break;
             }
 
-            this.pos.x = Math.Min(frameWidthMax, Math.Max(frameWidthMin, this.pos.x));
-            this.pos.y = Math.Min(frameHeightMax, Math.Max(frameHeightMin, this.pos.y));
+            pos.x = Math.Min(frameWidthMax, Math.Max(frameWidthMin, pos.x));
+            pos.y = Math.Min(frameHeightMax, Math.Max(frameHeightMin, pos.y));
         }
 
         public void Pos()
         {
             CheckPosBounds();
-            this.getRenderer().Pos(this.pos);
+            getRenderer().Pos(pos);
         }
 
         public bool Repos()
         {
-            //int sign = Math.Sign(this.slot);
+            pos.Set(0,0,0,0);
 
-            //this.pos.Set(StatusHudPos.halignCenter,
-            //        (sign * StatusHudElement.offsetX) + (int)((this.slot - sign) * (this.system.textures.size * 1.5f)),
-            //        StatusHudPos.valignBottom,
-            //        StatusHudElement.offsetY);
-
-            this.pos.Set(0,0,0,0);
-
-            this.getRenderer().Pos(this.pos);
+            getRenderer().Pos(pos);
             return true;
         }
 
         public void Ping()
         {
-            this.getRenderer().Ping();
+            getRenderer().Ping();
         }
 
         public abstract void Tick();

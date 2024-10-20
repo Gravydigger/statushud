@@ -33,26 +33,26 @@ namespace StatusHud
             this.config = config;
             this.iconSize = iconSize;
 
-            this.colour = config.colour.ToVec4f();
-            this.width = this.iconSize * 3;
-            this.height = this.iconSize;
+            colour = config.colour.ToVec4f();
+            width = this.iconSize * 3;
+            height = this.iconSize;
 
-            this.dialogName = dialogNamePrefix + this.key;
-            this.font = this.initFont();
+            dialogName = dialogNamePrefix + this.key;
+            font = initFont();
 
-            this.composed = false;
+            composed = false;
         }
 
         public override void Dispose()
         {
-            this.TryClose();
+            TryClose();
             base.Dispose();
         }
 
         public void ReloadText(StatusHudTextConfig config, StatusHudPos pos)
         {
-            this.colour = config.colour.ToVec4f();
-            this.font = initFont();
+            colour = config.colour.ToVec4f();
+            font = initFont();
             Pos(pos);
         }
 
@@ -133,18 +133,18 @@ namespace StatusHud
                     }
             }
 
-            float iconHalf = this.iconSize / 2f;
-            float frameWidth = this.capi.Render.FrameWidth;
-            float frameHeight = this.capi.Render.FrameHeight;
+            float iconHalf = iconSize / 2f;
+            float frameWidth = capi.Render.FrameWidth;
+            float frameHeight = capi.Render.FrameHeight;
 
             // X.
             switch (pos.halign)
             {
                 case StatusHudPos.halignLeft:
                     {
-                        x = GameMath.Clamp(x, 0, frameWidth - this.iconSize);
+                        x = GameMath.Clamp(x, 0, frameWidth - iconSize);
 
-                        x -= (float)Math.Round((this.width - this.iconSize) / 2f);
+                        x -= (float)Math.Round((width - iconSize) / 2f);
                         break;
                     }
                 case StatusHudPos.halignCenter:
@@ -154,9 +154,9 @@ namespace StatusHud
                     }
                 case StatusHudPos.halignRight:
                     {
-                        x = GameMath.Clamp(x, 0, frameWidth - this.iconSize);
+                        x = GameMath.Clamp(x, 0, frameWidth - iconSize);
 
-                        x = -x + (float)Math.Round((this.width - this.iconSize) / 2f);
+                        x = -x + (float)Math.Round((width - iconSize) / 2f);
                         break;
                     }
             }
@@ -166,7 +166,7 @@ namespace StatusHud
             {
                 case StatusHudPos.valignTop:
                     {
-                        y = GameMath.Clamp(y, 0, frameHeight - this.iconSize);
+                        y = GameMath.Clamp(y, 0, frameHeight - iconSize);
                         break;
                     }
                 case StatusHudPos.valignMiddle:
@@ -183,41 +183,41 @@ namespace StatusHud
                     }
             }
 
-            this.compose(area, x, y);
+            compose(area, x, y);
         }
 
         public void Set(string value)
         {
-            this.text.Text = value;
-            this.text.RecomposeText();
+            text.Text = value;
+            text.RecomposeText();
         }
 
         protected void compose(EnumDialogArea area, float x, float y)
         {
-            if (this.composed)
+            if (composed)
             {
-                this.Dispose();
+                Dispose();
             }
 
-            ElementBounds dialogBounds = ElementBounds.Fixed(area, x + this.config.offsetX, y + this.config.offsetY, this.width, this.height);
-            ElementBounds textBounds = ElementBounds.Fixed(EnumDialogArea.CenterTop, 0, 0, this.width, this.height);
-            this.SingleComposer = this.capi.Gui.CreateCompo(this.dialogName, dialogBounds)
-                    .AddDynamicText("", this.font, textBounds, this.key)
+            ElementBounds dialogBounds = ElementBounds.Fixed(area, x + config.offsetX, y + config.offsetY, width, height);
+            ElementBounds textBounds = ElementBounds.Fixed(EnumDialogArea.CenterTop, 0, 0, width, height);
+            SingleComposer = capi.Gui.CreateCompo(dialogName, dialogBounds)
+                    .AddDynamicText("", font, textBounds, key)
                     .Compose();
-            this.text = this.SingleComposer.GetDynamicText(key);
-            this.TryOpen();
+            text = SingleComposer.GetDynamicText(key);
+            TryOpen();
 
-            this.composed = true;
+            composed = true;
         }
 
         protected virtual CairoFont initFont()
         {
             return new CairoFont()
-                    .WithColor(new double[] { this.colour.R, this.colour.G, this.colour.B, this.colour.A })
+                    .WithColor(new double[] { colour.R, colour.G, colour.B, colour.A })
                     .WithFont(GuiStyle.StandardFontName)
-                    .WithFontSize(this.config.size)
-                    .WithWeight(this.config.bold ? Cairo.FontWeight.Bold : Cairo.FontWeight.Normal)
-                    .WithOrientation(this.config.align)
+                    .WithFontSize(config.size)
+                    .WithWeight(config.bold ? Cairo.FontWeight.Bold : Cairo.FontWeight.Normal)
+                    .WithOrientation(config.align)
                     .WithStroke(new double[] { 0, 0, 0, 0.5 }, 2);
         }
     }
