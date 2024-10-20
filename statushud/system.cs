@@ -66,6 +66,8 @@ namespace StatusHud
         public StatusHudTextures textures;
 
         protected StatusHudGui gui;
+
+        private GuiDialog dialog;
         private string uuid = null;
         public bool ShowHidden
         {
@@ -218,6 +220,10 @@ namespace StatusHud
 
             capi.Event.PlayerJoin += SetUUID;
             capi.ModLoader.GetModSystem<ConfigLibModSystem>().RegisterCustomConfig(domain, gui.DrawConfigLibSettings);
+
+            dialog = new StatusHudConfigGui(capi);
+            capi.Input.RegisterHotKey("statushudconfiggui", "Status Hud Menu", GlKeys.U, HotkeyType.GUIOrOtherControls);
+            capi.Input.SetHotKeyHandler("statushudconfiggui", ToggleConfigGui);
 #if DEBUG
             this.capi.Logger.Debug(Print("Debug logging Enabled"));
 #endif
@@ -378,6 +384,14 @@ namespace StatusHud
             }
         }
 
+        private bool ToggleConfigGui(KeyCombination comb)
+        {
+            if (dialog.IsOpened()) dialog.TryClose();
+            else dialog.TryOpen();
+
+            return true;
+        }
+
         public string UUID { get { return uuid; } }
 
         protected TextCommandResult CmdDefault(TextCommandCallingArgs args)
@@ -494,8 +508,8 @@ namespace StatusHud
             string element = (string)args[0];
             string message = null;
 
-            
-            
+
+
             foreach (Type type in StatusHudSystem.elementTypes)
             {
                 if (type.GetField("name").GetValue(null).ToString() == element)
@@ -621,7 +635,7 @@ namespace StatusHud
             Pos(-1, StatusHudPos.halignCenter, sideX + (int)(offset * 10f), StatusHudPos.valignBottom, bottomY);
 
             Set(1, StatusHudRoomElement.name);
-            Pos(1, StatusHudPos.halignCenter, -1* (sideX + (int)(offset * 9f)), StatusHudPos.valignBottom, bottomY);
+            Pos(1, StatusHudPos.halignCenter, -1 * (sideX + (int)(offset * 9f)), StatusHudPos.valignBottom, bottomY);
 
             Set(2, StatusHudSleepElement.name);
             Pos(2, StatusHudPos.halignRight, sideMinimapX + offset, StatusHudPos.valignTop, topY);
