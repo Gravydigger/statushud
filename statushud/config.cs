@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
 using Vintagestory.API.Client;
 using Vintagestory.API.MathTools;
 

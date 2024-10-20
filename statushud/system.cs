@@ -208,7 +208,7 @@ namespace StatusHud
             {
                 if (config.Get().elements.Count == 0)
                 {
-                    // Install default layout.
+                    // Install default layout
                     InstallDefault();
                 }
 

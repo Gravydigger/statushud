@@ -53,7 +53,7 @@ namespace StatusHud
             texturesDict.Add("ping", ping);
 
             // Load Texture files
-            loadAllTextures();
+            LoadAllTextures();
         }
 
         public void Dispose()
@@ -65,7 +65,7 @@ namespace StatusHud
             texturesDict.Clear();
         }
 
-        protected void loadAllTextures()
+        protected void LoadAllTextures()
         {
             List<AssetLocation> assetLocations = capi.Assets.GetLocations("textures/", StatusHudSystem.domain);
 
