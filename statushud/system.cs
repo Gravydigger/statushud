@@ -67,7 +67,7 @@ namespace StatusHud
 
         protected StatusHudGui gui;
         private string uuid = null;
-        public bool showHidden
+        public bool ShowHidden
         {
             get
             {
@@ -75,58 +75,36 @@ namespace StatusHud
             }
         }
 
-        protected StatusHudElement instantiate(int slot, string name)
+        protected StatusHudElement Instantiate(int slot, string name)
         {
             StatusHudConfig config = this.config.Get();
             StatusHudTextConfig textConfig = config.text;
 
-            switch (name)
+            return name switch
             {
-                case StatusHudAltitudeElement.name:
-                    return new StatusHudAltitudeElement(this, slot, textConfig);
-                case StatusHudArmourElement.name:
-                    return new StatusHudArmourElement(this, slot, textConfig);
-                case StatusHudBodyheatElement.name:
-                    return new StatusHudBodyheatElement(this, slot, config);
-                case StatusHudCompassElement.name:
-                    return new StatusHudCompassElement(this, slot, textConfig, config.compassAbsolute);
-                case StatusHudDateElement.name:
-                    return new StatusHudDateElement(this, slot, textConfig, config.months);
-                case StatusHudDurabilityElement.name:
-                    return new StatusHudDurabilityElement(this, slot, textConfig);
-                case StatusHudLatitudeElement.name:
-                    return new StatusHudLatitudeElement(this, slot, textConfig);
-                case StatusHudLightElement.name:
-                    return new StatusHudLightElement(this, slot, textConfig);
-                case StatusHudPingElement.name:
-                    return new StatusHudPingElement(this, slot, textConfig);
-                case StatusHudPlayersElement.name:
-                    return new StatusHudPlayersElement(this, slot, textConfig);
-                case StatusHudRiftActivityElement.name:
-                    return new StatusHudRiftActivityElement(this, slot, textConfig);
-                case StatusHudRoomElement.name:
-                    return new StatusHudRoomElement(this, slot);
-                case StatusHudSleepElement.name:
-                    return new StatusHudSleepElement(this, slot, textConfig);
-                case StatusHudSpeedElement.name:
-                    return new StatusHudSpeedElement(this, slot, textConfig);
-                case StatusHudStabilityElement.name:
-                    return new StatusHudStabilityElement(this, slot, textConfig);
-                case StatusHudTempstormElement.name:
-                    return new StatusHudTempstormElement(this, slot, textConfig);
-                case StatusHudTimeElement.name:
-                    return new StatusHudTimeElement(this, slot, config);
-                case StatusHudTimeLocalElement.name:
-                    return new StatusHudTimeLocalElement(this, slot, config);
-                case StatusHudWeatherElement.name:
-                    return new StatusHudWeatherElement(this, slot, config);
-                case StatusHudWetElement.name:
-                    return new StatusHudWetElement(this, slot, textConfig);
-                case StatusHudWindElement.name:
-                    return new StatusHudWindElement(this, slot, textConfig);
-                default:
-                    return null;
-            }
+                StatusHudAltitudeElement.name => new StatusHudAltitudeElement(this, slot, textConfig),
+                StatusHudArmourElement.name => new StatusHudArmourElement(this, slot, textConfig),
+                StatusHudBodyheatElement.name => new StatusHudBodyheatElement(this, slot, config),
+                StatusHudCompassElement.name => new StatusHudCompassElement(this, slot, textConfig, config.compassAbsolute),
+                StatusHudDateElement.name => new StatusHudDateElement(this, slot, textConfig, config.months),
+                StatusHudDurabilityElement.name => new StatusHudDurabilityElement(this, slot, textConfig),
+                StatusHudLatitudeElement.name => new StatusHudLatitudeElement(this, slot, textConfig),
+                StatusHudLightElement.name => new StatusHudLightElement(this, slot, textConfig),
+                StatusHudPingElement.name => new StatusHudPingElement(this, slot, textConfig),
+                StatusHudPlayersElement.name => new StatusHudPlayersElement(this, slot, textConfig),
+                StatusHudRiftActivityElement.name => new StatusHudRiftActivityElement(this, slot, textConfig),
+                StatusHudRoomElement.name => new StatusHudRoomElement(this, slot),
+                StatusHudSleepElement.name => new StatusHudSleepElement(this, slot, textConfig),
+                StatusHudSpeedElement.name => new StatusHudSpeedElement(this, slot, textConfig),
+                StatusHudStabilityElement.name => new StatusHudStabilityElement(this, slot, textConfig),
+                StatusHudTempstormElement.name => new StatusHudTempstormElement(this, slot, textConfig),
+                StatusHudTimeElement.name => new StatusHudTimeElement(this, slot, config),
+                StatusHudTimeLocalElement.name => new StatusHudTimeLocalElement(this, slot, config),
+                StatusHudWeatherElement.name => new StatusHudWeatherElement(this, slot, config),
+                StatusHudWetElement.name => new StatusHudWetElement(this, slot, textConfig),
+                StatusHudWindElement.name => new StatusHudWindElement(this, slot, textConfig),
+                _ => null,
+            };
         }
 
         public override bool ShouldLoad(EnumAppSide side)
@@ -211,7 +189,7 @@ namespace StatusHud
                             .HandleWith(CmdTimeFormat)
                             .EndSubCommand()
                         .BeginSubCommand("tempscale")
-                            .WithDescription("Change temperature scale to �C, �F, or �K")
+                            .WithDescription("Change temperature scale to °C, °F, or °K")
                             .WithArgs(capi.ChatCommands.Parsers.WordRange("C/F/K", tempScaleWords))
                             .HandleWith(CmdTempScale)
                             .EndSubCommand()
@@ -278,7 +256,7 @@ namespace StatusHud
 
         public bool Set(int slot, string name)
         {
-            StatusHudElement element = instantiate(slot, name);
+            StatusHudElement element = Instantiate(slot, name);
 
             if (element == null)
             {
@@ -516,6 +494,8 @@ namespace StatusHud
             string element = (string)args[0];
             string message = null;
 
+            
+            
             foreach (Type type in StatusHudSystem.elementTypes)
             {
                 if (type.GetField("name").GetValue(null).ToString() == element)

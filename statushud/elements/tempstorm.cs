@@ -156,7 +156,7 @@ namespace StatusHud
         {
             if (!element.active)
             {
-                if (system.showHidden)
+                if (system.ShowHidden)
                 {
                     this.RenderHidden(system.textures.texturesDict["tempstorm_incoming"].TextureId);
                 }

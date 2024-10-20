@@ -145,7 +145,7 @@ namespace StatusHud
         {
             if (!element.active)
             {
-                if (system.showHidden)
+                if (system.ShowHidden)
                 {
                     RenderHidden(system.textures.texturesDict["bodyheat"].TextureId);
                 }

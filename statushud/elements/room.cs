@@ -94,7 +94,7 @@ namespace StatusHud
         {
             if (!element.inside)
             {
-                if (system.showHidden)
+                if (system.ShowHidden)
                 {
                     this.RenderHidden(system.textures.texturesDict["room_room"].TextureId);
                 }
