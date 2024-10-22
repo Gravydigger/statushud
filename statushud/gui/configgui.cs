@@ -93,6 +93,29 @@ public class StatusHudConfigGui : GuiDialog
         elementSelector = new GuiDialogMoveable(capi);
     }
 
+    private void OnTitleBarCloseClicked()
+    {
+        TryClose();
+    }
+
+    private bool OnSave()
+    {
+        capi.Logger.Notification("You pressed the Save Button!");
+        return true;
+    }
+
+    private bool OnDefault()
+    {
+        capi.Logger.Notification("You pressed the Default Button!");
+        return true;
+    }
+
+    private bool OnRestore()
+    {
+        capi.Logger.Notification("You pressed the Restore Button!");
+        return true;
+    }
+
     private void OnSelectionChange(string code, bool selected)
     {
         capi.Logger.Notification("You changed the drop down value! code: {0}, selected {1}", code, selected);
@@ -103,6 +126,18 @@ public class StatusHudConfigGui : GuiDialog
         capi.Logger.Notification("You typed in a number!");
     }
 
+    private void OnHidden(bool on)
+    {
+        if (on)
+        {
+            capi.Logger.Notification("Showing Hidden Elements");
+        }
+        else
+        {
+            capi.Logger.Notification("Hiding Hidden Elements");
+        }
+
+    }
 
     private void OnEdit(bool on)
     {
@@ -128,54 +163,5 @@ public class StatusHudConfigGui : GuiDialog
             capi.Logger.Notification("Disabling Element");
         }
 
-    }
-
-    private void OnHidden(bool on)
-    {
-        if (on)
-        {
-            capi.Logger.Notification("Showing Hidden Elements");
-        }
-        else
-        {
-            capi.Logger.Notification("Hiding Hidden Elements");
-        }
-
-    }
-    private void OnTitleBarCloseClicked()
-    {
-        TryClose();
-    }
-
-    private bool OnSave()
-    {
-        capi.Logger.Notification("You pressed the Save Button!");
-        return true;
-    }
-
-    private bool OnEdit()
-    {
-        if (elementSelector.IsOpened())
-        {
-            elementSelector.TryClose();
-        }
-        else
-        {
-            elementSelector.TryOpen();
-        }
-
-        return true;
-    }
-
-    private bool OnDefault()
-    {
-        capi.Logger.Notification("You pressed the Default Button!");
-        return true;
-    }
-
-    private bool OnRestore()
-    {
-        capi.Logger.Notification("You pressed the Restore Button!");
-        return true;
     }
 }
