@@ -1,15 +1,19 @@
-using System;
+using StatusHud;
 using Vintagestory.API.Client;
 
 public class StatusHudConfigGui : GuiDialog
 {
     public override string ToggleKeyCombinationCode => "statushudconfiggui";
 
+    private StatusHudSystem system;
     private GuiDialog elementSelector;
-    protected GuiComposer configGui;
 
-    public StatusHudConfigGui(ICoreClientAPI capi) : base(capi)
+    private int fontSize;
+    private int iconSize;
+
+    public StatusHudConfigGui(ICoreClientAPI capi, StatusHudSystem system) : base(capi)
     {
+        this.system = system;
         SetupDialog();
     }
 
@@ -75,9 +79,9 @@ public class StatusHudConfigGui : GuiDialog
                 .AddButton("Default", OnDefault, defaultButtonBounds)
                 .AddButton("Restore", OnRestore, restoreButtonBounds)
                 .AddStaticTextAutoFontSize("Icon Size", CairoFont.WhiteSmallishText(), iconSizeTextBounds)
-                .AddTextInput(iconSizeInputBounds, TextInput)
+                .AddTextInput(iconSizeInputBounds, OnIconSize)
                 .AddStaticTextAutoFontSize("Font Size", CairoFont.WhiteSmallishText(), fontSizeTextBounds)
-                .AddTextInput(fontSizeInputBounds, TextInput)
+                .AddTextInput(fontSizeInputBounds, OnFontSize)
                 .AddToggleButton("Show Hidden Elements", CairoFont.ButtonText(), OnHidden, showHiddenButtonBounds)
                 .AddDropDown(values, names, selectedIndex, OnSelectionChange, moveElementDropdownBounds)
                 .BeginChildElements(editingBgBounds)
@@ -100,30 +104,38 @@ public class StatusHudConfigGui : GuiDialog
 
     private bool OnSave()
     {
-        capi.Logger.Notification("You pressed the Save Button!");
+        capi.Logger.Debug("Save Button Pressed");
+        system.SaveConfig();
         return true;
     }
 
     private bool OnDefault()
     {
         capi.Logger.Notification("You pressed the Default Button!");
+        system.InstallDefault();
         return true;
     }
 
     private bool OnRestore()
     {
         capi.Logger.Notification("You pressed the Restore Button!");
+        system.LoadConfig();
         return true;
+    }
+
+    private void OnIconSize(string value)
+    {
+        capi.Logger.Notification("You typed in a number!");
+    }
+
+    private void OnFontSize(string value)
+    {
+        capi.Logger.Notification("You typed in a number!");
     }
 
     private void OnSelectionChange(string code, bool selected)
     {
         capi.Logger.Notification("You changed the drop down value! code: {0}, selected {1}", code, selected);
-    }
-
-    private void TextInput(string value)
-    {
-        capi.Logger.Notification("You typed in a number!");
     }
 
     private void OnHidden(bool on)

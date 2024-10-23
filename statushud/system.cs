@@ -221,7 +221,7 @@ namespace StatusHud
             capi.Event.PlayerJoin += SetUUID;
             capi.ModLoader.GetModSystem<ConfigLibModSystem>().RegisterCustomConfig(domain, gui.DrawConfigLibSettings);
 
-            dialog = new StatusHudConfigGui(capi);
+            dialog = new StatusHudConfigGui(capi, this);
             capi.Input.RegisterHotKey("statushudconfiggui", "Status Hud Menu", GlKeys.U, HotkeyType.GUIOrOtherControls);
             capi.Input.SetHotKeyHandler("statushudconfiggui", ToggleConfigGui);
 #if DEBUG
@@ -651,6 +651,12 @@ namespace StatusHud
         {
             config.Save(elements);
             config.Save();
+        }
+
+        public void LoadConfig()
+        {
+            config.Load();
+            config.LoadElements(this);
         }
 
         protected static string Print(string text)
