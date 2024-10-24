@@ -1,4 +1,3 @@
-using ConfigLib;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,9 +8,6 @@ namespace StatusHud
 {
     public class StatusHudSystem : ModSystem
     {
-        public const int slotMin = -16;
-        public const int slotMax = 16;
-
         public const string halignWordLeft = "left";
         public const string halignWordCenter = "center";
         public const string halignWordRight = "right";
@@ -58,53 +54,47 @@ namespace StatusHud
         protected static readonly string[] elementNames = InitElementNames();
         protected static readonly string elementList = InitElementList();
 
-        protected StatusHudConfigManager config;
+        private static readonly int slotMax = elementTypes.Length;
 
-        protected IDictionary<int, StatusHudElement> elements;
+        protected StatusHudConfigManager configManager;
+        public StatusHudConfig Config => configManager.Config;
+
+        public IList<StatusHudElement> elements;
         protected IList<StatusHudElement> slowElements;
         protected IList<StatusHudElement> fastElements;
         public StatusHudTextures textures;
 
-        protected StatusHudGui gui;
-
         private GuiDialog dialog;
         private string uuid = null;
-        public bool ShowHidden
-        {
-            get
-            {
-                return config.Get().showHidden;
-            }
-        }
+        public bool ShowHidden => configManager.Config.showHidden;
 
-        protected StatusHudElement Instantiate(int slot, string name)
+        protected StatusHudElement Instantiate(string name)
         {
-            StatusHudConfig config = this.config.Get();
-            StatusHudTextConfig textConfig = config.text;
+            StatusHudConfig config = configManager.Config;
 
             return name switch
             {
-                StatusHudAltitudeElement.name => new StatusHudAltitudeElement(this, slot, textConfig),
-                StatusHudArmourElement.name => new StatusHudArmourElement(this, slot, textConfig),
-                StatusHudBodyheatElement.name => new StatusHudBodyheatElement(this, slot, config),
-                StatusHudCompassElement.name => new StatusHudCompassElement(this, slot, textConfig, config.compassAbsolute),
-                StatusHudDateElement.name => new StatusHudDateElement(this, slot, textConfig, config.months),
-                StatusHudDurabilityElement.name => new StatusHudDurabilityElement(this, slot, textConfig),
-                StatusHudLatitudeElement.name => new StatusHudLatitudeElement(this, slot, textConfig),
-                StatusHudLightElement.name => new StatusHudLightElement(this, slot, textConfig),
-                StatusHudPingElement.name => new StatusHudPingElement(this, slot, textConfig),
-                StatusHudPlayersElement.name => new StatusHudPlayersElement(this, slot, textConfig),
-                StatusHudRiftActivityElement.name => new StatusHudRiftActivityElement(this, slot, textConfig),
-                StatusHudRoomElement.name => new StatusHudRoomElement(this, slot),
-                StatusHudSleepElement.name => new StatusHudSleepElement(this, slot, textConfig),
-                StatusHudSpeedElement.name => new StatusHudSpeedElement(this, slot, textConfig),
-                StatusHudStabilityElement.name => new StatusHudStabilityElement(this, slot, textConfig),
-                StatusHudTempstormElement.name => new StatusHudTempstormElement(this, slot, textConfig),
-                StatusHudTimeElement.name => new StatusHudTimeElement(this, slot, config),
-                StatusHudTimeLocalElement.name => new StatusHudTimeLocalElement(this, slot, config),
-                StatusHudWeatherElement.name => new StatusHudWeatherElement(this, slot, config),
-                StatusHudWetElement.name => new StatusHudWetElement(this, slot, textConfig),
-                StatusHudWindElement.name => new StatusHudWindElement(this, slot, textConfig),
+                StatusHudAltitudeElement.name => new StatusHudAltitudeElement(this, config),
+                StatusHudArmourElement.name => new StatusHudArmourElement(this, config),
+                StatusHudBodyheatElement.name => new StatusHudBodyheatElement(this, config),
+                StatusHudCompassElement.name => new StatusHudCompassElement(this, config),
+                StatusHudDateElement.name => new StatusHudDateElement(this, config),
+                StatusHudDurabilityElement.name => new StatusHudDurabilityElement(this, config),
+                StatusHudLatitudeElement.name => new StatusHudLatitudeElement(this, config),
+                StatusHudLightElement.name => new StatusHudLightElement(this, config),
+                StatusHudPingElement.name => new StatusHudPingElement(this, config),
+                StatusHudPlayersElement.name => new StatusHudPlayersElement(this, config),
+                StatusHudRiftActivityElement.name => new StatusHudRiftActivityElement(this, config),
+                StatusHudRoomElement.name => new StatusHudRoomElement(this),
+                StatusHudSleepElement.name => new StatusHudSleepElement(this, config),
+                StatusHudSpeedElement.name => new StatusHudSpeedElement(this, config),
+                StatusHudStabilityElement.name => new StatusHudStabilityElement(this, config),
+                StatusHudTempstormElement.name => new StatusHudTempstormElement(this, config),
+                StatusHudTimeElement.name => new StatusHudTimeElement(this, config),
+                StatusHudTimeLocalElement.name => new StatusHudTimeLocalElement(this, config),
+                StatusHudWeatherElement.name => new StatusHudWeatherElement(this, config),
+                StatusHudWetElement.name => new StatusHudWetElement(this, config),
+                StatusHudWindElement.name => new StatusHudWindElement(this, config),
                 _ => null,
             };
         }
@@ -123,16 +113,14 @@ namespace StatusHud
             base.StartClientSide(capi);
             this.capi = capi;
 
-            config = new StatusHudConfigManager(this.capi);
+            configManager = new StatusHudConfigManager(this);
 
-            elements = new Dictionary<int, StatusHudElement>();
+            elements = new List<StatusHudElement>();
             slowElements = new List<StatusHudElement>();
             fastElements = new List<StatusHudElement>();
-            textures = new StatusHudTextures(this.capi, config.Get().iconSize);
+            textures = new StatusHudTextures(this.capi, Config.iconSize);
 
-            gui = new StatusHudGui(this, config.Get(), elements, elementNames);
-
-            config.LoadElements(this);
+            configManager.LoadElements(this);
 
             capi.ChatCommands.Create("shud")
                 .WithDescription("Configure Status HUD")
@@ -142,13 +130,13 @@ namespace StatusHud
                     .EndSubCommand()
                     .BeginSubCommand("set")
                         .WithDescription("Set status HUD element")
-                        .WithArgs(capi.ChatCommands.Parsers.IntRange("slot", StatusHudSystem.slotMin, StatusHudSystem.slotMax),
+                        .WithArgs(capi.ChatCommands.Parsers.IntRange("slot", 0, slotMax),
                                 capi.ChatCommands.Parsers.WordRange("element", StatusHudSystem.elementNames))
                         .HandleWith(CmdSet)
                     .EndSubCommand()
                     .BeginSubCommand("unset")
                         .WithDescription("Unset status HUD element")
-                        .WithArgs(capi.ChatCommands.Parsers.IntRange("slot", StatusHudSystem.slotMin, StatusHudSystem.slotMax))
+                        .WithArgs(capi.ChatCommands.Parsers.IntRange("slot", 0, slotMax))
                         .HandleWith(CmdUnset)
                     .EndSubCommand()
                     .BeginSubCommand("clear")
@@ -157,7 +145,7 @@ namespace StatusHud
                     .EndSubCommand()
                     .BeginSubCommand("pos")
                         .WithDescription("Set status HUD element's position")
-                        .WithArgs(capi.ChatCommands.Parsers.IntRange("slot", StatusHudSystem.slotMin, StatusHudSystem.slotMax),
+                        .WithArgs(capi.ChatCommands.Parsers.IntRange("slot", 0, slotMax),
                                 capi.ChatCommands.Parsers.WordRange("halign", StatusHudSystem.halignWords),
                                 capi.ChatCommands.Parsers.Int("x"),
                                 capi.ChatCommands.Parsers.WordRange("valign", StatusHudSystem.valignWords),
@@ -166,7 +154,7 @@ namespace StatusHud
                     .EndSubCommand()
                     .BeginSubCommand("repos")
                         .WithDescription("Reset status HUD element's position")
-                        .WithArgs(capi.ChatCommands.Parsers.IntRange("slot", StatusHudSystem.slotMin, StatusHudSystem.slotMax))
+                        .WithArgs(capi.ChatCommands.Parsers.IntRange("slot", 0, slotMax))
                         .HandleWith(CmdRepos)
                     .EndSubCommand()
                     .BeginSubCommand("list")
@@ -183,19 +171,19 @@ namespace StatusHud
                         .WithArgs(capi.ChatCommands.Parsers.WordRange("show/hide", StatusHudSystem.visWords))
                         .HandleWith(CmdHidden)
                     .EndSubCommand()
-                    .BeginSubCommand("options")
-                        .WithDescription("Change how certian elements are displayed")
-                        .BeginSubCommand("timeformat")
-                            .WithDescription("Change clock elements to 12-hour or 24-hour time")
-                            .WithArgs(capi.ChatCommands.Parsers.WordRange("12hr/24hr", StatusHudSystem.timeFormatWords))
-                            .HandleWith(CmdTimeFormat)
-                            .EndSubCommand()
-                        .BeginSubCommand("tempscale")
-                            .WithDescription("Change temperature scale to °C, °F, or °K")
-                            .WithArgs(capi.ChatCommands.Parsers.WordRange("C/F/K", tempScaleWords))
-                            .HandleWith(CmdTempScale)
-                            .EndSubCommand()
-                    .EndSubCommand()
+                    // .BeginSubCommand("options")
+                    //     .WithDescription("Change how certian elements are displayed")
+                    //     .BeginSubCommand("timeformat")
+                    //         .WithDescription("Change clock elements to 12-hour or 24-hour time")
+                    //         .WithArgs(capi.ChatCommands.Parsers.WordRange("12hr/24hr", StatusHudSystem.timeFormatWords))
+                    //         .HandleWith(CmdTimeFormat)
+                    //         .EndSubCommand()
+                    //     .BeginSubCommand("tempscale")
+                    //         .WithDescription("Change temperature scale to °C, °F, or °K")
+                    //         .WithArgs(capi.ChatCommands.Parsers.WordRange("C/F/K", tempScaleWords))
+                    //         .HandleWith(CmdTempScale)
+                    //         .EndSubCommand()
+                    // .EndSubCommand()
                     .BeginSubCommand("help")
                         .WithDescription("Show status HUD command help")
                         .HandleWith(CmdHelp)
@@ -206,26 +194,25 @@ namespace StatusHud
             slowListenerId = this.capi.Event.RegisterGameTickListener(SlowTick, slowListenInterval);
             fastListenerId = this.capi.Event.RegisterGameTickListener(FastTick, fastListenInterval);
 
-            if (!config.Get().installed)
+            if (Config.version <= 0)
             {
-                if (config.Get().elements.Count == 0)
+                if (Config.elements.Count == 0)
                 {
                     // Install default layout
                     InstallDefault();
                 }
 
-                config.Get().installed = true;
+                Config.version = StatusHudConfigManager.version;
                 SaveConfig();
             }
 
             capi.Event.PlayerJoin += SetUUID;
-            capi.ModLoader.GetModSystem<ConfigLibModSystem>().RegisterCustomConfig(domain, gui.DrawConfigLibSettings);
 
             dialog = new StatusHudConfigGui(capi, this);
             capi.Input.RegisterHotKey("statushudconfiggui", "Status Hud Menu", GlKeys.U, HotkeyType.GUIOrOtherControls);
             capi.Input.SetHotKeyHandler("statushudconfiggui", ToggleConfigGui);
 #if DEBUG
-            this.capi.Logger.Debug(Print("Debug logging Enabled"));
+            this.capi.Logger.Debug(PrintModName("Debug logging Enabled"));
 #endif
         }
 
@@ -235,13 +222,18 @@ namespace StatusHud
 
             capi.Event.UnregisterGameTickListener(slowListenerId);
             capi.Event.UnregisterGameTickListener(fastListenerId);
-            foreach (KeyValuePair<int, StatusHudElement> element in elements)
+            foreach (var element in elements)
             {
-                element.Value.Dispose();
+                element.Dispose();
             }
 
             textures.Dispose();
             capi.Event.PlayerJoin -= SetUUID;
+        }
+
+        public static string PrintModName(string text)
+        {
+            return $"[Status HUD] {text}";
         }
 
         public void SlowTick(float dt)
@@ -260,51 +252,38 @@ namespace StatusHud
             }
         }
 
-        public bool Set(int slot, string name)
+        public StatusHudElement Set(string name)
         {
-            StatusHudElement element = Instantiate(slot, name);
+            StatusHudElement element = Instantiate(name);
 
             if (element == null)
             {
                 // Invalid element.
-                return false;
+                return null;
             }
 
             StatusHudPos pos = null;
 
-            // Remove any existing element in that slot.
-            if (elements.ContainsKey(slot))
-            {
-                pos = elements[slot].pos;
-                elements[slot].Dispose();
-                elements.Remove(slot);
-            }
-
             // Remove any other element of the same type.
-            int key = 0;
-            foreach (KeyValuePair<int, StatusHudElement> kvp in elements)
+            foreach (StatusHudElement elementVal in elements)
             {
-                if (kvp.Value.GetType() == element.GetType())
+                if (elementVal.GetType() == element.GetType())
                 {
-                    key = kvp.Key;
+                    elementVal.Dispose();
                 }
             }
 
-            if (key != 0)
-            {
-                elements[key].Dispose();
-                elements.Remove(key);
-            }
+            elements.Add(element);
+            int index = elements.IndexOf(element);
 
-            elements.Add(slot, element);
             if (pos != null)
             {
                 // Retain previous position.
-                elements[slot].Pos(pos.halign, pos.x, pos.valign, pos.y);
+                elements[index].Pos(pos.halign, pos.x, pos.valign, pos.y);
             }
             else
             {
-                elements[slot].Repos();
+                elements[index].Repos();
             }
 
             if (element.fast)
@@ -315,37 +294,38 @@ namespace StatusHud
             {
                 slowElements.Add(element);
             }
-            return true;
+            return element;
         }
 
-        public bool Unset(int slot)
+        public bool Unset(string name)
         {
-            if (elements.ContainsKey(slot))
+            foreach (var element in elements)
             {
-                StatusHudElement element = elements[slot];
-
-                if (element.fast)
+                if (element.ElementName == name)
                 {
-                    fastElements.Remove(element);
-                }
-                else
-                {
-                    slowElements.Remove(element);
-                }
+                    if (element.fast)
+                    {
+                        fastElements.Remove(element);
+                    }
+                    else
+                    {
+                        slowElements.Remove(element);
+                    }
 
-                elements[slot].Dispose();
-                elements.Remove(slot);
-                return true;
+                    element.Dispose();
+                    elements.Remove(element);
+                    return true;
+                }
             }
 
             return false;
         }
 
-        // Will reload elements in memory, but not in file.
+        // Will load elements from file
         public void Reload()
         {
             Clear();
-            config.LoadElements(this);
+            configManager.Load();
         }
 
         public void Reload(IClientPlayer byPlayer)
@@ -356,9 +336,9 @@ namespace StatusHud
             }
         }
 
-        public void Pos(int slot, int halign, int x, int valign, int y)
+        public static void Pos(StatusHudElement element, int halign, int x, int valign, int y)
         {
-            elements[slot].Pos(halign, x, valign, y);
+            element.Pos(halign, x, valign, y);
         }
 
         protected void Clear()
@@ -366,14 +346,11 @@ namespace StatusHud
             fastElements.Clear();
             slowElements.Clear();
 
-            foreach (KeyValuePair<int, StatusHudElement> kvp in elements)
+            foreach (var element in elements)
             {
-                elements[kvp.Key].Dispose();
+                element.Dispose();
             }
-            for (int i = 0; i < elements.Count; i++)
-            {
-                elements.Clear();
-            }
+            elements.Clear();
         }
 
         private void SetUUID(IClientPlayer byPlayer)
@@ -399,7 +376,7 @@ namespace StatusHud
             InstallDefault();
 
             SaveConfig();
-            return TextCommandResult.Success(Print("Default layout set."));
+            return TextCommandResult.Success(PrintModName("Default layout set."));
         }
 
         protected TextCommandResult CmdSet(TextCommandCallingArgs args)
@@ -409,27 +386,27 @@ namespace StatusHud
 
             if (slot == 0)
             {
-                return TextCommandResult.Error(Print("Error: # must be positive or negative."));
+                return TextCommandResult.Error(PrintModName("Error: # must be positive or negative."));
             }
 
-            Set(slot, element);
+            Set(element);
             elements[slot].Ping();
 
             SaveConfig();
-            return TextCommandResult.Success(Print("Element #" + slot + " set to: " + element));
+            return TextCommandResult.Success(PrintModName("Element #" + slot + " set to: " + element));
         }
 
         protected TextCommandResult CmdUnset(TextCommandCallingArgs args)
         {
-            int slot = (int)args[0];
+            string name = (string)args[0];
 
-            if (!Unset(slot))
+            if (!Unset(name))
             {
-                return TextCommandResult.Error(Print("Error: # must be positive or negative."));
+                return TextCommandResult.Error(PrintModName("Error: # must be positive or negative."));
             }
 
             SaveConfig();
-            return TextCommandResult.Success(Print("Element #" + slot + " unset."));
+            return TextCommandResult.Success(PrintModName("Element #" + name + " unset."));
         }
 
         protected TextCommandResult CmdClear(TextCommandCallingArgs args)
@@ -437,54 +414,51 @@ namespace StatusHud
             Clear();
 
             SaveConfig();
-            return TextCommandResult.Success(Print("All elements unset."));
+            return TextCommandResult.Success(PrintModName("All elements unset."));
         }
 
         protected TextCommandResult CmdPos(TextCommandCallingArgs args)
         {
-            int slot = (int)args[0];
+            string name = (string)args[0];
             string halignWord = (string)args[1];
             int x = (int)args[2];
             string valignWord = (string)args[3];
             int y = (int)args[4];
 
-            if (slot == 0)
+            foreach (var element in elements)
             {
-                return TextCommandResult.Error(Print("Error: # must be positive or negative."));
+                if (element.ElementName == name)
+                {
+                    int halign = HalignFromWord(halignWord);
+                    int valign = ValignFromWord(valignWord);
+
+                    Pos(element, halign, x, valign, y);
+                    element.Ping();
+                    SaveConfig();
+                    return TextCommandResult.Success(PrintModName("#" + name + " position set."));
+                }
             }
-            if (!elements.ContainsKey(slot))
-            {
-                return TextCommandResult.Error(Print("Error: No element at #" + slot + "."));
-            }
 
-            int halign = StatusHudSystem.HalignFromWord(halignWord);
-            int valign = StatusHudSystem.ValignFromWord(valignWord);
-
-            Pos(slot, halign, x, valign, y);
-            elements[slot].Ping();
-
-            SaveConfig();
-            return TextCommandResult.Success(Print("#" + slot + " position set."));
+            return TextCommandResult.Error(PrintModName("Error: No element at #" + name + "."));
         }
 
         protected TextCommandResult CmdRepos(TextCommandCallingArgs args)
         {
-            int slot = (int)args[0];
+            string name = (string)args[0];
 
-            if (slot == 0)
+            foreach (var element in elements)
             {
-                return TextCommandResult.Error(Print("Error: # must be positive or negative."));
-            }
-            if (!elements.ContainsKey(slot))
-            {
-                return TextCommandResult.Error(Print("Error: No element at #" + slot + "."));
+                if (element.ElementName == name)
+                {
+                    element.Repos();
+                    element.Ping();
+
+                    SaveConfig();
+                    return TextCommandResult.Success(PrintModName("#" + name + " position reset."));
+                }
             }
 
-            elements[slot].Repos();
-            elements[slot].Ping();
-
-            SaveConfig();
-            return TextCommandResult.Success(Print("#" + slot + " position reset."));
+            return TextCommandResult.Error(PrintModName("Error: No element at #" + name + "."));
         }
 
         protected TextCommandResult CmdList(TextCommandCallingArgs args)
@@ -492,15 +466,14 @@ namespace StatusHud
             StringBuilder sb = new();
             sb.Append("Current elements:\n");
 
-            foreach (KeyValuePair<int, StatusHudElement> kvp in elements)
+            foreach (var element in elements)
             {
                 sb.Append('[');
-                sb.Append(kvp.Key);
+                sb.Append(element.ElementName);
                 sb.Append("] ");
-                sb.Append((string)kvp.Value.GetType().GetField("name").GetValue(null));
                 sb.Append('\n');
             }
-            return TextCommandResult.Success(Print(sb.ToString()));
+            return TextCommandResult.Success(PrintModName(sb.ToString()));
         }
 
         protected static TextCommandResult CmdInfo(TextCommandCallingArgs args)
@@ -510,7 +483,7 @@ namespace StatusHud
 
 
 
-            foreach (Type type in StatusHudSystem.elementTypes)
+            foreach (Type type in elementTypes)
             {
                 if (type.GetField("name").GetValue(null).ToString() == element)
                 {
@@ -521,10 +494,12 @@ namespace StatusHud
 
             if (message == null)
             {
-                message = "Invalid element. Try: " + StatusHudSystem.elementList;
+                message = "Invalid element. Try: " + elementList;
             }
 
-            return TextCommandResult.Success(Print(message));
+
+
+            return TextCommandResult.Success(PrintModName(message));
         }
 
         protected TextCommandResult CmdHidden(TextCommandCallingArgs args)
@@ -537,43 +512,43 @@ namespace StatusHud
                 case visWordShow:
                     {
                         message = "Showing hidden elements.";
-                        config.Get().showHidden = true;
+                        Config.showHidden = true;
                         break;
                     }
                 case visWordHide:
                     {
                         message = "Hiding hidden elements.";
-                        config.Get().showHidden = false;
+                        Config.showHidden = false;
                         break;
                     }
             }
 
             SaveConfig();
-            return TextCommandResult.Success(Print(message));
+            return TextCommandResult.Success(PrintModName(message));
         }
 
-        protected TextCommandResult CmdTimeFormat(TextCommandCallingArgs args)
-        {
-            string timeFormat = (string)args[0];
+        // protected TextCommandResult CmdTimeFormat(TextCommandCallingArgs args)
+        // {
+        //     string timeFormat = (string)args[0];
 
-            config.Get().options.timeFormat = timeFormat;
+        //     Config.options.timeFormat = timeFormat;
 
-            string message = "Time format now set to " + timeFormat + " time";
+        //     string message = "Time format now set to " + timeFormat + " time";
 
-            return TextCommandResult.Success(Print(message));
-        }
+        //     return TextCommandResult.Success(PrintModName(message));
+        // }
 
-        protected TextCommandResult CmdTempScale(TextCommandCallingArgs args)
-        {
-            string tempScale = (string)args[0];
+        // protected TextCommandResult CmdTempScale(TextCommandCallingArgs args)
+        // {
+        //     string tempScale = (string)args[0];
 
-            config.Get().options.temperatureScale = tempScale[0];
+        //     Config.options.temperatureScale = tempScale[0];
 
-            string message = "Temperature scale now set to °" + tempScale;
+        //     string message = "Temperature scale now set to °" + tempScale;
 
-            SaveConfig();
-            return TextCommandResult.Success(Print(message));
-        }
+        //     SaveConfig();
+        //     return TextCommandResult.Success(PrintModName(message));
+        // }
 
         protected static TextCommandResult CmdHelp(TextCommandCallingArgs args)
         {
@@ -589,8 +564,8 @@ namespace StatusHud
                     + "To show or hide hidden elements, use:\t.shud hidden [show, hide]\n"
                     + "To configure element's options, use:\t.shud options [option] [value]"
                     + "\n"
-                    + "[#] is a non-zero number between " + StatusHudSystem.slotMin + " and " + StatusHudSystem.slotMax + ".\n"
-                    + "[element] is one of the following:\t" + StatusHudSystem.elementList;
+                    + "[#] is a non-zero number between 0 and " + slotMax + ".\n"
+                    + "[element] is one of the following:\t" + elementList;
 
             return TextCommandResult.Success(message);
         }
@@ -602,66 +577,44 @@ namespace StatusHud
 
             Reload();
 
-            return TextCommandResult.Success(Print(message));
+            return TextCommandResult.Success(PrintModName(message));
         }
 #endif
         public void InstallDefault()
         {
             Clear();
 
-            int size = config.Get().iconSize;
+            int size = Config.iconSize;
             int sideX = (int)Math.Round(size * 0.75f);
             int sideMinimapX = sideX + 256;
             int topY = size;
             int bottomY = (int)Math.Round(size * 0.375f);
             int offset = (int)Math.Round(size * 1.5f);
 
-            Set(-6, StatusHudDateElement.name);
-            Pos(-6, StatusHudPos.halignLeft, sideX, StatusHudPos.valignBottom, bottomY);
+            Pos(Set(StatusHudDateElement.name), StatusHudPos.halignLeft, sideX, StatusHudPos.valignBottom, bottomY);
 
-            Set(-5, StatusHudTimeElement.name);
-            Pos(-5, StatusHudPos.halignLeft, sideX + (int)(offset * 1.3f), StatusHudPos.valignBottom, bottomY);
+            Pos(Set(StatusHudTimeElement.name), StatusHudPos.halignLeft, sideX + (int)(offset * 1.3f), StatusHudPos.valignBottom, bottomY);
 
-            Set(-4, StatusHudWeatherElement.name);
-            Pos(-4, StatusHudPos.halignLeft, sideX + (int)(offset * 2.5f), StatusHudPos.valignBottom, bottomY);
+            Pos(Set(StatusHudWeatherElement.name), StatusHudPos.halignLeft, sideX + (int)(offset * 2.5f), StatusHudPos.valignBottom, bottomY);
 
-            Set(-3, StatusHudWindElement.name);
-            Pos(-3, StatusHudPos.halignLeft, sideX + (int)(offset * 3.5f), StatusHudPos.valignBottom, bottomY);
+            Pos(Set(StatusHudWindElement.name), StatusHudPos.halignLeft, sideX + (int)(offset * 3.5f), StatusHudPos.valignBottom, bottomY);
 
-            Set(-2, StatusHudStabilityElement.name);
-            Pos(-2, StatusHudPos.halignCenter, sideX + (int)(offset * 9f), StatusHudPos.valignBottom, bottomY);
+            Pos(Set(StatusHudStabilityElement.name), StatusHudPos.halignCenter, sideX + (int)(offset * 9f), StatusHudPos.valignBottom, bottomY);
 
-            Set(-1, StatusHudArmourElement.name);
-            Pos(-1, StatusHudPos.halignCenter, sideX + (int)(offset * 10f), StatusHudPos.valignBottom, bottomY);
+            Pos(Set(StatusHudArmourElement.name), StatusHudPos.halignCenter, sideX + (int)(offset * 10f), StatusHudPos.valignBottom, bottomY);
 
-            Set(1, StatusHudRoomElement.name);
-            Pos(1, StatusHudPos.halignCenter, -1 * (sideX + (int)(offset * 9f)), StatusHudPos.valignBottom, bottomY);
+            Pos(Set(StatusHudRoomElement.name), StatusHudPos.halignCenter, -1 * (sideX + (int)(offset * 9f)), StatusHudPos.valignBottom, bottomY);
 
-            Set(2, StatusHudSleepElement.name);
-            Pos(2, StatusHudPos.halignRight, sideMinimapX + offset, StatusHudPos.valignTop, topY);
+            Pos(Set(StatusHudSleepElement.name), StatusHudPos.halignRight, sideMinimapX + offset, StatusHudPos.valignTop, topY);
 
-            Set(3, StatusHudWetElement.name);
-            Pos(3, StatusHudPos.halignRight, sideMinimapX, StatusHudPos.valignTop, topY);
+            Pos(Set(StatusHudWetElement.name), StatusHudPos.halignRight, sideMinimapX, StatusHudPos.valignTop, topY);
 
-            Set(4, StatusHudTimeLocalElement.name);
-            Pos(4, StatusHudPos.halignRight, sideX, StatusHudPos.valignBottom, bottomY);
+            Pos(Set(StatusHudTimeLocalElement.name), StatusHudPos.halignRight, sideX, StatusHudPos.valignBottom, bottomY);
         }
 
         public void SaveConfig()
         {
-            config.Save(elements);
-            config.Save();
-        }
-
-        public void LoadConfig()
-        {
-            config.Load();
-            config.LoadElements(this);
-        }
-
-        protected static string Print(string text)
-        {
-            return "[Status HUD] " + text;
+            configManager.Save();
         }
 
         protected static string[] InitElementNames()
@@ -692,30 +645,24 @@ namespace StatusHud
 
         protected static int HalignFromWord(string word)
         {
-            switch (word)
+            return word switch
             {
-                case halignWordLeft:
-                    return StatusHudPos.halignLeft;
-                case halignWordCenter:
-                    return StatusHudPos.halignCenter;
-                case halignWordRight:
-                    return StatusHudPos.halignRight;
-            }
-            return 0;
+                halignWordLeft => StatusHudPos.halignLeft,
+                halignWordCenter => StatusHudPos.halignCenter,
+                halignWordRight => StatusHudPos.halignRight,
+                _ => 0,
+            };
         }
 
         protected static int ValignFromWord(string word)
         {
-            switch (word)
+            return word switch
             {
-                case valignWordTop:
-                    return StatusHudPos.valignTop;
-                case valignWordMiddle:
-                    return StatusHudPos.valignMiddle;
-                case valignWordBottom:
-                    return StatusHudPos.valignBottom;
-            }
-            return 0;
+                valignWordTop => StatusHudPos.valignTop,
+                valignWordMiddle => StatusHudPos.valignMiddle,
+                valignWordBottom => StatusHudPos.valignBottom,
+                _ => 0,
+            };
         }
     }
 }

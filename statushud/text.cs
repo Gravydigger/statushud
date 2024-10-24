@@ -8,37 +8,32 @@ namespace StatusHud
     {
         protected const string dialogNamePrefix = "d-";
 
-        protected int slot;
-        protected string key;
-        protected StatusHudTextConfig config;
-        protected Vec4f colour;
-        protected int iconSize;
-        protected float width;
-        protected float height;
+        private readonly string key;
+        private readonly StatusHudConfig config;
+        private readonly Vec4f colour = new(0.91f, 0.87f, 0.81f, 1);
+        private readonly float width;
+        private readonly float height;
 
-        protected string dialogName;
-        protected CairoFont font;
-        protected GuiElementDynamicText text;
+        private readonly string dialogName;
+        private CairoFont font;
+        private GuiElementDynamicText text;
 
-        protected bool composed;
+        private bool composed;
 
         public override EnumDialogType DialogType => EnumDialogType.HUD;
         public override bool Focusable => false;
         public override double DrawOrder => 0;
 
-        public StatusHudText(ICoreClientAPI capi, int slot, string key, StatusHudTextConfig config, int iconSize) : base(capi)
+        public StatusHudText(ICoreClientAPI capi, string key, StatusHudConfig config) : base(capi)
         {
-            this.slot = slot;
             this.key = key;
             this.config = config;
-            this.iconSize = iconSize;
 
-            colour = config.colour.ToVec4f();
-            width = this.iconSize * 3;
-            height = this.iconSize;
+            width = this.config.iconSize * 3;
+            height = this.config.iconSize;
 
             dialogName = dialogNamePrefix + this.key;
-            font = initFont();
+            font = InitFont();
 
             composed = false;
         }
@@ -49,10 +44,9 @@ namespace StatusHud
             base.Dispose();
         }
 
-        public void ReloadText(StatusHudTextConfig config, StatusHudPos pos)
+        public void ReloadText(StatusHudPos pos)
         {
-            colour = config.colour.ToVec4f();
-            font = initFont();
+            font = InitFont();
             Pos(pos);
         }
 
@@ -133,7 +127,7 @@ namespace StatusHud
                     }
             }
 
-            float iconHalf = iconSize / 2f;
+            float iconHalf = config.iconSize / 2f;
             float frameWidth = capi.Render.FrameWidth;
             float frameHeight = capi.Render.FrameHeight;
 
@@ -142,9 +136,9 @@ namespace StatusHud
             {
                 case StatusHudPos.halignLeft:
                     {
-                        x = GameMath.Clamp(x, 0, frameWidth - iconSize);
+                        x = GameMath.Clamp(x, 0, frameWidth - config.iconSize);
 
-                        x -= (float)Math.Round((width - iconSize) / 2f);
+                        x -= (float)Math.Round((width - config.iconSize) / 2f);
                         break;
                     }
                 case StatusHudPos.halignCenter:
@@ -154,9 +148,9 @@ namespace StatusHud
                     }
                 case StatusHudPos.halignRight:
                     {
-                        x = GameMath.Clamp(x, 0, frameWidth - iconSize);
+                        x = GameMath.Clamp(x, 0, frameWidth - config.iconSize);
 
-                        x = -x + (float)Math.Round((width - iconSize) / 2f);
+                        x = -x + (float)Math.Round((width - config.iconSize) / 2f);
                         break;
                     }
             }
@@ -166,7 +160,7 @@ namespace StatusHud
             {
                 case StatusHudPos.valignTop:
                     {
-                        y = GameMath.Clamp(y, 0, frameHeight - iconSize);
+                        y = GameMath.Clamp(y, 0, frameHeight - config.iconSize);
                         break;
                     }
                 case StatusHudPos.valignMiddle:
@@ -183,7 +177,7 @@ namespace StatusHud
                     }
             }
 
-            compose(area, x, y);
+            Compose(area, x, y);
         }
 
         public void Set(string value)
@@ -192,14 +186,17 @@ namespace StatusHud
             text.RecomposeText();
         }
 
-        protected void compose(EnumDialogArea area, float x, float y)
+        protected void Compose(EnumDialogArea area, float x, float y)
         {
+            const int offsetX = 0;
+            const int offsetY = -19;
+
             if (composed)
             {
                 Dispose();
             }
 
-            ElementBounds dialogBounds = ElementBounds.Fixed(area, x + config.offsetX, y + config.offsetY, width, height);
+            ElementBounds dialogBounds = ElementBounds.Fixed(area, x + offsetX, y + offsetY, width, height);
             ElementBounds textBounds = ElementBounds.Fixed(EnumDialogArea.CenterTop, 0, 0, width, height);
             SingleComposer = capi.Gui.CreateCompo(dialogName, dialogBounds)
                     .AddDynamicText("", font, textBounds, key)
@@ -210,15 +207,18 @@ namespace StatusHud
             composed = true;
         }
 
-        protected virtual CairoFont initFont()
+        protected virtual CairoFont InitFont()
         {
+            const bool bold = true;
+            const EnumTextOrientation align = EnumTextOrientation.Center;
+
             return new CairoFont()
-                    .WithColor(new double[] { colour.R, colour.G, colour.B, colour.A })
-                    .WithFont(GuiStyle.StandardFontName)
-                    .WithFontSize(config.size)
-                    .WithWeight(config.bold ? Cairo.FontWeight.Bold : Cairo.FontWeight.Normal)
-                    .WithOrientation(config.align)
-                    .WithStroke(new double[] { 0, 0, 0, 0.5 }, 2);
+                .WithColor(new double[] { colour.R, colour.G, colour.B, colour.A })
+                .WithFont(GuiStyle.StandardFontName)
+                .WithFontSize(config.textSize)
+                .WithWeight(bold ? Cairo.FontWeight.Bold : Cairo.FontWeight.Normal)
+                .WithOrientation(align)
+                .WithStroke(new double[] { 0, 0, 0, 0.5 }, 2);
         }
     }
 }

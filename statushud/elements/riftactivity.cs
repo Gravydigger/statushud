@@ -13,7 +13,7 @@ namespace StatusHud
         protected const string textKey = "shud-riftactivity";
         protected const string harmonyId = "shud-riftactivity";
 
-        public override string elementName => name;
+        public override string ElementName => name;
 
         public int textureId;
         public bool active;
@@ -24,22 +24,22 @@ namespace StatusHud
 
         protected static CurrentPattern riftActivityData;
 
-        public StatusHudRiftActivityElement(StatusHudSystem system, int slot, StatusHudTextConfig config) : base(system, slot)
+        public StatusHudRiftActivityElement(StatusHudSystem system, StatusHudConfig config) : base(system)
         {
             riftSystem = this.system.capi.ModLoader.GetModSystem<ModSystemRiftWeather>();
 
 
-            renderer = new StatusHudRiftAvtivityRenderer(system, slot, this, config);
+            renderer = new StatusHudRiftAvtivityRenderer(system, this, config);
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
             textureId = this.system.textures.texturesDict["empty"].TextureId;
 
-            active = this.system.capi.World.Config.GetString("temporalRifts") != "off" ? true : false;
+            active = this.system.capi.World.Config.GetString("temporalRifts") != "off";
 
             // World has to be reloaded for changes to apply
             harmony = new Harmony(harmonyId);
             harmony.Patch(typeof(ModSystemRiftWeather).GetMethod("onPacket", BindingFlags.Instance | BindingFlags.NonPublic),
-                    postfix: new HarmonyMethod(typeof(StatusHudRiftActivityElement).GetMethod(nameof(StatusHudRiftActivityElement.receiveData))));
+                    postfix: new HarmonyMethod(typeof(StatusHudRiftActivityElement).GetMethod(nameof(StatusHudRiftActivityElement.ReceiveData))));
 
             if (!active)
             {
@@ -47,17 +47,17 @@ namespace StatusHud
             }
         }
 
-        public static void receiveData(SpawnPatternPacket msg)
+        public static void ReceiveData(SpawnPatternPacket msg)
         {
             riftActivityData = msg.Pattern;
         }
 
-        public override StatusHudRenderer getRenderer()
+        public override StatusHudRenderer GetRenderer()
         {
             return renderer;
         }
 
-        public virtual string getTextKey()
+        public virtual string GetTextKey()
         {
             return textKey;
         }
@@ -80,7 +80,7 @@ namespace StatusHud
             TimeSpan ts = TimeSpan.FromHours(nextRiftChange);
             string text = (int)nextRiftChange + ":" + ts.ToString("mm");
 
-            renderer.setText(text);
+            renderer.SetText(text);
             updateTexture(riftActivityData.Code);
         }
 
@@ -112,19 +112,19 @@ namespace StatusHud
 
         protected StatusHudText text;
 
-        public StatusHudRiftAvtivityRenderer(StatusHudSystem system, int slot, StatusHudRiftActivityElement element, StatusHudTextConfig config) : base(system, slot)
+        public StatusHudRiftAvtivityRenderer(StatusHudSystem system, StatusHudRiftActivityElement element, StatusHudConfig config) : base(system)
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
+            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), config);
         }
 
-        public override void Reload(StatusHudTextConfig config)
+        public override void Reload()
         {
-            text.ReloadText(config, pos);
+            text.ReloadText(pos);
         }
 
-        public void setText(string value)
+        public void SetText(string value)
         {
             text.Set(value);
         }

@@ -9,29 +9,28 @@ namespace StatusHud
         public new const string desc = "The 'date' element displays the current date and an icon for the current season.";
         protected const string textKey = "shud-date";
 
-        public override string elementName => name;
+        public override string ElementName => name;
 
         public int textureId;
 
         protected StatusHudDateRenderer renderer;
-        protected string[] monthNames;
+        private readonly string[] monthNames = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 
-        public StatusHudDateElement(StatusHudSystem system, int slot, StatusHudTextConfig config, string[] monthNames) : base(system, slot)
+        public StatusHudDateElement(StatusHudSystem system, StatusHudConfig config) : base(system)
         {
-            renderer = new StatusHudDateRenderer(this.system, this.slot, this, config);
-            this.monthNames = monthNames;
+            renderer = new StatusHudDateRenderer(this.system, this, config);
 
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
             textureId = this.system.textures.texturesDict["empty"].TextureId;
         }
 
-        public override StatusHudRenderer getRenderer()
+        public override StatusHudRenderer GetRenderer()
         {
             return renderer;
         }
 
-        public virtual string getTextKey()
+        public virtual string GetTextKey()
         {
             return textKey;
         }
@@ -44,12 +43,12 @@ namespace StatusHud
             if (system.capi.World.Calendar.Month >= 1 && system.capi.World.Calendar.Month <= 12
                     && monthNames.Length >= system.capi.World.Calendar.Month)
             {
-                renderer.setText(day + " " + monthNames[system.capi.World.Calendar.Month - 1]);
+                renderer.SetText(day + " " + monthNames[system.capi.World.Calendar.Month - 1]);
             }
             else
             {
                 // Unknown month.
-                renderer.setText(day.ToString());
+                renderer.SetText(day.ToString());
             }
 
             // Season.
@@ -91,19 +90,19 @@ namespace StatusHud
 
         protected StatusHudText text;
 
-        public StatusHudDateRenderer(StatusHudSystem system, int slot, StatusHudDateElement element, StatusHudTextConfig config) : base(system, slot)
+        public StatusHudDateRenderer(StatusHudSystem system, StatusHudDateElement element, StatusHudConfig config) : base(system)
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
+            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), config);
         }
 
-        public override void Reload(StatusHudTextConfig config)
+        public override void Reload()
         {
-            text.ReloadText(config, pos);
+            text.ReloadText(pos);
         }
 
-        public void setText(string value)
+        public void SetText(string value)
         {
             text.Set(value);
         }

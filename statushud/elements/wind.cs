@@ -12,7 +12,7 @@ namespace StatusHud
         public new const string desc = "The 'wind' element displays the current wind speed (in %) at the player's position, and wind direction relative to the player.";
         protected const string textKey = "shud-wind";
 
-        public override string elementName => name;
+        public override string ElementName => name;
 
         protected WeatherSystemBase weatherSystem;
         protected StatusHudWindRenderer renderer;
@@ -20,23 +20,23 @@ namespace StatusHud
         public bool directional;
         public float dirAngle;
 
-        public StatusHudWindElement(StatusHudSystem system, int slot, StatusHudTextConfig config) : base(system, slot)
+        public StatusHudWindElement(StatusHudSystem system, StatusHudConfig config) : base(system)
         {
             weatherSystem = this.system.capi.ModLoader.GetModSystem<WeatherSystemBase>();
 
-            renderer = new StatusHudWindRenderer(system, slot, this, config);
+            renderer = new StatusHudWindRenderer(system, this, config);
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
             directional = false;
             dirAngle = 0;
         }
 
-        public override StatusHudRenderer getRenderer()
+        public override StatusHudRenderer GetRenderer()
         {
             return renderer;
         }
 
-        public virtual string getTextKey()
+        public virtual string GetTextKey()
         {
             return textKey;
         }
@@ -46,7 +46,7 @@ namespace StatusHud
             EntityPlayer entity = system.capi.World.Player.Entity;
 
             double speed = weatherSystem.WeatherDataSlowAccess.GetWindSpeed(entity.Pos.AsBlockPos.ToVec3d());
-            renderer.setText((int)Math.Round(speed * 100, 0) + "%");
+            renderer.SetText((int)Math.Round(speed * 100, 0) + "%");
 
             Vec3d dir = system.capi.World.BlockAccessor.GetWindSpeedAt(entity.Pos.AsBlockPos);
             if (speed != 0 && dir.Length() != 0)
@@ -76,19 +76,19 @@ namespace StatusHud
 
         protected const float dirAdjust = 90 * GameMath.DEG2RAD;
 
-        public StatusHudWindRenderer(StatusHudSystem system, int slot, StatusHudWindElement element, StatusHudTextConfig config) : base(system, slot)
+        public StatusHudWindRenderer(StatusHudSystem system, StatusHudWindElement element, StatusHudConfig config) : base(system)
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
+            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), config);
         }
 
-        public override void Reload(StatusHudTextConfig config)
+        public override void Reload()
         {
-            text.ReloadText(config, pos);
+            text.ReloadText(pos);
         }
 
-        public void setText(string value)
+        public void SetText(string value)
         {
             text.Set(value);
         }

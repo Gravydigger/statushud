@@ -11,29 +11,29 @@ namespace StatusHud
         public new const string desc = "The 'altitude' element displays the player's current height (in meters) in relation to sea level.";
         protected const string textKey = "shud-altitude";
 
-        public override string elementName => name;
+        public override string ElementName => name;
 
         protected WeatherSystemBase weatherSystem;
         protected StatusHudAltitudeRenderer renderer;
 
         public float needleOffset;
 
-        public StatusHudAltitudeElement(StatusHudSystem system, int slot, StatusHudTextConfig config) : base(system, slot)
+        public StatusHudAltitudeElement(StatusHudSystem system, StatusHudConfig config) : base(system)
         {
             weatherSystem = this.system.capi.ModLoader.GetModSystem<WeatherSystemBase>();
 
-            renderer = new StatusHudAltitudeRenderer(this.system, this.slot, this, config);
+            renderer = new StatusHudAltitudeRenderer(this.system, this, config);
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
             needleOffset = 0;
         }
 
-        public override StatusHudRenderer getRenderer()
+        public override StatusHudRenderer GetRenderer()
         {
             return renderer;
         }
 
-        public virtual string getTextKey()
+        public virtual string GetTextKey()
         {
             return textKey;
         }
@@ -44,7 +44,7 @@ namespace StatusHud
             renderer.SetText(altitude.ToString());
 
             float ratio = -(altitude / (system.capi.World.BlockAccessor.MapSizeY / 2));
-            needleOffset = (float)(GameMath.Clamp(ratio, -1, 1) * (system.textures.size / 2f) * 0.75f);
+            needleOffset = GameMath.Clamp(ratio, -1, 1) * (system.Config.iconSize / 2f) * 0.75f;
         }
 
         public override void Dispose()
@@ -59,16 +59,16 @@ namespace StatusHud
         protected StatusHudAltitudeElement element;
         protected StatusHudText text;
 
-        public StatusHudAltitudeRenderer(StatusHudSystem system, int slot, StatusHudAltitudeElement element, StatusHudTextConfig config) : base(system, slot)
+        public StatusHudAltitudeRenderer(StatusHudSystem system, StatusHudAltitudeElement element, StatusHudConfig config) : base(system)
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
+            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), config);
         }
 
-        public override void Reload(StatusHudTextConfig config)
+        public override void Reload()
         {
-            text.ReloadText(config, pos);
+            text.ReloadText(pos);
         }
 
         public void SetText(string value)

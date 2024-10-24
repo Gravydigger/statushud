@@ -22,14 +22,6 @@
 			<HintPath>$(VINTAGE_STORY)/Lib/cairo-sharp.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
-		<Reference Include="configlib">
-		  <HintPath>../dependants/configlib.dll</HintPath>
-			<Private>False</Private>
-		</Reference>
-		<Reference Include="ImGui.NET">
-			<HintPath>../dependants/ImGui.NET.dll</HintPath>
-			<Private>False</Private>
-		</Reference>
 		<Reference Include="Newtonsoft.Json">
 			<HintPath>$(VINTAGE_STORY)/Lib/Newtonsoft.Json.dll</HintPath>
 			<Private>False</Private>
@@ -44,10 +36,6 @@
 		</Reference>
 		<Reference Include="VSEssentials">
 			<HintPath>$(VINTAGE_STORY)/Mods/VSEssentials.dll</HintPath>
-			<Private>False</Private>
-		</Reference>
-		<Reference Include="VSImGui">
-			<HintPath>../dependants/VSImGui.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
 		<Reference Include="VSSurvivalMod">

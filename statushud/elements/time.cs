@@ -10,47 +10,59 @@ namespace StatusHud
         public new const string name = "time";
         public new const string desc = "The 'time' element displays the current time and an icon for the position of the sun relative to the horizon.";
         protected const string textKey = "shud-time";
-
-        public override string elementName => name;
+        public static readonly string[] timeFormatWords = new string[] { "12hr", "24hr" };
 
         public int textureId;
         protected string timeFormat;
-        public static readonly string[] timeFormatWords = new string[] { "12hr", "24hr" };
+
+        public override string ElementName => name;
+        public override string ElementOption => timeFormat;
 
         protected StatusHudTimeRenderer renderer;
         protected StatusHudConfig config;
 
-        public StatusHudTimeElement(StatusHudSystem system, int slot, StatusHudConfig config) : base(system, slot)
+        public StatusHudTimeElement(StatusHudSystem system, StatusHudConfig config) : base(system)
         {
-            renderer = new StatusHudTimeRenderer(system, slot, this, config.text);
+            renderer = new StatusHudTimeRenderer(system, this, config);
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
             this.config = config;
 
             textureId = this.system.textures.texturesDict["empty"].TextureId;
-            timeFormat = config.options.timeFormat;
+            timeFormat = "24hr";
 
             // Config error checking
             if (!timeFormatWords.Any(str => str.Contains(timeFormat)))
             {
-                system.capi.Logger.Warning("[{0}] {1} is not a valid value for timeFormat. Defaulting to 24hr", getTextKey(), timeFormat);
+                system.capi.Logger.Warning("[{0}] {1} is not a valid value for timeFormat. Defaulting to 24hr", GetTextKey(), timeFormat);
             }
         }
 
-        public override StatusHudRenderer getRenderer()
+        public override StatusHudRenderer GetRenderer()
         {
             return renderer;
         }
 
-        public virtual string getTextKey()
+        public virtual string GetTextKey()
         {
             return textKey;
+        }
+
+        public override void ConfigOptions(string value)
+        {
+            foreach (var word in timeFormatWords)
+            {
+                if (value == word)
+                {
+                    timeFormat = value;
+                    return;
+                }
+            }
         }
 
         public override void Tick()
         {
             TimeSpan ts = TimeSpan.FromHours(system.capi.World.Calendar.HourOfDay);
-            timeFormat = config.options.timeFormat;
 
             string time;
 
@@ -64,7 +76,7 @@ namespace StatusHud
                 time = ts.ToString("hh':'mm");
             }
 
-            renderer.setText(time);
+            renderer.SetText(time);
 
             if (system.capi.World.Calendar.SunPosition.Y < -5)
             {
@@ -105,19 +117,19 @@ namespace StatusHud
         protected StatusHudTimeElement element;
         protected StatusHudText text;
 
-        public StatusHudTimeRenderer(StatusHudSystem system, int slot, StatusHudTimeElement element, StatusHudTextConfig config) : base(system, slot)
+        public StatusHudTimeRenderer(StatusHudSystem system, StatusHudTimeElement element, StatusHudConfig config) : base(system)
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
+            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), config);
         }
 
-        public override void Reload(StatusHudTextConfig config)
+        public override void Reload()
         {
-            text.ReloadText(config, pos);
+            text.ReloadText(pos);
         }
 
-        public void setText(string value)
+        public void SetText(string value)
         {
             text.Set(value);
         }

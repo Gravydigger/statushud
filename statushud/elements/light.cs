@@ -9,24 +9,24 @@ namespace StatusHud
         public new const string desc = "The 'light' element displays the selected block's light level. If no block is selected, it is hidden.";
         protected const string textKey = "shud-light";
 
-        public override string elementName => name;
+        public override string ElementName => name;
 
         public bool active;
 
         protected StatusHudLightRenderer renderer;
 
-        public StatusHudLightElement(StatusHudSystem system, int slot, StatusHudTextConfig config) : base(system, slot, true)
+        public StatusHudLightElement(StatusHudSystem system, StatusHudConfig config) : base(system, true)
         {
-            renderer = new StatusHudLightRenderer(system, slot, this, config);
+            renderer = new StatusHudLightRenderer(system, this, config);
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
         }
 
-        public override StatusHudRenderer getRenderer()
+        public override StatusHudRenderer GetRenderer()
         {
             return renderer;
         }
 
-        public virtual string getTextKey()
+        public virtual string GetTextKey()
         {
             return textKey;
         }
@@ -35,14 +35,14 @@ namespace StatusHud
         {
             if (system.capi.World.Player.CurrentBlockSelection != null)
             {
-                renderer.setText(system.capi.World.BlockAccessor.GetLightLevel(system.capi.World.Player.CurrentBlockSelection.Position, EnumLightLevelType.MaxTimeOfDayLight).ToString());
+                renderer.SetText(system.capi.World.BlockAccessor.GetLightLevel(system.capi.World.Player.CurrentBlockSelection.Position, EnumLightLevelType.MaxTimeOfDayLight).ToString());
                 active = true;
             }
             else
             {
                 if (active)
                 {
-                    renderer.setText("");
+                    renderer.SetText("");
                 }
                 active = false;
             }
@@ -61,19 +61,19 @@ namespace StatusHud
 
         protected StatusHudText text;
 
-        public StatusHudLightRenderer(StatusHudSystem system, int slot, StatusHudLightElement element, StatusHudTextConfig config) : base(system, slot)
+        public StatusHudLightRenderer(StatusHudSystem system, StatusHudLightElement element, StatusHudConfig config) : base(system)
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
+            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), config);
         }
 
-        public override void Reload(StatusHudTextConfig config)
+        public override void Reload()
         {
-            text.ReloadText(config, pos);
+            text.ReloadText(pos);
         }
 
-        public void setText(string value)
+        public void SetText(string value)
         {
             text.Set(value);
         }
@@ -90,7 +90,7 @@ namespace StatusHud
             {
                 if (system.ShowHidden)
                 {
-                    this.RenderHidden(system.textures.texturesDict["light"].TextureId);
+                    RenderHidden(system.textures.texturesDict["light"].TextureId);
                 }
                 return;
             }

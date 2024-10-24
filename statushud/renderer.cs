@@ -11,25 +11,12 @@ namespace StatusHud
         protected const int pingTimeInit = 30;
         protected const int pingTimeHalf = (int)(pingTimeInit / 2f);
 
-        protected static readonly Vec4f hiddenRgba = new Vec4f(1, 1, 1, 0.25f);
+        protected static readonly Vec4f hiddenRgba = new(1, 1, 1, 0.25f);
 
-        public double RenderOrder
-        {
-            get
-            {
-                return 1;
-            }
-        }
-        public int RenderRange
-        {
-            get
-            {
-                return 0;
-            }
-        }
+        public double RenderOrder => 1;
+        public int RenderRange => 0;
 
         protected StatusHudSystem system;
-        protected int slot;
 
         // Position values.
         protected StatusHudPos pos;
@@ -56,10 +43,9 @@ namespace StatusHud
         protected MeshRef hiddenMesh;
         protected Matrixf hiddenMatrix;
 
-        public StatusHudRenderer(StatusHudSystem system, int slot)
+        public StatusHudRenderer(StatusHudSystem system)
         {
             this.system = system;
-            this.slot = slot;
 
             pos = new StatusHudPos();
 
@@ -145,7 +131,7 @@ namespace StatusHud
             hiddenMesh.Dispose();
         }
 
-        public abstract void Reload(StatusHudTextConfig config);
+        public abstract void Reload();
 
         protected abstract void Render();
 
@@ -211,12 +197,12 @@ namespace StatusHud
 
         protected float SolveW()
         {
-            return (float)GuiElement.scaled(system.textures.size);
+            return (float)GuiElement.scaled(system.Config.iconSize);
         }
 
         protected float SolveH()
         {
-            return (float)GuiElement.scaled(system.textures.size);
+            return (float)GuiElement.scaled(system.Config.iconSize);
         }
 
         protected void RenderHidden(int textureId)

@@ -9,19 +9,18 @@ namespace StatusHud
 
         public const string name = "element";
         public const string desc = "No description available.";
+        
+        public bool fast;
 
-        public virtual string elementName => name;
+        public virtual string ElementName => name;
+        public virtual string ElementOption => "";
 
         protected StatusHudSystem system;
-        protected int slot;
-
-        public bool fast;
         public StatusHudPos pos;
 
-        public StatusHudElement(StatusHudSystem system, int slot, bool fast = false)
+        public StatusHudElement(StatusHudSystem system, bool fast = false)
         {
             this.system = system;
-            this.slot = slot;
             this.fast = fast;
 
             pos = new StatusHudPos();
@@ -77,25 +76,27 @@ namespace StatusHud
         public void Pos()
         {
             CheckPosBounds();
-            getRenderer().Pos(pos);
+            GetRenderer().Pos(pos);
         }
 
         public bool Repos()
         {
-            pos.Set(0,0,0,0);
+            pos.Set(0, 0, 0, 0);
 
-            getRenderer().Pos(pos);
+            GetRenderer().Pos(pos);
             return true;
         }
 
         public void Ping()
         {
-            getRenderer().Ping();
+            GetRenderer().Ping();
         }
+
+        public virtual void ConfigOptions(string value) { }
 
         public abstract void Tick();
         public abstract void Dispose();
 
-        public abstract StatusHudRenderer getRenderer();
+        public abstract StatusHudRenderer GetRenderer();
     }
 }

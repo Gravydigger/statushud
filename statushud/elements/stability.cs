@@ -10,31 +10,31 @@ namespace StatusHud
         public new const string desc = "The 'stability' element displays the temporal stability at the player's position if it is below 100%. Otherwise, it is hidden.";
         protected const string textKey = "shud-stability";
 
-        public override string elementName => name;
+        public override string ElementName => name;
 
-        protected const float maxStability = 1.5f;      // Hard-coded in SystemTemporalStability.
+        protected const float maxStability = 1.5f; // Hard-coded in SystemTemporalStability.
 
         public bool active;
 
         protected SystemTemporalStability stabilitySystem;
         protected StatusHudStabilityRenderer renderer;
 
-        public StatusHudStabilityElement(StatusHudSystem system, int slot, StatusHudTextConfig config) : base(system, slot)
+        public StatusHudStabilityElement(StatusHudSystem system, StatusHudConfig config) : base(system)
         {
             stabilitySystem = this.system.capi.ModLoader.GetModSystem<SystemTemporalStability>();
 
-            renderer = new StatusHudStabilityRenderer(system, slot, this, config);
+            renderer = new StatusHudStabilityRenderer(system, this, config);
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
             active = false;
         }
 
-        public override StatusHudRenderer getRenderer()
+        public override StatusHudRenderer GetRenderer()
         {
             return renderer;
         }
 
-        public virtual string getTextKey()
+        public virtual string GetTextKey()
         {
             return textKey;
         }
@@ -50,7 +50,7 @@ namespace StatusHud
 
             if (stability < maxStability)
             {
-                renderer.setText((int)Math.Floor(stability * 100) + "%");
+                renderer.SetText((int)Math.Floor(stability * 100) + "%");
                 active = true;
             }
             else
@@ -58,7 +58,7 @@ namespace StatusHud
                 if (active)
                 {
                     // Only set text once.
-                    renderer.setText("");
+                    renderer.SetText("");
                 }
                 active = false;
             }
@@ -77,19 +77,19 @@ namespace StatusHud
 
         protected StatusHudText text;
 
-        public StatusHudStabilityRenderer(StatusHudSystem system, int slot, StatusHudStabilityElement element, StatusHudTextConfig config) : base(system, slot)
+        public StatusHudStabilityRenderer(StatusHudSystem system, StatusHudStabilityElement element, StatusHudConfig config) : base(system)
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
+            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), config);
         }
 
-        public override void Reload(StatusHudTextConfig config)
+        public override void Reload()
         {
-            text.ReloadText(config, pos);
+            text.ReloadText(pos);
         }
 
-        public void setText(string value)
+        public void SetText(string value)
         {
             text.Set(value);
         }

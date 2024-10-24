@@ -10,29 +10,29 @@ namespace StatusHud
         public new const string desc = "The 'latitude' element displays the player's current latitude (in degrees).";
         protected const string textKey = "shud-latitude";
 
-        public override string elementName => name;
+        public override string ElementName => name;
 
         protected WeatherSystemBase weatherSystem;
         protected StatusHudLatitudeRenderer renderer;
 
         public float needleOffset;
 
-        public StatusHudLatitudeElement(StatusHudSystem system, int slot, StatusHudTextConfig config) : base(system, slot)
+        public StatusHudLatitudeElement(StatusHudSystem system, StatusHudConfig config) : base(system)
         {
             weatherSystem = this.system.capi.ModLoader.GetModSystem<WeatherSystemBase>();
 
-            renderer = new StatusHudLatitudeRenderer(this.system, slot, this, config);
+            renderer = new StatusHudLatitudeRenderer(this.system, this, config);
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
             needleOffset = 0;
         }
 
-        public override StatusHudRenderer getRenderer()
+        public override StatusHudRenderer GetRenderer()
         {
             return renderer;
         }
 
-        public virtual string getTextKey()
+        public virtual string GetTextKey()
         {
             return textKey;
         }
@@ -40,8 +40,8 @@ namespace StatusHud
         public override void Tick()
         {
             double latitude = system.capi.World.Calendar.OnGetLatitude(system.capi.World.Player.Entity.Pos.Z);
-            renderer.setText((float)((int)Math.Round(latitude * 900, 0) / 10f) + "°");
-            needleOffset = (float)(-latitude * (system.textures.size / 2f) * 0.75f);
+            renderer.SetText((int)Math.Round(latitude * 900, 0) / 10f + "°");
+            needleOffset = (float)(-latitude * (system.Config.iconSize / 2f) * 0.75f);
         }
 
         public override void Dispose()
@@ -56,19 +56,19 @@ namespace StatusHud
         protected StatusHudLatitudeElement element;
         protected StatusHudText text;
 
-        public StatusHudLatitudeRenderer(StatusHudSystem system, int slot, StatusHudLatitudeElement element, StatusHudTextConfig config) : base(system, slot)
+        public StatusHudLatitudeRenderer(StatusHudSystem system, StatusHudLatitudeElement element, StatusHudConfig config) : base(system)
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size); 
+            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), config);
         }
 
-        public override void Reload(StatusHudTextConfig config)
+        public override void Reload()
         {
-            text.ReloadText(config, pos);
+            text.ReloadText(pos);
         }
 
-        public void setText(string value)
+        public void SetText(string value)
         {
             text.Set(value);
         }

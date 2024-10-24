@@ -1,9 +1,5 @@
-using System;
 using Vintagestory.API.Client;
-using Vintagestory.API.Common;
 using Vintagestory.API.Datastructures;
-using Vintagestory.API.MathTools;
-using Vintagestory.GameContent;
 
 namespace StatusHud
 {
@@ -13,11 +9,14 @@ namespace StatusHud
         public new const string desc = "The 'bodyheat' element displays the player's body heat (in %). If at maximum, it is hidden.";
         protected const string textKey = "shud-bodyheat";
 
-        public override string elementName => name;
-
-        protected const float cfratio = (9f / 5f);
-
+        protected const float cfratio = 9f / 5f;
         public const float tempIdeal = 37;
+
+        public static readonly string[] tempFormatWords = { "C", "F" };
+        private string tempScale;
+
+        public override string ElementOption => tempScale;
+        public override string ElementName => name;
 
         public bool active;
         public int textureId;
@@ -26,25 +25,37 @@ namespace StatusHud
         protected StatusHudConfig config;
 
 
-        public StatusHudBodyheatElement(StatusHudSystem system, int slot, StatusHudConfig config) : base(system, slot)
+        public StatusHudBodyheatElement(StatusHudSystem system, StatusHudConfig config) : base(system)
         {
-            renderer = new StatusHudBodyheatRenderer(this.system, this.slot, this, config.text);
+            renderer = new StatusHudBodyheatRenderer(this.system, this, config);
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
             textureId = this.system.textures.texturesDict["empty"].TextureId;
             this.config = config;
 
+            tempScale = "C";
             active = false;
         }
 
-        public override StatusHudRenderer getRenderer()
+        public override StatusHudRenderer GetRenderer()
         {
             return renderer;
         }
 
-        public virtual string getTextKey()
+        public virtual string GetTextKey()
         {
             return textKey;
+        }
+
+        public override void ConfigOptions(string value)
+        {
+            foreach (var words in tempFormatWords)
+            {
+                if (words == value)
+                {
+                    tempScale = value;
+                }
+            }
         }
 
         public override void Tick()
@@ -62,34 +73,25 @@ namespace StatusHud
             // Heatstroke doesn't exists yet, only consider cold tempatures
             if (tempDiff <= -0.5f)
             {
-                string textRender;
-                switch (config.options.temperatureScale)
+                string textRender = tempScale switch
                 {
-                    case 'F':
-                        textRender = string.Format("{0:N1}", tempDiff * cfratio) + "�F";
-                        break;
-                    case 'K':
-                        textRender = string.Format("{0:N1}", tempDiff) + "�K";
-                        break;
-                    case 'C':
-                    default:
-                        textRender = string.Format("{0:N1}", tempDiff) + "�C";
-                        break;
-                }
+                    "F" => string.Format("{0:N1}", tempDiff * cfratio) + "°F",
+                    _ => string.Format("{0:N1}", tempDiff) + "°C",
+                };
 
                 active = true;
-                renderer.setText(textRender);
+                renderer.SetText(textRender);
             }
             else
             {
                 if (active)
                 {
-                    renderer.setText("");
+                    renderer.SetText("");
                 }
 
                 active = false;
             }
-            updateTexture(tempDiff);
+            UpdateTexture(tempDiff);
         }
 
         public override void Dispose()
@@ -98,7 +100,7 @@ namespace StatusHud
             system.capi.Event.UnregisterRenderer(renderer, EnumRenderStage.Ortho);
         }
 
-        protected void updateTexture(float tempDiff)
+        protected void UpdateTexture(float tempDiff)
         {
             // If body temp ~33C, the player will start freezing
             if (tempDiff > -4)
@@ -118,19 +120,19 @@ namespace StatusHud
 
         protected StatusHudText text;
 
-        public StatusHudBodyheatRenderer(StatusHudSystem system, int slot, StatusHudBodyheatElement element, StatusHudTextConfig config) : base(system, slot)
+        public StatusHudBodyheatRenderer(StatusHudSystem system, StatusHudBodyheatElement element, StatusHudConfig config) : base(system)
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
+            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), config);
         }
 
-        public override void Reload(StatusHudTextConfig config)
+        public override void Reload()
         {
-            text.ReloadText(config, pos);
+            text.ReloadText(pos);
         }
 
-        public void setText(string value)
+        public void SetText(string value)
         {
             text.Set(value);
         }

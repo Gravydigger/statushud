@@ -10,7 +10,7 @@ namespace StatusHud
         public new const string desc = "The 'room' element displays a house icon when inside a room or a cabin icon when inside a small room (cellar), and a sun icon when inside a greenhouse. Otherwise, it is hidden.";
         protected const string textKey = "shud-room";
 
-        public override string elementName => name;
+        public override string ElementName => name;
 
         public bool inside;
         public bool cellar;
@@ -18,18 +18,18 @@ namespace StatusHud
 
         protected StatusHudRoomRenderer renderer;
 
-        public StatusHudRoomElement(StatusHudSystem system, int slot) : base(system, slot)
+        public StatusHudRoomElement(StatusHudSystem system) : base(system)
         {
-            renderer = new StatusHudRoomRenderer(system, slot, this);
+            renderer = new StatusHudRoomRenderer(system, this);
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
         }
 
-        public override StatusHudRenderer getRenderer()
+        public override StatusHudRenderer GetRenderer()
         {
             return renderer;
         }
 
-        public virtual string getTextKey()
+        public virtual string GetTextKey()
         {
             return textKey;
         }
@@ -83,12 +83,12 @@ namespace StatusHud
 
         protected float ghy;
 
-        public StatusHudRoomRenderer(StatusHudSystem system, int slot, StatusHudRoomElement element) : base(system, slot)
+        public StatusHudRoomRenderer(StatusHudSystem system, StatusHudRoomElement element) : base(system)
         {
             this.element = element;
         }
 
-        public override void Reload(StatusHudTextConfig config) { }
+        public override void Reload() { }
 
         protected override void Render()
         {
@@ -113,7 +113,7 @@ namespace StatusHud
         {
             base.Update();
 
-            ghy = (float)(y - GuiElement.scaled(system.textures.size));
+            ghy = (float)(y - GuiElement.scaled(system.Config.iconSize));
         }
 
         public override void Dispose()

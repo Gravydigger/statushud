@@ -8,29 +8,29 @@ namespace StatusHud
         public new const string desc = "The 'players' element displays the number of players currently online.";
         protected const string textKey = "shud-players";
 
-        public override string elementName => name;
+        public override string ElementName => name;
 
         protected StatusHudPlayersRenderer renderer;
 
-        public StatusHudPlayersElement(StatusHudSystem system, int slot, StatusHudTextConfig config) : base(system, slot)
+        public StatusHudPlayersElement(StatusHudSystem system, StatusHudConfig config) : base(system)
         {
-            renderer = new StatusHudPlayersRenderer(system, slot, this, config);
+            renderer = new StatusHudPlayersRenderer(system, this, config);
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
         }
 
-        public override StatusHudRenderer getRenderer()
+        public override StatusHudRenderer GetRenderer()
         {
             return renderer;
         }
 
-        public virtual string getTextKey()
+        public virtual string GetTextKey()
         {
             return textKey;
         }
 
         public override void Tick()
         {
-            renderer.setText(system.capi.World.AllOnlinePlayers.Length.ToString());
+            renderer.SetText(system.capi.World.AllOnlinePlayers.Length.ToString());
         }
 
         public override void Dispose()
@@ -46,19 +46,19 @@ namespace StatusHud
 
         protected StatusHudText text;
 
-        public StatusHudPlayersRenderer(StatusHudSystem system, int slot, StatusHudPlayersElement element, StatusHudTextConfig config) : base(system, slot)
+        public StatusHudPlayersRenderer(StatusHudSystem system, StatusHudPlayersElement element, StatusHudConfig config) : base(system)
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
+            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), config);
         }
 
-        public override void Reload(StatusHudTextConfig config)
+        public override void Reload()
         {
-            text.ReloadText(config, pos);
+            text.ReloadText(pos);
         }
 
-        public void setText(string value)
+        public void SetText(string value)
         {
             text.Set(value);
         }

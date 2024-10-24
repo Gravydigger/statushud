@@ -12,73 +12,74 @@ namespace StatusHud
         public new const string name = "weather";
         public new const string desc = "The 'weather' element displays the current temperature and an icon for the current condition.";
         protected const string textKey = "shud-weather";
+        private const float cfratio = 9f / 5f;
+        private const float cfdiff = 32;
+        private const float ckdiff = 273.15f;
 
-        public override string elementName => name;
+        static readonly string[] tempFormatWords = new string[] { "C", "F", "K" };
+        private string tempScale;
+        public int textureId;
+
+        public override string ElementOption => tempScale;
+        public override string ElementName => name;
 
         protected WeatherSystemBase weatherSystem;
         protected StatusHudWeatherRenderer renderer;
         protected StatusHudConfig config;
 
-        protected char tempScale;
-        static readonly string[] tempFormatWords = new string[] { "C", "F", "K" };
-
-        protected const float cfratio = (9f / 5f);
-        protected const float cfdiff = 32;
-        protected const float ckdiff = 273.15f;
-
-        public int textureId;
-
-        public StatusHudWeatherElement(StatusHudSystem system, int slot, StatusHudConfig config) : base(system, slot)
+        public StatusHudWeatherElement(StatusHudSystem system, StatusHudConfig config) : base(system)
         {
             weatherSystem = this.system.capi.ModLoader.GetModSystem<WeatherSystemBase>();
 
-            renderer = new StatusHudWeatherRenderer(system, slot, this, config.text);
+            renderer = new StatusHudWeatherRenderer(system, this, config);
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
             this.config = config;
 
-            tempScale = config.options.temperatureScale;
+            tempScale = "C";
             textureId = this.system.textures.texturesDict["empty"].TextureId;
 
             // Config error checking
             if (!tempFormatWords.Any(str => str.Contains(tempScale)))
             {
-                system.capi.Logger.Warning("[{0}] {1} is not a valid value for temperatureFormat. Defaulting to C", getTextKey(), tempScale);
+                system.capi.Logger.Warning("[{0}] {1} is not a valid value for temperatureFormat. Defaulting to C", GetTextKey(), tempScale);
             }
         }
 
-        public override StatusHudRenderer getRenderer()
+        public override StatusHudRenderer GetRenderer()
         {
             return renderer;
         }
 
-        public virtual string getTextKey()
+        public virtual string GetTextKey()
         {
             return textKey;
+        }
+
+        public override void ConfigOptions(string value)
+        {
+            foreach (var words in tempFormatWords)
+            {
+                if (words == value)
+                {
+                    tempScale = value;
+                }
+            }
         }
 
         public override void Tick()
         {
             ClimateCondition cc = system.capi.World.BlockAccessor.GetClimateAt(system.capi.World.Player.Entity.Pos.AsBlockPos, EnumGetClimateMode.NowValues);
-            tempScale = config.options.temperatureScale;
 
-            string temperature;
-
-            switch (tempScale)
+            string temperature = tempScale switch
             {
-                case 'F':
-                    temperature = (int)Math.Round((cc.Temperature * cfratio) + cfdiff, 0) + "°F";
-                    break;
-                case 'K':
-                    temperature = (int)Math.Round(cc.Temperature + ckdiff, 0) + "°K";
-                    break;
-                default:
-                    temperature = (int)Math.Round(cc.Temperature, 0) + "°C";
-                    break;
-            }
+                "F" => (int)Math.Round((cc.Temperature * cfratio) + cfdiff, 0) + "°F",
+                "K" => (int)Math.Round(cc.Temperature + ckdiff, 0) + "°K",
+                _ => (int)Math.Round(cc.Temperature, 0) + "°C",
+            };
 
-            renderer.setText(temperature);
-            updateTexture(cc);
+            renderer.SetText(temperature);
+            UpdateTexture(cc);
         }
 
         public override void Dispose()
@@ -87,7 +88,7 @@ namespace StatusHud
             system.capi.Event.UnregisterRenderer(renderer, EnumRenderStage.Ortho);
         }
 
-        protected void updateTexture(ClimateCondition cc)
+        protected void UpdateTexture(ClimateCondition cc)
         {
             if (cc.Rainfall > 0)
             {
@@ -138,9 +139,8 @@ namespace StatusHud
                 int regionX = (int)pos.X / system.capi.World.BlockAccessor.RegionSize;
                 int regionZ = (int)pos.Z / system.capi.World.BlockAccessor.RegionSize;
 
-                WeatherSimulationRegion weatherSim;
                 long index2d = weatherSystem.MapRegionIndex2D(regionX, regionZ);
-                weatherSystem.weatherSimByMapRegion.TryGetValue(index2d, out weatherSim);
+                weatherSystem.weatherSimByMapRegion.TryGetValue(index2d, out WeatherSimulationRegion weatherSim);
 
                 if (weatherSim == null)
                 {
@@ -176,19 +176,19 @@ namespace StatusHud
         protected StatusHudWeatherElement element;
         protected StatusHudText text;
 
-        public StatusHudWeatherRenderer(StatusHudSystem system, int slot, StatusHudWeatherElement element, StatusHudTextConfig config) : base(system, slot)
+        public StatusHudWeatherRenderer(StatusHudSystem system, StatusHudWeatherElement element, StatusHudConfig config) : base(system)
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
+            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), config);
         }
 
-        public override void Reload(StatusHudTextConfig config)
+        public override void Reload()
         {
-            text.ReloadText(config, pos);
+            text.ReloadText(pos);
         }
 
-        public void setText(string value)
+        public void SetText(string value)
         {
             text.Set(value);
         }

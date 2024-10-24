@@ -9,24 +9,24 @@ namespace StatusHud
         public new const string desc = "The 'durability' element displays the selected item's remaining durability. If there is no durability, it is hidden.";
         protected const string textKey = "shud-durability";
 
-        public override string elementName => name;
+        public override string ElementName => name;
 
         public bool active;
 
         protected StatusHudDurabilityRenderer renderer;
 
-        public StatusHudDurabilityElement(StatusHudSystem system, int slot, StatusHudTextConfig config) : base(system, slot, true)
+        public StatusHudDurabilityElement(StatusHudSystem system, StatusHudConfig config) : base(system, true)
         {
-            renderer = new StatusHudDurabilityRenderer(this.system, this.slot, this, config);
+            renderer = new StatusHudDurabilityRenderer(this.system, this, config);
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
         }
 
-        public override StatusHudRenderer getRenderer()
+        public override StatusHudRenderer GetRenderer()
         {
             return renderer;
         }
 
-        public virtual string getTextKey()
+        public virtual string GetTextKey()
         {
             return textKey;
         }
@@ -38,14 +38,14 @@ namespace StatusHud
             if (item != null
                     && item.Durability != 0)
             {
-                renderer.setText(item.GetRemainingDurability(system.capi.World.Player.InventoryManager.ActiveHotbarSlot.Itemstack).ToString());
+                renderer.SetText(item.GetRemainingDurability(system.capi.World.Player.InventoryManager.ActiveHotbarSlot.Itemstack).ToString());
                 active = true;
             }
             else
             {
                 if (active)
                 {
-                    renderer.setText("");
+                    renderer.SetText("");
                 }
                 active = false;
             }
@@ -64,19 +64,19 @@ namespace StatusHud
 
         protected StatusHudText text;
 
-        public StatusHudDurabilityRenderer(StatusHudSystem system, int slot, StatusHudDurabilityElement element, StatusHudTextConfig config) : base(system, slot)
+        public StatusHudDurabilityRenderer(StatusHudSystem system, StatusHudDurabilityElement element, StatusHudConfig config) : base(system)
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
+            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), config);
         }
 
-        public override void Reload(StatusHudTextConfig config)
+        public override void Reload()
         {
-            text.ReloadText(config, pos);
+            text.ReloadText(pos);
         }
 
-        public void setText(string value)
+        public void SetText(string value)
         {
             text.Set(value);
         }

@@ -119,7 +119,7 @@ public class StatusHudConfigGui : GuiDialog
     private bool OnRestore()
     {
         capi.Logger.Notification("You pressed the Restore Button!");
-        system.LoadConfig();
+        // system.LoadConfig();
         return true;
     }
 

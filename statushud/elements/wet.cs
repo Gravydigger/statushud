@@ -9,26 +9,26 @@ namespace StatusHud
         public new const string desc = "The 'wet' element displays how wet (in %) the player is. If the player is dry, it is hidden.";
         protected const string textKey = "shud-wet";
 
-        public override string elementName => name;
+        public override string ElementName => name;
 
         public bool active;
 
         protected StatusHudWetRenderer renderer;
 
-        public StatusHudWetElement(StatusHudSystem system, int slot, StatusHudTextConfig config) : base(system, slot)
+        public StatusHudWetElement(StatusHudSystem system, StatusHudConfig config) : base(system)
         {
-            renderer = new StatusHudWetRenderer(system, slot, this, config);
+            renderer = new StatusHudWetRenderer(system, this, config);
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
             active = false;
         }
 
-        public override StatusHudRenderer getRenderer()
+        public override StatusHudRenderer GetRenderer()
         {
             return renderer;
         }
 
-        public virtual string getTextKey()
+        public virtual string GetTextKey()
         {
             return textKey;
         }
@@ -39,7 +39,7 @@ namespace StatusHud
 
             if (wetness > 0)
             {
-                renderer.setText((int)Math.Round(wetness * 100f, 0) + "%");
+                renderer.SetText((int)Math.Round(wetness * 100f, 0) + "%");
 
                 active = true;
             }
@@ -48,7 +48,7 @@ namespace StatusHud
                 if (active)
                 {
                     // Only set text once.
-                    renderer.setText("");
+                    renderer.SetText("");
                 }
                 active = false;
             }
@@ -67,19 +67,19 @@ namespace StatusHud
 
         protected StatusHudText text;
 
-        public StatusHudWetRenderer(StatusHudSystem system, int slot, StatusHudWetElement element, StatusHudTextConfig config) : base(system, slot)
+        public StatusHudWetRenderer(StatusHudSystem system, StatusHudWetElement element, StatusHudConfig config) : base(system)
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
+            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), config);
         }
 
-        public override void Reload(StatusHudTextConfig config)
+        public override void Reload()
         {
-            text.ReloadText(config, pos);
+            text.ReloadText(pos);
         }
 
-        public void setText(string value)
+        public void SetText(string value)
         {
             text.Set(value);
         }
