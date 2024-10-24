@@ -2,13 +2,12 @@ using System.Collections.Generic;
 using Cairo;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
-using Vintagestory.Common;
 
 namespace StatusHud
 {
     public class StatusHudTextures
     {
-        private int size;
+        private readonly int size;
         protected ICoreClientAPI capi;
         public Dictionary<string, LoadedTexture> texturesDict;
 
@@ -23,7 +22,7 @@ namespace StatusHud
             Context context;
 
             // Generate empty texture.
-            LoadedTexture empty = new LoadedTexture(this.capi);
+            LoadedTexture empty = new(this.capi);
             surface = new ImageSurface(Format.Argb32, this.size, this.size);
 
             this.capi.Gui.LoadOrUpdateCairoTexture(surface, true, ref empty);
@@ -32,11 +31,12 @@ namespace StatusHud
             texturesDict.Add("empty", empty);
 
             // Generate ping texture.
-            LoadedTexture ping = new LoadedTexture(this.capi);
+            LoadedTexture ping = new(this.capi);
             surface = new ImageSurface(Format.Argb32, this.size, this.size);
-            context = new Context(surface);
-
-            context.LineWidth = 2;
+            context = new Context(surface)
+            {
+                LineWidth = 2
+            };
 
             context.SetSourceRGBA(0, 0, 0, 0.5);
             context.Rectangle(0, 0, this.size, this.size);
@@ -71,7 +71,7 @@ namespace StatusHud
 
             foreach (var asset in assetLocations)
             {
-                LoadedTexture texture = new LoadedTexture(capi);
+                LoadedTexture texture = new(capi);
 
                 // Get asset name without file extension
                 string name = asset.GetName().Split('.')[0];

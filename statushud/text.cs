@@ -8,13 +8,13 @@ namespace StatusHud
     {
         protected const string dialogNamePrefix = "d-";
 
-        private string key;
-        private StatusHudConfig config;
-        private Vec4f colour = new(0.91f, 0.87f, 0.81f, 1);
-        private float width;
-        private float height;
+        private readonly string key;
+        private readonly StatusHudConfig config;
+        private readonly Vec4f colour = new(0.91f, 0.87f, 0.81f, 1);
+        private readonly float width;
+        private readonly float height;
 
-        private string dialogName;
+        private readonly string dialogName;
         private CairoFont font;
         private GuiElementDynamicText text;
 
@@ -29,7 +29,6 @@ namespace StatusHud
             this.key = key;
             this.config = config;
 
-            // colour = config.colour.ToVec4f();
             width = this.config.iconSize * 3;
             height = this.config.iconSize;
 

@@ -13,7 +13,7 @@ namespace StatusHud
         protected const string textKey = "shud-riftactivity";
         protected const string harmonyId = "shud-riftactivity";
 
-        public override string elementName => name;
+        public override string ElementName => name;
 
         public int textureId;
         public bool active;
@@ -34,12 +34,12 @@ namespace StatusHud
 
             textureId = this.system.textures.texturesDict["empty"].TextureId;
 
-            active = this.system.capi.World.Config.GetString("temporalRifts") != "off" ? true : false;
+            active = this.system.capi.World.Config.GetString("temporalRifts") != "off";
 
             // World has to be reloaded for changes to apply
             harmony = new Harmony(harmonyId);
             harmony.Patch(typeof(ModSystemRiftWeather).GetMethod("onPacket", BindingFlags.Instance | BindingFlags.NonPublic),
-                    postfix: new HarmonyMethod(typeof(StatusHudRiftActivityElement).GetMethod(nameof(StatusHudRiftActivityElement.receiveData))));
+                    postfix: new HarmonyMethod(typeof(StatusHudRiftActivityElement).GetMethod(nameof(StatusHudRiftActivityElement.ReceiveData))));
 
             if (!active)
             {
@@ -47,17 +47,17 @@ namespace StatusHud
             }
         }
 
-        public static void receiveData(SpawnPatternPacket msg)
+        public static void ReceiveData(SpawnPatternPacket msg)
         {
             riftActivityData = msg.Pattern;
         }
 
-        public override StatusHudRenderer getRenderer()
+        public override StatusHudRenderer GetRenderer()
         {
             return renderer;
         }
 
-        public virtual string getTextKey()
+        public virtual string GetTextKey()
         {
             return textKey;
         }
@@ -80,7 +80,7 @@ namespace StatusHud
             TimeSpan ts = TimeSpan.FromHours(nextRiftChange);
             string text = (int)nextRiftChange + ":" + ts.ToString("mm");
 
-            renderer.setText(text);
+            renderer.SetText(text);
             updateTexture(riftActivityData.Code);
         }
 
@@ -116,15 +116,15 @@ namespace StatusHud
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.element.getTextKey(), config);
+            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), config);
         }
 
-                public override void Reload()
+        public override void Reload()
         {
             text.ReloadText(pos);
         }
 
-        public void setText(string value)
+        public void SetText(string value)
         {
             text.Set(value);
         }

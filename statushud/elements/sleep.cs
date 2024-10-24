@@ -10,7 +10,7 @@ namespace StatusHud
         public new const string desc = "The 'sleep' element displays a countdown until the next time the player is able to sleep. If the player can sleep, it is hidden.";
         protected const string textKey = "shud-sleep";
 
-        public override string elementName => name;
+        public override string ElementName => name;
 
         protected const float threshold = 8;        // Hard-coded in BlockBed.
         protected const float ratio = 0.75f;        // Hard-coded in EntityBehaviorTiredness.
@@ -26,21 +26,19 @@ namespace StatusHud
             active = false;
         }
 
-        public override StatusHudRenderer getRenderer()
+        public override StatusHudRenderer GetRenderer()
         {
             return renderer;
         }
 
-        public virtual string getTextKey()
+        public virtual string GetTextKey()
         {
             return textKey;
         }
 
         public override void Tick()
         {
-            EntityBehaviorTiredness ebt = system.capi.World.Player.Entity.GetBehavior("tiredness") as EntityBehaviorTiredness;
-
-            if (ebt == null)
+            if (system.capi.World.Player.Entity.GetBehavior("tiredness") is not EntityBehaviorTiredness ebt)
             {
                 return;
             }
@@ -49,7 +47,7 @@ namespace StatusHud
                     && !ebt.IsSleeping)
             {
                 TimeSpan ts = TimeSpan.FromHours((threshold - ebt.Tiredness) / ratio);
-                renderer.setText(ts.ToString("h':'mm"));
+                renderer.SetText(ts.ToString("h':'mm"));
 
                 active = true;
             }
@@ -58,7 +56,7 @@ namespace StatusHud
                 if (active)
                 {
                     // Only set text once.
-                    renderer.setText("");
+                    renderer.SetText("");
                 }
                 active = false;
             }
@@ -81,15 +79,15 @@ namespace StatusHud
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.element.getTextKey(), config);
+            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), config);
         }
-                public override void Reload()
+        public override void Reload()
         {
             text.ReloadText(pos);
         }
 
 
-        public void setText(string value)
+        public void SetText(string value)
         {
             text.Set(value);
         }

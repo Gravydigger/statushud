@@ -10,9 +10,9 @@ namespace StatusHud
         public new const string desc = "The 'stability' element displays the temporal stability at the player's position if it is below 100%. Otherwise, it is hidden.";
         protected const string textKey = "shud-stability";
 
-        public override string elementName => name;
+        public override string ElementName => name;
 
-        protected const float maxStability = 1.5f;      // Hard-coded in SystemTemporalStability.
+        protected const float maxStability = 1.5f; // Hard-coded in SystemTemporalStability.
 
         public bool active;
 
@@ -29,12 +29,12 @@ namespace StatusHud
             active = false;
         }
 
-        public override StatusHudRenderer getRenderer()
+        public override StatusHudRenderer GetRenderer()
         {
             return renderer;
         }
 
-        public virtual string getTextKey()
+        public virtual string GetTextKey()
         {
             return textKey;
         }
@@ -50,7 +50,7 @@ namespace StatusHud
 
             if (stability < maxStability)
             {
-                renderer.setText((int)Math.Floor(stability * 100) + "%");
+                renderer.SetText((int)Math.Floor(stability * 100) + "%");
                 active = true;
             }
             else
@@ -58,7 +58,7 @@ namespace StatusHud
                 if (active)
                 {
                     // Only set text once.
-                    renderer.setText("");
+                    renderer.SetText("");
                 }
                 active = false;
             }
@@ -81,15 +81,15 @@ namespace StatusHud
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.element.getTextKey(), config);
+            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), config);
         }
 
-                public override void Reload()
+        public override void Reload()
         {
             text.ReloadText(pos);
         }
 
-        public void setText(string value)
+        public void SetText(string value)
         {
             text.Set(value);
         }

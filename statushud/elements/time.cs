@@ -15,7 +15,7 @@ namespace StatusHud
         public int textureId;
         protected string timeFormat;
 
-        public override string elementName => name;
+        public override string ElementName => name;
         public override string ElementOption => timeFormat;
 
         protected StatusHudTimeRenderer renderer;
@@ -34,16 +34,16 @@ namespace StatusHud
             // Config error checking
             if (!timeFormatWords.Any(str => str.Contains(timeFormat)))
             {
-                system.capi.Logger.Warning("[{0}] {1} is not a valid value for timeFormat. Defaulting to 24hr", getTextKey(), timeFormat);
+                system.capi.Logger.Warning("[{0}] {1} is not a valid value for timeFormat. Defaulting to 24hr", GetTextKey(), timeFormat);
             }
         }
 
-        public override StatusHudRenderer getRenderer()
+        public override StatusHudRenderer GetRenderer()
         {
             return renderer;
         }
 
-        public virtual string getTextKey()
+        public virtual string GetTextKey()
         {
             return textKey;
         }
@@ -76,7 +76,7 @@ namespace StatusHud
                 time = ts.ToString("hh':'mm");
             }
 
-            renderer.setText(time);
+            renderer.SetText(time);
 
             if (system.capi.World.Calendar.SunPosition.Y < -5)
             {
@@ -121,7 +121,7 @@ namespace StatusHud
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.element.getTextKey(), config);
+            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), config);
         }
 
         public override void Reload()
@@ -129,7 +129,7 @@ namespace StatusHud
             text.ReloadText(pos);
         }
 
-        public void setText(string value)
+        public void SetText(string value)
         {
             text.Set(value);
         }

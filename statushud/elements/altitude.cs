@@ -11,7 +11,7 @@ namespace StatusHud
         public new const string desc = "The 'altitude' element displays the player's current height (in meters) in relation to sea level.";
         protected const string textKey = "shud-altitude";
 
-        public override string elementName => name;
+        public override string ElementName => name;
 
         protected WeatherSystemBase weatherSystem;
         protected StatusHudAltitudeRenderer renderer;
@@ -28,12 +28,12 @@ namespace StatusHud
             needleOffset = 0;
         }
 
-        public override StatusHudRenderer getRenderer()
+        public override StatusHudRenderer GetRenderer()
         {
             return renderer;
         }
 
-        public virtual string getTextKey()
+        public virtual string GetTextKey()
         {
             return textKey;
         }
@@ -44,7 +44,7 @@ namespace StatusHud
             renderer.SetText(altitude.ToString());
 
             float ratio = -(altitude / (system.capi.World.BlockAccessor.MapSizeY / 2));
-            needleOffset = (float)(GameMath.Clamp(ratio, -1, 1) * (system.Config.iconSize / 2f) * 0.75f);
+            needleOffset = GameMath.Clamp(ratio, -1, 1) * (system.Config.iconSize / 2f) * 0.75f;
         }
 
         public override void Dispose()
@@ -63,7 +63,7 @@ namespace StatusHud
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.element.getTextKey(), config);
+            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), config);
         }
 
         public override void Reload()

@@ -12,7 +12,7 @@ namespace StatusHud
         public new const string desc = "The 'ping' element displays your current ping to the server.";
         protected const string textKey = "shud-ping";
 
-        public override string elementName => name;
+        public override string ElementName => name;
 
         public bool active;
         private static readonly int maxPing = 999;
@@ -33,12 +33,12 @@ namespace StatusHud
 #endif
         }
 
-        public override StatusHudRenderer getRenderer()
+        public override StatusHudRenderer GetRenderer()
         {
             return renderer;
         }
 
-        public virtual string getTextKey()
+        public virtual string GetTextKey()
         {
             return textKey;
         }
@@ -50,7 +50,7 @@ namespace StatusHud
                 // render text only once
                 if (!noRenderText)
                 {
-                    renderer.setText("");
+                    renderer.SetText("");
                     noRenderText = false;
                 }
                 return;
@@ -62,7 +62,7 @@ namespace StatusHud
 
                 // Get the mod users player object
                 player = (ClientPlayer)players.FirstOrDefault(player => player.PlayerUID == system.UUID);
-                renderer.setText("");
+                renderer.SetText("");
 
                 return;
             }
@@ -70,7 +70,7 @@ namespace StatusHud
             int ping = (int)(player.Ping * 1000f);
             string msg = ping < maxPing ? string.Format("{0}", Math.Min(ping, maxPing)) : "+" + maxPing;
 
-            renderer.setText(msg);
+            renderer.SetText(msg);
         }
 
         public override void Dispose()
@@ -90,15 +90,15 @@ namespace StatusHud
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.element.getTextKey(), config);
+            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), config);
         }
 
-                public override void Reload()
+        public override void Reload()
         {
             text.ReloadText(pos);
         }
 
-        public void setText(string value)
+        public void SetText(string value)
         {
             text.Set(value);
         }
@@ -115,7 +115,7 @@ namespace StatusHud
             {
                 if (system.ShowHidden)
                 {
-                    this.RenderHidden(system.textures.texturesDict["network"].TextureId);
+                    RenderHidden(system.textures.texturesDict["network"].TextureId);
                 }
                 return;
             }

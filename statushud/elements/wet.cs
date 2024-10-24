@@ -9,7 +9,7 @@ namespace StatusHud
         public new const string desc = "The 'wet' element displays how wet (in %) the player is. If the player is dry, it is hidden.";
         protected const string textKey = "shud-wet";
 
-        public override string elementName => name;
+        public override string ElementName => name;
 
         public bool active;
 
@@ -23,12 +23,12 @@ namespace StatusHud
             active = false;
         }
 
-        public override StatusHudRenderer getRenderer()
+        public override StatusHudRenderer GetRenderer()
         {
             return renderer;
         }
 
-        public virtual string getTextKey()
+        public virtual string GetTextKey()
         {
             return textKey;
         }
@@ -39,7 +39,7 @@ namespace StatusHud
 
             if (wetness > 0)
             {
-                renderer.setText((int)Math.Round(wetness * 100f, 0) + "%");
+                renderer.SetText((int)Math.Round(wetness * 100f, 0) + "%");
 
                 active = true;
             }
@@ -48,7 +48,7 @@ namespace StatusHud
                 if (active)
                 {
                     // Only set text once.
-                    renderer.setText("");
+                    renderer.SetText("");
                 }
                 active = false;
             }
@@ -71,15 +71,15 @@ namespace StatusHud
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.element.getTextKey(), config);
+            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), config);
         }
 
-                public override void Reload()
+        public override void Reload()
         {
             text.ReloadText(pos);
         }
 
-        public void setText(string value)
+        public void SetText(string value)
         {
             text.Set(value);
         }

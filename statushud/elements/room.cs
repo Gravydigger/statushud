@@ -10,7 +10,7 @@ namespace StatusHud
         public new const string desc = "The 'room' element displays a house icon when inside a room or a cabin icon when inside a small room (cellar), and a sun icon when inside a greenhouse. Otherwise, it is hidden.";
         protected const string textKey = "shud-room";
 
-        public override string elementName => name;
+        public override string ElementName => name;
 
         public bool inside;
         public bool cellar;
@@ -24,12 +24,12 @@ namespace StatusHud
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
         }
 
-        public override StatusHudRenderer getRenderer()
+        public override StatusHudRenderer GetRenderer()
         {
             return renderer;
         }
 
-        public virtual string getTextKey()
+        public virtual string GetTextKey()
         {
             return textKey;
         }

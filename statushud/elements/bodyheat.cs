@@ -1,9 +1,5 @@
-using System;
 using Vintagestory.API.Client;
-using Vintagestory.API.Common;
 using Vintagestory.API.Datastructures;
-using Vintagestory.API.MathTools;
-using Vintagestory.GameContent;
 
 namespace StatusHud
 {
@@ -20,7 +16,7 @@ namespace StatusHud
         private string tempScale;
 
         public override string ElementOption => tempScale;
-        public override string elementName => name;
+        public override string ElementName => name;
 
         public bool active;
         public int textureId;
@@ -41,12 +37,12 @@ namespace StatusHud
             active = false;
         }
 
-        public override StatusHudRenderer getRenderer()
+        public override StatusHudRenderer GetRenderer()
         {
             return renderer;
         }
 
-        public virtual string getTextKey()
+        public virtual string GetTextKey()
         {
             return textKey;
         }
@@ -84,18 +80,18 @@ namespace StatusHud
                 };
 
                 active = true;
-                renderer.setText(textRender);
+                renderer.SetText(textRender);
             }
             else
             {
                 if (active)
                 {
-                    renderer.setText("");
+                    renderer.SetText("");
                 }
 
                 active = false;
             }
-            updateTexture(tempDiff);
+            UpdateTexture(tempDiff);
         }
 
         public override void Dispose()
@@ -104,7 +100,7 @@ namespace StatusHud
             system.capi.Event.UnregisterRenderer(renderer, EnumRenderStage.Ortho);
         }
 
-        protected void updateTexture(float tempDiff)
+        protected void UpdateTexture(float tempDiff)
         {
             // If body temp ~33C, the player will start freezing
             if (tempDiff > -4)
@@ -128,7 +124,7 @@ namespace StatusHud
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.element.getTextKey(), config);
+            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), config);
         }
 
         public override void Reload()
@@ -136,7 +132,7 @@ namespace StatusHud
             text.ReloadText(pos);
         }
 
-        public void setText(string value)
+        public void SetText(string value)
         {
             text.Set(value);
         }

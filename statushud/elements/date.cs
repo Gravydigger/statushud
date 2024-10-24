@@ -9,12 +9,12 @@ namespace StatusHud
         public new const string desc = "The 'date' element displays the current date and an icon for the current season.";
         protected const string textKey = "shud-date";
 
-        public override string elementName => name;
+        public override string ElementName => name;
 
         public int textureId;
 
         protected StatusHudDateRenderer renderer;
-        private string[] monthNames = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+        private readonly string[] monthNames = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 
         public StatusHudDateElement(StatusHudSystem system, StatusHudConfig config) : base(system)
         {
@@ -25,12 +25,12 @@ namespace StatusHud
             textureId = this.system.textures.texturesDict["empty"].TextureId;
         }
 
-        public override StatusHudRenderer getRenderer()
+        public override StatusHudRenderer GetRenderer()
         {
             return renderer;
         }
 
-        public virtual string getTextKey()
+        public virtual string GetTextKey()
         {
             return textKey;
         }
@@ -43,12 +43,12 @@ namespace StatusHud
             if (system.capi.World.Calendar.Month >= 1 && system.capi.World.Calendar.Month <= 12
                     && monthNames.Length >= system.capi.World.Calendar.Month)
             {
-                renderer.setText(day + " " + monthNames[system.capi.World.Calendar.Month - 1]);
+                renderer.SetText(day + " " + monthNames[system.capi.World.Calendar.Month - 1]);
             }
             else
             {
                 // Unknown month.
-                renderer.setText(day.ToString());
+                renderer.SetText(day.ToString());
             }
 
             // Season.
@@ -94,7 +94,7 @@ namespace StatusHud
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.element.getTextKey(), config);
+            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), config);
         }
 
         public override void Reload()
@@ -102,7 +102,7 @@ namespace StatusHud
             text.ReloadText(pos);
         }
 
-        public void setText(string value)
+        public void SetText(string value)
         {
             text.Set(value);
         }

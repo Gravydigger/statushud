@@ -12,7 +12,7 @@ namespace StatusHud
         public new const string desc = "The 'wind' element displays the current wind speed (in %) at the player's position, and wind direction relative to the player.";
         protected const string textKey = "shud-wind";
 
-        public override string elementName => name;
+        public override string ElementName => name;
 
         protected WeatherSystemBase weatherSystem;
         protected StatusHudWindRenderer renderer;
@@ -31,12 +31,12 @@ namespace StatusHud
             dirAngle = 0;
         }
 
-        public override StatusHudRenderer getRenderer()
+        public override StatusHudRenderer GetRenderer()
         {
             return renderer;
         }
 
-        public virtual string getTextKey()
+        public virtual string GetTextKey()
         {
             return textKey;
         }
@@ -46,7 +46,7 @@ namespace StatusHud
             EntityPlayer entity = system.capi.World.Player.Entity;
 
             double speed = weatherSystem.WeatherDataSlowAccess.GetWindSpeed(entity.Pos.AsBlockPos.ToVec3d());
-            renderer.setText((int)Math.Round(speed * 100, 0) + "%");
+            renderer.SetText((int)Math.Round(speed * 100, 0) + "%");
 
             Vec3d dir = system.capi.World.BlockAccessor.GetWindSpeedAt(entity.Pos.AsBlockPos);
             if (speed != 0 && dir.Length() != 0)
@@ -80,15 +80,15 @@ namespace StatusHud
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.element.getTextKey(), config);
+            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), config);
         }
 
-                public override void Reload()
+        public override void Reload()
         {
             text.ReloadText(pos);
         }
 
-        public void setText(string value)
+        public void SetText(string value)
         {
             text.Set(value);
         }

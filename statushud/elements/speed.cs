@@ -10,7 +10,7 @@ namespace StatusHud
         public new const string desc = "The 'speed' element displays the player's current speed (in m/s).";
         protected const string textKey = "shud-speed";
 
-        public override string elementName => name;
+        public override string ElementName => name;
 
         protected StatusHudSpeedRenderer renderer;
 
@@ -20,12 +20,12 @@ namespace StatusHud
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
         }
 
-        public override StatusHudRenderer getRenderer()
+        public override StatusHudRenderer GetRenderer()
         {
             return renderer;
         }
 
-        public virtual string getTextKey()
+        public virtual string GetTextKey()
         {
             return textKey;
         }
@@ -49,15 +49,15 @@ namespace StatusHud
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.element.getTextKey(), config);
+            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), config);
         }
 
-                public override void Reload()
+        public override void Reload()
         {
             text.ReloadText(pos);
         }
 
-        public void setText(string value)
+        public void SetText(string value)
         {
             text.Set(value);
         }

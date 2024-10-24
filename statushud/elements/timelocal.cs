@@ -12,7 +12,7 @@ namespace StatusHud
         private new string timeFormat;
         public override string ElementOption => timeFormat;
 
-        public override string elementName => name;
+        public override string ElementName => name;
 
         public StatusHudTimeLocalElement(StatusHudSystem system, StatusHudConfig config) : base(system, config)
         {
@@ -20,7 +20,7 @@ namespace StatusHud
             timeFormat = base.timeFormat;
         }
 
-        public override string getTextKey()
+        public override string GetTextKey()
         {
             return textKey;
         }
@@ -50,7 +50,7 @@ namespace StatusHud
                 time = DateTime.Now.ToString("HH':'mm");
             }
 
-            renderer.setText(time);
+            renderer.SetText(time);
         }
     }
 }

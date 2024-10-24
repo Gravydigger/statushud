@@ -13,7 +13,7 @@ namespace StatusHud
         protected const string textKey = "shud-tempstorm";
         protected const string harmonyId = "shud-tempstorm";
 
-        public override string elementName => name;
+        public override string ElementName => name;
 
         // Hard-coded values from SystemTemporalStability.
         protected const double approachingThreshold = 0.35;
@@ -44,21 +44,21 @@ namespace StatusHud
                 harmony = new Harmony(harmonyId);
 
                 harmony.Patch(typeof(SystemTemporalStability).GetMethod("onServerData", BindingFlags.Instance | BindingFlags.NonPublic),
-                        postfix: new HarmonyMethod(typeof(StatusHudTempstormElement).GetMethod(nameof(StatusHudTempstormElement.receiveData))));
+                        postfix: new HarmonyMethod(typeof(StatusHudTempstormElement).GetMethod(nameof(ReceiveData))));
             }
         }
 
-        public static void receiveData(TemporalStormRunTimeData data)
+        public static void ReceiveData(TemporalStormRunTimeData data)
         {
             StatusHudTempstormElement.data = data;
         }
 
-        public override StatusHudRenderer getRenderer()
+        public override StatusHudRenderer GetRenderer()
         {
             return renderer;
         }
 
-        public virtual string getTextKey()
+        public virtual string GetTextKey()
         {
             return textKey;
         }
@@ -70,38 +70,38 @@ namespace StatusHud
                 return;
             }
 
-            if (StatusHudTempstormElement.data == null)
+            if (data == null)
             {
                 return;
             }
 
-            double nextStormDaysLeft = StatusHudTempstormElement.data.nextStormTotalDays - system.capi.World.Calendar.TotalDays;
+            double nextStormDaysLeft = data.nextStormTotalDays - system.capi.World.Calendar.TotalDays;
 
             if (nextStormDaysLeft > 0 && nextStormDaysLeft < approachingThreshold)
             {
                 // Preparing.
-                float hoursLeft = (float)((StatusHudTempstormElement.data.nextStormTotalDays - system.capi.World.Calendar.TotalDays) * system.capi.World.Calendar.HoursPerDay);
-                float approachingHours = (float)(approachingThreshold * system.capi.World.Calendar.HoursPerDay);
+                float hoursLeft = (float)((data.nextStormTotalDays - system.capi.World.Calendar.TotalDays) * system.capi.World.Calendar.HoursPerDay);
+                // float approachingHours = (float)(approachingThreshold * system.capi.World.Calendar.HoursPerDay);
 
                 active = true;
                 textureId = system.textures.texturesDict["tempstorm_incoming"].TextureId;
 
                 TimeSpan ts = TimeSpan.FromHours(Math.Max(hoursLeft, 0));
-                renderer.setText(ts.ToString("h':'mm"));
+                renderer.SetText(ts.ToString("h':'mm"));
             }
             else
             {
                 // In progress.
-                if (StatusHudTempstormElement.data.nowStormActive)
+                if (data.nowStormActive)
                 {
                     // Active.
-                    double hoursLeft = (StatusHudTempstormElement.data.stormActiveTotalDays - system.capi.World.Calendar.TotalDays) * system.capi.World.Calendar.HoursPerDay;
+                    double hoursLeft = (data.stormActiveTotalDays - system.capi.World.Calendar.TotalDays) * system.capi.World.Calendar.HoursPerDay;
 
                     active = true;
                     textureId = system.textures.texturesDict["tempstorm_duration"].TextureId;
 
                     TimeSpan ts = TimeSpan.FromHours(Math.Max(hoursLeft, 0));
-                    renderer.setText(ts.ToString("h':'mm"));
+                    renderer.SetText(ts.ToString("h':'mm"));
                 }
                 else if (active)
                 {
@@ -109,7 +109,7 @@ namespace StatusHud
                     active = false;
                     textureId = system.textures.texturesDict["empty"].TextureId;
 
-                    renderer.setText("");
+                    renderer.SetText("");
                 }
             }
         }
@@ -133,15 +133,15 @@ namespace StatusHud
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.element.getTextKey(), config);
+            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), config);
         }
 
-                public override void Reload()
+        public override void Reload()
         {
             text.ReloadText(pos);
         }
 
-        public void setText(string value)
+        public void SetText(string value)
         {
             text.Set(value);
         }

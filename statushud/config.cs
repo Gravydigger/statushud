@@ -78,7 +78,7 @@ namespace StatusHud
 
                 if (element != null)
                 {
-                    system.Pos(element, configElement.halign, configElement.x, configElement.valign, configElement.y);
+                    StatusHudSystem.Pos(element, configElement.halign, configElement.x, configElement.valign, configElement.y);
                 }
             }
         }

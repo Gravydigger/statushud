@@ -10,7 +10,7 @@ namespace StatusHud
         public new const string desc = "The 'latitude' element displays the player's current latitude (in degrees).";
         protected const string textKey = "shud-latitude";
 
-        public override string elementName => name;
+        public override string ElementName => name;
 
         protected WeatherSystemBase weatherSystem;
         protected StatusHudLatitudeRenderer renderer;
@@ -27,12 +27,12 @@ namespace StatusHud
             needleOffset = 0;
         }
 
-        public override StatusHudRenderer getRenderer()
+        public override StatusHudRenderer GetRenderer()
         {
             return renderer;
         }
 
-        public virtual string getTextKey()
+        public virtual string GetTextKey()
         {
             return textKey;
         }
@@ -40,7 +40,7 @@ namespace StatusHud
         public override void Tick()
         {
             double latitude = system.capi.World.Calendar.OnGetLatitude(system.capi.World.Player.Entity.Pos.Z);
-            renderer.setText((float)((int)Math.Round(latitude * 900, 0) / 10f) + "°");
+            renderer.SetText((int)Math.Round(latitude * 900, 0) / 10f + "°");
             needleOffset = (float)(-latitude * (system.Config.iconSize / 2f) * 0.75f);
         }
 
@@ -60,15 +60,15 @@ namespace StatusHud
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.element.getTextKey(), config); 
+            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), config);
         }
 
-                public override void Reload()
+        public override void Reload()
         {
             text.ReloadText(pos);
         }
 
-        public void setText(string value)
+        public void SetText(string value)
         {
             text.Set(value);
         }

@@ -11,22 +11,10 @@ namespace StatusHud
         protected const int pingTimeInit = 30;
         protected const int pingTimeHalf = (int)(pingTimeInit / 2f);
 
-        protected static readonly Vec4f hiddenRgba = new Vec4f(1, 1, 1, 0.25f);
+        protected static readonly Vec4f hiddenRgba = new(1, 1, 1, 0.25f);
 
-        public double RenderOrder
-        {
-            get
-            {
-                return 1;
-            }
-        }
-        public int RenderRange
-        {
-            get
-            {
-                return 0;
-            }
-        }
+        public double RenderOrder => 1;
+        public int RenderRange => 0;
 
         protected StatusHudSystem system;
 

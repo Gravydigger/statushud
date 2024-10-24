@@ -12,7 +12,7 @@ namespace StatusHud
         public new const string desc = "The 'compass' element displays the player's facing direction (in degrees) in relation to the north.";
         protected const string textKey = "shud-compass";
 
-        public override string elementName => name;
+        public override string ElementName => name;
 
         private bool absolute;
 
@@ -31,12 +31,12 @@ namespace StatusHud
             absolute = false;
         }
 
-        public override StatusHudRenderer getRenderer()
+        public override StatusHudRenderer GetRenderer()
         {
             return renderer;
         }
 
-        public virtual string getTextKey()
+        public virtual string GetTextKey()
         {
             return textKey;
         }
@@ -67,7 +67,7 @@ namespace StatusHud
         {
             this.element = element;
             this.absolute = absolute;
-            text = new StatusHudText(this.system.capi, this.element.getTextKey(), config);
+            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), config);
         }
 
         public override void Reload()
@@ -75,7 +75,7 @@ namespace StatusHud
             text.ReloadText(pos);
         }
 
-        public void setText(string value)
+        public void SetText(string value)
         {
             text.Set(value);
         }

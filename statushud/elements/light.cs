@@ -9,7 +9,7 @@ namespace StatusHud
         public new const string desc = "The 'light' element displays the selected block's light level. If no block is selected, it is hidden.";
         protected const string textKey = "shud-light";
 
-        public override string elementName => name;
+        public override string ElementName => name;
 
         public bool active;
 
@@ -21,12 +21,12 @@ namespace StatusHud
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
         }
 
-        public override StatusHudRenderer getRenderer()
+        public override StatusHudRenderer GetRenderer()
         {
             return renderer;
         }
 
-        public virtual string getTextKey()
+        public virtual string GetTextKey()
         {
             return textKey;
         }
@@ -35,14 +35,14 @@ namespace StatusHud
         {
             if (system.capi.World.Player.CurrentBlockSelection != null)
             {
-                renderer.setText(system.capi.World.BlockAccessor.GetLightLevel(system.capi.World.Player.CurrentBlockSelection.Position, EnumLightLevelType.MaxTimeOfDayLight).ToString());
+                renderer.SetText(system.capi.World.BlockAccessor.GetLightLevel(system.capi.World.Player.CurrentBlockSelection.Position, EnumLightLevelType.MaxTimeOfDayLight).ToString());
                 active = true;
             }
             else
             {
                 if (active)
                 {
-                    renderer.setText("");
+                    renderer.SetText("");
                 }
                 active = false;
             }
@@ -65,15 +65,15 @@ namespace StatusHud
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.element.getTextKey(), config);
+            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), config);
         }
 
-                public override void Reload()
+        public override void Reload()
         {
             text.ReloadText(pos);
         }
 
-        public void setText(string value)
+        public void SetText(string value)
         {
             text.Set(value);
         }
@@ -90,7 +90,7 @@ namespace StatusHud
             {
                 if (system.ShowHidden)
                 {
-                    this.RenderHidden(system.textures.texturesDict["light"].TextureId);
+                    RenderHidden(system.textures.texturesDict["light"].TextureId);
                 }
                 return;
             }

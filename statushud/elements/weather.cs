@@ -21,7 +21,7 @@ namespace StatusHud
         public int textureId;
 
         public override string ElementOption => tempScale;
-        public override string elementName => name;
+        public override string ElementName => name;
 
         protected WeatherSystemBase weatherSystem;
         protected StatusHudWeatherRenderer renderer;
@@ -42,16 +42,16 @@ namespace StatusHud
             // Config error checking
             if (!tempFormatWords.Any(str => str.Contains(tempScale)))
             {
-                system.capi.Logger.Warning("[{0}] {1} is not a valid value for temperatureFormat. Defaulting to C", getTextKey(), tempScale);
+                system.capi.Logger.Warning("[{0}] {1} is not a valid value for temperatureFormat. Defaulting to C", GetTextKey(), tempScale);
             }
         }
 
-        public override StatusHudRenderer getRenderer()
+        public override StatusHudRenderer GetRenderer()
         {
             return renderer;
         }
 
-        public virtual string getTextKey()
+        public virtual string GetTextKey()
         {
             return textKey;
         }
@@ -78,8 +78,8 @@ namespace StatusHud
                 _ => (int)Math.Round(cc.Temperature, 0) + "°C",
             };
 
-            renderer.setText(temperature);
-            updateTexture(cc);
+            renderer.SetText(temperature);
+            UpdateTexture(cc);
         }
 
         public override void Dispose()
@@ -88,7 +88,7 @@ namespace StatusHud
             system.capi.Event.UnregisterRenderer(renderer, EnumRenderStage.Ortho);
         }
 
-        protected void updateTexture(ClimateCondition cc)
+        protected void UpdateTexture(ClimateCondition cc)
         {
             if (cc.Rainfall > 0)
             {
@@ -139,9 +139,8 @@ namespace StatusHud
                 int regionX = (int)pos.X / system.capi.World.BlockAccessor.RegionSize;
                 int regionZ = (int)pos.Z / system.capi.World.BlockAccessor.RegionSize;
 
-                WeatherSimulationRegion weatherSim;
                 long index2d = weatherSystem.MapRegionIndex2D(regionX, regionZ);
-                weatherSystem.weatherSimByMapRegion.TryGetValue(index2d, out weatherSim);
+                weatherSystem.weatherSimByMapRegion.TryGetValue(index2d, out WeatherSimulationRegion weatherSim);
 
                 if (weatherSim == null)
                 {
@@ -181,7 +180,7 @@ namespace StatusHud
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.element.getTextKey(), config);
+            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), config);
         }
 
         public override void Reload()
@@ -189,7 +188,7 @@ namespace StatusHud
             text.ReloadText(pos);
         }
 
-        public void setText(string value)
+        public void SetText(string value)
         {
             text.Set(value);
         }

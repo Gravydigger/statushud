@@ -12,7 +12,7 @@ namespace StatusHud
         public new const string desc = "The 'armour' element displays the equipped armour's durability average (in %). If no armour is equipped, it is hidden.";
         protected const string textKey = "shud-armour";
 
-        public override string elementName => name;
+        public override string ElementName => name;
 
         // Hard-coded.
         protected static readonly int[] slots = {
@@ -33,12 +33,12 @@ namespace StatusHud
             active = false;
         }
 
-        public override StatusHudRenderer getRenderer()
+        public override StatusHudRenderer GetRenderer()
         {
             return renderer;
         }
 
-        public virtual string getTextKey()
+        public virtual string GetTextKey()
         {
             return textKey;
         }
@@ -55,9 +55,9 @@ namespace StatusHud
             int count = 0;
             float average = 0;
 
-            for (int i = 0; i < StatusHudArmourElement.slots.Length; i++)
+            for (int i = 0; i < slots.Length; i++)
             {
-                ItemSlot slot = inventory[StatusHudArmourElement.slots[i]];
+                ItemSlot slot = inventory[slots[i]];
 
                 if (!slot.Empty
                         && slot.Itemstack.Item is ItemWearable)
@@ -74,14 +74,14 @@ namespace StatusHud
 
             if (count == 0)
             {
-                renderer.setText("");
+                renderer.SetText("");
                 active = false;
                 return;
             }
 
-            average /= (float)count;
+            average /= count;
 
-            renderer.setText((int)Math.Round(average * 100, 0) + "%");
+            renderer.SetText((int)Math.Round(average * 100, 0) + "%");
             active = true;
         }
 
@@ -102,7 +102,7 @@ namespace StatusHud
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.element.getTextKey(), config);
+            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), config);
         }
 
         public override void Reload()
@@ -110,7 +110,7 @@ namespace StatusHud
             text.ReloadText(pos);
         }
 
-        public void setText(string value)
+        public void SetText(string value)
         {
             text.Set(value);
         }

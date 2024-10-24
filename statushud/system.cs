@@ -1,4 +1,3 @@
-using ConfigLib;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -55,8 +54,7 @@ namespace StatusHud
         protected static readonly string[] elementNames = InitElementNames();
         protected static readonly string elementList = InitElementList();
 
-        public const int slotMin = 0;
-        public static int slotMax = elementTypes.Length;
+        private static readonly int slotMax = elementTypes.Length;
 
         protected StatusHudConfigManager configManager;
         public StatusHudConfig Config => configManager.Config;
@@ -298,7 +296,7 @@ namespace StatusHud
         {
             foreach (var element in elements)
             {
-                if (element.elementName == name)
+                if (element.ElementName == name)
                 {
                     if (element.fast)
                     {
@@ -333,7 +331,7 @@ namespace StatusHud
             }
         }
 
-        public void Pos(StatusHudElement element, int halign, int x, int valign, int y)
+        public static void Pos(StatusHudElement element, int halign, int x, int valign, int y)
         {
             element.Pos(halign, x, valign, y);
         }
@@ -416,10 +414,10 @@ namespace StatusHud
 
             foreach (var element in elements)
             {
-                if (element.elementName == name)
+                if (element.ElementName == name)
                 {
-                    int halign = StatusHudSystem.HalignFromWord(halignWord);
-                    int valign = StatusHudSystem.ValignFromWord(valignWord);
+                    int halign = HalignFromWord(halignWord);
+                    int valign = ValignFromWord(valignWord);
 
                     Pos(element, halign, x, valign, y);
                     element.Ping();
@@ -437,7 +435,7 @@ namespace StatusHud
 
             foreach (var element in elements)
             {
-                if (element.elementName == name)
+                if (element.ElementName == name)
                 {
                     element.Repos();
                     element.Ping();
@@ -458,7 +456,7 @@ namespace StatusHud
             foreach (var element in elements)
             {
                 sb.Append('[');
-                sb.Append(element.elementName);
+                sb.Append(element.ElementName);
                 sb.Append("] ");
                 sb.Append('\n');
             }
@@ -472,7 +470,7 @@ namespace StatusHud
 
 
 
-            foreach (Type type in StatusHudSystem.elementTypes)
+            foreach (Type type in elementTypes)
             {
                 if (type.GetField("name").GetValue(null).ToString() == element)
                 {
@@ -483,7 +481,7 @@ namespace StatusHud
 
             if (message == null)
             {
-                message = "Invalid element. Try: " + StatusHudSystem.elementList;
+                message = "Invalid element. Try: " + elementList;
             }
 
 
@@ -634,30 +632,24 @@ namespace StatusHud
 
         protected static int HalignFromWord(string word)
         {
-            switch (word)
+            return word switch
             {
-                case halignWordLeft:
-                    return StatusHudPos.halignLeft;
-                case halignWordCenter:
-                    return StatusHudPos.halignCenter;
-                case halignWordRight:
-                    return StatusHudPos.halignRight;
-            }
-            return 0;
+                halignWordLeft => StatusHudPos.halignLeft,
+                halignWordCenter => StatusHudPos.halignCenter,
+                halignWordRight => StatusHudPos.halignRight,
+                _ => 0,
+            };
         }
 
         protected static int ValignFromWord(string word)
         {
-            switch (word)
+            return word switch
             {
-                case valignWordTop:
-                    return StatusHudPos.valignTop;
-                case valignWordMiddle:
-                    return StatusHudPos.valignMiddle;
-                case valignWordBottom:
-                    return StatusHudPos.valignBottom;
-            }
-            return 0;
+                valignWordTop => StatusHudPos.valignTop,
+                valignWordMiddle => StatusHudPos.valignMiddle,
+                valignWordBottom => StatusHudPos.valignBottom,
+                _ => 0,
+            };
         }
     }
 }
