@@ -100,7 +100,7 @@ namespace StatusHud
         private StatusHudConfig config;
         private readonly StatusHudSystem system;
 
-        public StatusHudConfig Config { get; }
+        public StatusHudConfig Config => config;
 
         public StatusHudConfigManager(StatusHudSystem system)
         {
@@ -116,11 +116,6 @@ namespace StatusHud
                 system.capi.Logger.Debug(StatusHudSystem.PrintModName($"Generated new config file {filename}"));
                 this.system.capi.StoreModConfig(config, filename);
             }
-            // This could casue an error where config.version does not exist
-            else if (config.version < new StatusHudConfig().version)
-            {
-                throw new NotImplementedException();
-            }
         }
 
         public void Load()
@@ -135,20 +130,20 @@ namespace StatusHud
             }
         }
 
-        // public void LoadElements(StatusHudSystem system)
-        // {
-        //     foreach (KeyValuePair<int, StatusHudConfigElement> kvp in config.elements)
-        //     {
-        //         if (system.Set(kvp.Key, kvp.Value.name))
-        //         {
-        //             system.Pos(kvp.Key, kvp.Value.halign, kvp.Value.x, kvp.Value.valign, kvp.Value.y);
-        //         }
-        //     }
-        // }
+        public void LoadElements(StatusHudSystem system)
+        {
+            foreach (KeyValuePair<int, StatusHudConfigElement> kvp in config.elements)
+            {
+                if (system.Set(kvp.Key, kvp.Value.name))
+                {
+                    system.Pos(kvp.Key, kvp.Value.halign, kvp.Value.x, kvp.Value.valign, kvp.Value.y);
+                }
+            }
+        }
 
         public void Save()
         {
-            // Save element data to config.
+            // Save element data to config
             config.elements.Clear();
 
             foreach (KeyValuePair<int, StatusHudElement> kvp in system.elements)
@@ -161,8 +156,7 @@ namespace StatusHud
                     kvp.Value.ElementOption)
                 );
             }
-
-            // Save config file.
+            // Save config file
             system.capi.StoreModConfig(config, filename);
         }
 

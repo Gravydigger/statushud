@@ -66,7 +66,6 @@ namespace StatusHud
         protected IList<StatusHudElement> fastElements;
         public StatusHudTextures textures;
 
-        protected StatusHudGui gui;
         private string uuid = null;
         public bool ShowHidden => configManager.Config.showHidden;
 
@@ -123,9 +122,7 @@ namespace StatusHud
             fastElements = new List<StatusHudElement>();
             textures = new StatusHudTextures(this.capi, Config.iconSize);
 
-            gui = new StatusHudGui(this, Config, elements, elementNames);
-
-            configManager.Load();
+            configManager.LoadElements(this);
 
             capi.ChatCommands.Create("shud")
                 .WithDescription("Configure Status HUD")
@@ -212,7 +209,6 @@ namespace StatusHud
             }
 
             capi.Event.PlayerJoin += SetUUID;
-            capi.ModLoader.GetModSystem<ConfigLibModSystem>().RegisterCustomConfig(domain, gui.DrawConfigLibSettings);
 #if DEBUG
             this.capi.Logger.Debug(PrintModName("Debug logging Enabled"));
 #endif
