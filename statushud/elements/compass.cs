@@ -1,6 +1,7 @@
 using System;
 using Vintagestory.API.Client;
 using Vintagestory.API.MathTools;
+using Vintagestory.API.Util;
 using Vintagestory.GameContent;
 
 namespace StatusHud
@@ -13,15 +14,21 @@ namespace StatusHud
 
         public override string elementName => name;
 
+        private bool absolute;
+
+        public override string ElementOption => absolute.ToString();
+
         protected WeatherSystemBase weatherSystem;
         protected StatusHudCompassRenderer renderer;
 
-        public StatusHudCompassElement(StatusHudSystem system, StatusHudConfig config, bool absolute) : base(system)
+        public StatusHudCompassElement(StatusHudSystem system, StatusHudConfig config) : base(system)
         {
             weatherSystem = this.system.capi.ModLoader.GetModSystem<WeatherSystemBase>();
 
             renderer = new StatusHudCompassRenderer(this.system, this, config, absolute);
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
+
+            absolute = false;
         }
 
         public override StatusHudRenderer getRenderer()
@@ -32,6 +39,11 @@ namespace StatusHud
         public virtual string getTextKey()
         {
             return textKey;
+        }
+
+        public override void ConfigOptions(string value)
+        {
+            absolute = value.ToBool();
         }
 
         public override void Tick() { }
@@ -47,7 +59,7 @@ namespace StatusHud
     {
         protected StatusHudCompassElement element;
         protected StatusHudText text;
-        protected bool absolute;
+        private bool absolute;
 
         protected const float dirAdjust = 180 * GameMath.DEG2RAD;
 
@@ -58,7 +70,7 @@ namespace StatusHud
             text = new StatusHudText(this.system.capi, this.element.getTextKey(), config);
         }
 
-                public override void Reload()
+        public override void Reload()
         {
             text.ReloadText(pos);
         }
@@ -76,7 +88,7 @@ namespace StatusHud
 
         protected override void Render()
         {
-            int direction = (mod((int)Math.Round(-system.capi.World.Player.CameraYaw * GameMath.RAD2DEG, 0), 360) + 90) % 360;
+            int direction = (Modulo((int)Math.Round(-system.capi.World.Player.CameraYaw * GameMath.RAD2DEG, 0), 360) + 90) % 360;
             text.Set(direction + "°");
 
             system.capi.Render.RenderTexture(system.textures.texturesDict["compass"].TextureId, x, y, w, h);
@@ -97,7 +109,7 @@ namespace StatusHud
             }
             else
             {
-                angle += StatusHudCompassRenderer.dirAdjust;
+                angle += dirAdjust;
             }
 
             // Use hidden matrix and mesh because this element is never hidden.
@@ -113,10 +125,9 @@ namespace StatusHud
             system.capi.Render.RenderMesh(hiddenMesh);
         }
 
-        private int mod(int n, int m)
+        private static int Modulo(int n, int m)
         {
-            int r = n % m;
-            return r < 0 ? r + m : r;
+            return ((n % m) + m) % m;
         }
 
         public override void Dispose()

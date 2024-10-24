@@ -9,11 +9,15 @@ namespace StatusHud
         public new const string desc = "The 'time-local' element displays the system's local time.";
         protected new const string textKey = "shud-timelocal";
 
+        private new string timeFormat;
+        public override string ElementOption => timeFormat;
+
         public override string elementName => name;
 
         public StatusHudTimeLocalElement(StatusHudSystem system, StatusHudConfig config) : base(system, config)
         {
             textureId = this.system.textures.texturesDict["time_local"].TextureId;
+            timeFormat = base.timeFormat;
         }
 
         public override string getTextKey()
@@ -21,12 +25,20 @@ namespace StatusHud
             return textKey;
         }
 
+        public override void ConfigOptions(string value)
+        {
+            foreach (var word in timeFormatWords)
+            {
+                if (value == word)
+                {
+                    timeFormat = value;
+                    return;
+                }
+            }
+        }
+
         public override void Tick()
         {
-            // timeFormat = config.options.timeFormat;
-            // TODO
-            timeFormat = "12hr";
-
             string time;
 
             if (timeFormat == "12hr")

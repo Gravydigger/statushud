@@ -13,15 +13,14 @@ namespace StatusHud
         public new const string desc = "The 'bodyheat' element displays the player's body heat (in %). If at maximum, it is hidden.";
         protected const string textKey = "shud-bodyheat";
 
-        public override string elementName => name;
-
-        public readonly string[] elementOptions = { "C", "F" };
-        private string selectedElementOption;
-
-        public override string ElementOption => selectedElementOption;
-
         protected const float cfratio = 9f / 5f;
         public const float tempIdeal = 37;
+
+        public static readonly string[] tempFormatWords = { "C", "F" };
+        private string tempScale;
+
+        public override string ElementOption => tempScale;
+        public override string elementName => name;
 
         public bool active;
         public int textureId;
@@ -38,7 +37,7 @@ namespace StatusHud
             textureId = this.system.textures.texturesDict["empty"].TextureId;
             this.config = config;
 
-            selectedElementOption = "C";
+            tempScale = "C";
             active = false;
         }
 
@@ -54,11 +53,11 @@ namespace StatusHud
 
         public override void ConfigOptions(string value)
         {
-            foreach (var option in elementOptions)
+            foreach (var words in tempFormatWords)
             {
-                if (option == value)
+                if (words == value)
                 {
-                    selectedElementOption = value;
+                    tempScale = value;
                 }
             }
         }
@@ -78,17 +77,11 @@ namespace StatusHud
             // Heatstroke doesn't exists yet, only consider cold tempatures
             if (tempDiff <= -0.5f)
             {
-                string textRender;
-                switch (selectedElementOption)
+                string textRender = tempScale switch
                 {
-                    case "F":
-                        textRender = string.Format("{0:N1}", tempDiff * cfratio) + "°F";
-                        break;
-                    case "C":
-                    default:
-                        textRender = string.Format("{0:N1}", tempDiff) + "°C";
-                        break;
-                }
+                    "F" => string.Format("{0:N1}", tempDiff * cfratio) + "°F",
+                    _ => string.Format("{0:N1}", tempDiff) + "°C",
+                };
 
                 active = true;
                 renderer.setText(textRender);

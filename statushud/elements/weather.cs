@@ -12,21 +12,20 @@ namespace StatusHud
         public new const string name = "weather";
         public new const string desc = "The 'weather' element displays the current temperature and an icon for the current condition.";
         protected const string textKey = "shud-weather";
+        private const float cfratio = 9f / 5f;
+        private const float cfdiff = 32;
+        private const float ckdiff = 273.15f;
 
+        static readonly string[] tempFormatWords = new string[] { "C", "F", "K" };
+        private string tempScale;
+        public int textureId;
+
+        public override string ElementOption => tempScale;
         public override string elementName => name;
 
         protected WeatherSystemBase weatherSystem;
         protected StatusHudWeatherRenderer renderer;
         protected StatusHudConfig config;
-
-        protected char tempScale;
-        static readonly string[] tempFormatWords = new string[] { "C", "F", "K" };
-
-        protected const float cfratio = (9f / 5f);
-        protected const float cfdiff = 32;
-        protected const float ckdiff = 273.15f;
-
-        public int textureId;
 
         public StatusHudWeatherElement(StatusHudSystem system, StatusHudConfig config) : base(system)
         {
@@ -37,9 +36,7 @@ namespace StatusHud
 
             this.config = config;
 
-            // tempScale = config.options.temperatureScale;
-            // TODO
-            tempScale = 'C';
+            tempScale = "C";
             textureId = this.system.textures.texturesDict["empty"].TextureId;
 
             // Config error checking
@@ -59,27 +56,27 @@ namespace StatusHud
             return textKey;
         }
 
+        public override void ConfigOptions(string value)
+        {
+            foreach (var words in tempFormatWords)
+            {
+                if (words == value)
+                {
+                    tempScale = value;
+                }
+            }
+        }
+
         public override void Tick()
         {
             ClimateCondition cc = system.capi.World.BlockAccessor.GetClimateAt(system.capi.World.Player.Entity.Pos.AsBlockPos, EnumGetClimateMode.NowValues);
-            // tempScale = config.options.temperatureScale;
-            // TODO
-            tempScale = 'C';
 
-            string temperature;
-
-            switch (tempScale)
+            string temperature = tempScale switch
             {
-                case 'F':
-                    temperature = (int)Math.Round((cc.Temperature * cfratio) + cfdiff, 0) + "°F";
-                    break;
-                case 'K':
-                    temperature = (int)Math.Round(cc.Temperature + ckdiff, 0) + "°K";
-                    break;
-                default:
-                    temperature = (int)Math.Round(cc.Temperature, 0) + "°C";
-                    break;
-            }
+                "F" => (int)Math.Round((cc.Temperature * cfratio) + cfdiff, 0) + "°F",
+                "K" => (int)Math.Round(cc.Temperature + ckdiff, 0) + "°K",
+                _ => (int)Math.Round(cc.Temperature, 0) + "°C",
+            };
 
             renderer.setText(temperature);
             updateTexture(cc);
@@ -187,7 +184,7 @@ namespace StatusHud
             text = new StatusHudText(this.system.capi, this.element.getTextKey(), config);
         }
 
-                public override void Reload()
+        public override void Reload()
         {
             text.ReloadText(pos);
         }
