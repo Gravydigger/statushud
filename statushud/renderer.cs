@@ -145,7 +145,7 @@ namespace StatusHud
             hiddenMesh.Dispose();
         }
 
-        public abstract void Reload(StatusHudTextConfig config);
+        public abstract void Reload();
 
         protected abstract void Render();
 
@@ -211,12 +211,12 @@ namespace StatusHud
 
         protected float SolveW()
         {
-            return (float)GuiElement.scaled(system.textures.size);
+            return (float)GuiElement.scaled(system.Config.iconSize);
         }
 
         protected float SolveH()
         {
-            return (float)GuiElement.scaled(system.textures.size);
+            return (float)GuiElement.scaled(system.Config.iconSize);
         }
 
         protected void RenderHidden(int textureId)

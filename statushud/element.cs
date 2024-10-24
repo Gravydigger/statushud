@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace StatusHud
 {
@@ -10,12 +11,13 @@ namespace StatusHud
         public const string name = "element";
         public const string desc = "No description available.";
 
+        protected int slot;
+        public bool fast;
+
         public virtual string elementName => name;
+        public virtual string ElementOption => "";
 
         protected StatusHudSystem system;
-        protected int slot;
-
-        public bool fast;
         public StatusHudPos pos;
 
         public StatusHudElement(StatusHudSystem system, int slot, bool fast = false)
@@ -82,7 +84,7 @@ namespace StatusHud
 
         public bool Repos()
         {
-            pos.Set(0,0,0,0);
+            pos.Set(0, 0, 0, 0);
 
             getRenderer().Pos(pos);
             return true;
@@ -92,6 +94,8 @@ namespace StatusHud
         {
             getRenderer().Ping();
         }
+
+        public virtual void ConfigOptions(string value) { }
 
         public abstract void Tick();
         public abstract void Dispose();

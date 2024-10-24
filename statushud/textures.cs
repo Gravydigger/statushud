@@ -8,7 +8,7 @@ namespace StatusHud
 {
     public class StatusHudTextures
     {
-        public int size;
+        private int size;
         protected ICoreClientAPI capi;
         public Dictionary<string, LoadedTexture> texturesDict;
 
