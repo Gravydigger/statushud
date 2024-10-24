@@ -12,7 +12,7 @@ namespace StatusHud
 
         protected StatusHudPlayersRenderer renderer;
 
-        public StatusHudPlayersElement(StatusHudSystem system, int slot, StatusHudTextConfig config) : base(system, slot)
+        public StatusHudPlayersElement(StatusHudSystem system, int slot, StatusHudConfig config) : base(system, slot)
         {
             renderer = new StatusHudPlayersRenderer(system, slot, this, config);
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
@@ -46,16 +46,16 @@ namespace StatusHud
 
         protected StatusHudText text;
 
-        public StatusHudPlayersRenderer(StatusHudSystem system, int slot, StatusHudPlayersElement element, StatusHudTextConfig config) : base(system, slot)
+        public StatusHudPlayersRenderer(StatusHudSystem system, int slot, StatusHudPlayersElement element, StatusHudConfig config) : base(system, slot)
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
+            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config);
         }
 
-        public override void Reload(StatusHudTextConfig config)
+                public override void Reload()
         {
-            text.ReloadText(config, pos);
+            text.ReloadText(pos);
         }
 
         public void setText(string value)

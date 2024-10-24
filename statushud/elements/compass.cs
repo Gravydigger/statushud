@@ -16,7 +16,7 @@ namespace StatusHud
         protected WeatherSystemBase weatherSystem;
         protected StatusHudCompassRenderer renderer;
 
-        public StatusHudCompassElement(StatusHudSystem system, int slot, StatusHudTextConfig config, bool absolute) : base(system, slot)
+        public StatusHudCompassElement(StatusHudSystem system, int slot, StatusHudConfig config, bool absolute) : base(system, slot)
         {
             weatherSystem = this.system.capi.ModLoader.GetModSystem<WeatherSystemBase>();
 
@@ -51,16 +51,16 @@ namespace StatusHud
 
         protected const float dirAdjust = 180 * GameMath.DEG2RAD;
 
-        public StatusHudCompassRenderer(StatusHudSystem system, int slot, StatusHudCompassElement element, StatusHudTextConfig config, bool absolute) : base(system, slot)
+        public StatusHudCompassRenderer(StatusHudSystem system, int slot, StatusHudCompassElement element, StatusHudConfig config, bool absolute) : base(system, slot)
         {
             this.element = element;
             this.absolute = absolute;
-            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
+            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config);
         }
 
-        public override void Reload(StatusHudTextConfig config)
+                public override void Reload()
         {
-            text.ReloadText(config, pos);
+            text.ReloadText(pos);
         }
 
         public void setText(string value)

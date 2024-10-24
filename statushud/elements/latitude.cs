@@ -17,7 +17,7 @@ namespace StatusHud
 
         public float needleOffset;
 
-        public StatusHudLatitudeElement(StatusHudSystem system, int slot, StatusHudTextConfig config) : base(system, slot)
+        public StatusHudLatitudeElement(StatusHudSystem system, int slot, StatusHudConfig config) : base(system, slot)
         {
             weatherSystem = this.system.capi.ModLoader.GetModSystem<WeatherSystemBase>();
 
@@ -41,7 +41,7 @@ namespace StatusHud
         {
             double latitude = system.capi.World.Calendar.OnGetLatitude(system.capi.World.Player.Entity.Pos.Z);
             renderer.setText((float)((int)Math.Round(latitude * 900, 0) / 10f) + "°");
-            needleOffset = (float)(-latitude * (system.textures.size / 2f) * 0.75f);
+            needleOffset = (float)(-latitude * (system.Config.iconSize / 2f) * 0.75f);
         }
 
         public override void Dispose()
@@ -56,16 +56,16 @@ namespace StatusHud
         protected StatusHudLatitudeElement element;
         protected StatusHudText text;
 
-        public StatusHudLatitudeRenderer(StatusHudSystem system, int slot, StatusHudLatitudeElement element, StatusHudTextConfig config) : base(system, slot)
+        public StatusHudLatitudeRenderer(StatusHudSystem system, int slot, StatusHudLatitudeElement element, StatusHudConfig config) : base(system, slot)
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size); 
+            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config); 
         }
 
-        public override void Reload(StatusHudTextConfig config)
+                public override void Reload()
         {
-            text.ReloadText(config, pos);
+            text.ReloadText(pos);
         }
 
         public void setText(string value)

@@ -14,12 +14,11 @@ namespace StatusHud
         public int textureId;
 
         protected StatusHudDateRenderer renderer;
-        protected string[] monthNames;
+        private string[] monthNames = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 
-        public StatusHudDateElement(StatusHudSystem system, int slot, StatusHudTextConfig config, string[] monthNames) : base(system, slot)
+        public StatusHudDateElement(StatusHudSystem system, int slot, StatusHudConfig config) : base(system, slot)
         {
             renderer = new StatusHudDateRenderer(this.system, this.slot, this, config);
-            this.monthNames = monthNames;
 
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
@@ -91,16 +90,16 @@ namespace StatusHud
 
         protected StatusHudText text;
 
-        public StatusHudDateRenderer(StatusHudSystem system, int slot, StatusHudDateElement element, StatusHudTextConfig config) : base(system, slot)
+        public StatusHudDateRenderer(StatusHudSystem system, int slot, StatusHudDateElement element, StatusHudConfig config) : base(system, slot)
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
+            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config);
         }
 
-        public override void Reload(StatusHudTextConfig config)
+        public override void Reload()
         {
-            text.ReloadText(config, pos);
+            text.ReloadText(pos);
         }
 
         public void setText(string value)

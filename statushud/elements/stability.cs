@@ -19,7 +19,7 @@ namespace StatusHud
         protected SystemTemporalStability stabilitySystem;
         protected StatusHudStabilityRenderer renderer;
 
-        public StatusHudStabilityElement(StatusHudSystem system, int slot, StatusHudTextConfig config) : base(system, slot)
+        public StatusHudStabilityElement(StatusHudSystem system, int slot, StatusHudConfig config) : base(system, slot)
         {
             stabilitySystem = this.system.capi.ModLoader.GetModSystem<SystemTemporalStability>();
 
@@ -77,16 +77,16 @@ namespace StatusHud
 
         protected StatusHudText text;
 
-        public StatusHudStabilityRenderer(StatusHudSystem system, int slot, StatusHudStabilityElement element, StatusHudTextConfig config) : base(system, slot)
+        public StatusHudStabilityRenderer(StatusHudSystem system, int slot, StatusHudStabilityElement element, StatusHudConfig config) : base(system, slot)
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
+            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config);
         }
 
-        public override void Reload(StatusHudTextConfig config)
+                public override void Reload()
         {
-            text.ReloadText(config, pos);
+            text.ReloadText(pos);
         }
 
         public void setText(string value)

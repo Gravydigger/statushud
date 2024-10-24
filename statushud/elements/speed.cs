@@ -14,7 +14,7 @@ namespace StatusHud
 
         protected StatusHudSpeedRenderer renderer;
 
-        public StatusHudSpeedElement(StatusHudSystem system, int slot, StatusHudTextConfig config) : base(system, slot)
+        public StatusHudSpeedElement(StatusHudSystem system, int slot, StatusHudConfig config) : base(system, slot)
         {
             renderer = new StatusHudSpeedRenderer(system, slot, this, config);
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
@@ -45,16 +45,16 @@ namespace StatusHud
 
         protected StatusHudText text;
 
-        public StatusHudSpeedRenderer(StatusHudSystem system, int slot, StatusHudSpeedElement element, StatusHudTextConfig config) : base(system, slot)
+        public StatusHudSpeedRenderer(StatusHudSystem system, int slot, StatusHudSpeedElement element, StatusHudConfig config) : base(system, slot)
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
+            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config);
         }
 
-        public override void Reload(StatusHudTextConfig config)
+                public override void Reload()
         {
-            text.ReloadText(config, pos);
+            text.ReloadText(pos);
         }
 
         public void setText(string value)

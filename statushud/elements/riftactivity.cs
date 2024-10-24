@@ -24,7 +24,7 @@ namespace StatusHud
 
         protected static CurrentPattern riftActivityData;
 
-        public StatusHudRiftActivityElement(StatusHudSystem system, int slot, StatusHudTextConfig config) : base(system, slot)
+        public StatusHudRiftActivityElement(StatusHudSystem system, int slot, StatusHudConfig config) : base(system, slot)
         {
             riftSystem = this.system.capi.ModLoader.GetModSystem<ModSystemRiftWeather>();
 
@@ -112,16 +112,16 @@ namespace StatusHud
 
         protected StatusHudText text;
 
-        public StatusHudRiftAvtivityRenderer(StatusHudSystem system, int slot, StatusHudRiftActivityElement element, StatusHudTextConfig config) : base(system, slot)
+        public StatusHudRiftAvtivityRenderer(StatusHudSystem system, int slot, StatusHudRiftActivityElement element, StatusHudConfig config) : base(system, slot)
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
+            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config);
         }
 
-        public override void Reload(StatusHudTextConfig config)
+                public override void Reload()
         {
-            text.ReloadText(config, pos);
+            text.ReloadText(pos);
         }
 
         public void setText(string value)

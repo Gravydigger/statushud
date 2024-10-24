@@ -32,12 +32,14 @@ namespace StatusHud
         {
             weatherSystem = this.system.capi.ModLoader.GetModSystem<WeatherSystemBase>();
 
-            renderer = new StatusHudWeatherRenderer(system, slot, this, config.text);
+            renderer = new StatusHudWeatherRenderer(system, slot, this, config);
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
             this.config = config;
 
-            tempScale = config.options.temperatureScale;
+            // tempScale = config.options.temperatureScale;
+            // TODO
+            tempScale = 'C';
             textureId = this.system.textures.texturesDict["empty"].TextureId;
 
             // Config error checking
@@ -60,7 +62,9 @@ namespace StatusHud
         public override void Tick()
         {
             ClimateCondition cc = system.capi.World.BlockAccessor.GetClimateAt(system.capi.World.Player.Entity.Pos.AsBlockPos, EnumGetClimateMode.NowValues);
-            tempScale = config.options.temperatureScale;
+            // tempScale = config.options.temperatureScale;
+            // TODO
+            tempScale = 'C';
 
             string temperature;
 
@@ -176,16 +180,16 @@ namespace StatusHud
         protected StatusHudWeatherElement element;
         protected StatusHudText text;
 
-        public StatusHudWeatherRenderer(StatusHudSystem system, int slot, StatusHudWeatherElement element, StatusHudTextConfig config) : base(system, slot)
+        public StatusHudWeatherRenderer(StatusHudSystem system, int slot, StatusHudWeatherElement element, StatusHudConfig config) : base(system, slot)
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
+            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config);
         }
 
-        public override void Reload(StatusHudTextConfig config)
+                public override void Reload()
         {
-            text.ReloadText(config, pos);
+            text.ReloadText(pos);
         }
 
         public void setText(string value)

@@ -23,7 +23,9 @@ namespace StatusHud
 
         public override void Tick()
         {
-            timeFormat = config.options.timeFormat;
+            // timeFormat = config.options.timeFormat;
+            // TODO
+            timeFormat = "12hr";
 
             string time;
 

@@ -22,13 +22,15 @@ namespace StatusHud
 
         public StatusHudTimeElement(StatusHudSystem system, int slot, StatusHudConfig config) : base(system, slot)
         {
-            renderer = new StatusHudTimeRenderer(system, slot, this, config.text);
+            renderer = new StatusHudTimeRenderer(system, slot, this, config);
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
             this.config = config;
 
             textureId = this.system.textures.texturesDict["empty"].TextureId;
-            timeFormat = config.options.timeFormat;
+            // timeFormat = config.options.timeFormat;
+            // TODO
+            timeFormat = "12hr";
 
             // Config error checking
             if (!timeFormatWords.Any(str => str.Contains(timeFormat)))
@@ -50,7 +52,8 @@ namespace StatusHud
         public override void Tick()
         {
             TimeSpan ts = TimeSpan.FromHours(system.capi.World.Calendar.HourOfDay);
-            timeFormat = config.options.timeFormat;
+            // timeFormat = config.options.timeFormat;
+            timeFormat = "12hr";
 
             string time;
 
@@ -105,16 +108,16 @@ namespace StatusHud
         protected StatusHudTimeElement element;
         protected StatusHudText text;
 
-        public StatusHudTimeRenderer(StatusHudSystem system, int slot, StatusHudTimeElement element, StatusHudTextConfig config) : base(system, slot)
+        public StatusHudTimeRenderer(StatusHudSystem system, int slot, StatusHudTimeElement element, StatusHudConfig config) : base(system, slot)
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
+            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config);
         }
 
-        public override void Reload(StatusHudTextConfig config)
+                public override void Reload()
         {
-            text.ReloadText(config, pos);
+            text.ReloadText(pos);
         }
 
         public void setText(string value)

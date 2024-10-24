@@ -15,8 +15,12 @@ namespace StatusHud
 
         public override string elementName => name;
 
-        protected const float cfratio = (9f / 5f);
+        public readonly string[] elementOptions = { "C", "F"};
+        private string selectedElementOption;
 
+        public override string ElementOption => selectedElementOption;
+
+        protected const float cfratio = 9f / 5f;
         public const float tempIdeal = 37;
 
         public bool active;
@@ -28,12 +32,13 @@ namespace StatusHud
 
         public StatusHudBodyheatElement(StatusHudSystem system, int slot, StatusHudConfig config) : base(system, slot)
         {
-            renderer = new StatusHudBodyheatRenderer(this.system, this.slot, this, config.text);
+            renderer = new StatusHudBodyheatRenderer(this.system, this.slot, this, config);
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
             textureId = this.system.textures.texturesDict["empty"].TextureId;
             this.config = config;
 
+            selectedElementOption = "C";
             active = false;
         }
 
@@ -45,6 +50,17 @@ namespace StatusHud
         public virtual string getTextKey()
         {
             return textKey;
+        }
+
+        public override void ConfigOptions(string value)
+        {
+            foreach (var option in elementOptions)
+            {
+                if (option == value)
+                {
+                    selectedElementOption = value;
+                }
+            }
         }
 
         public override void Tick()
@@ -63,17 +79,14 @@ namespace StatusHud
             if (tempDiff <= -0.5f)
             {
                 string textRender;
-                switch (config.options.temperatureScale)
+                switch (selectedElementOption)
                 {
-                    case 'F':
-                        textRender = string.Format("{0:N1}", tempDiff * cfratio) + "�F";
+                    case "F":
+                        textRender = string.Format("{0:N1}", tempDiff * cfratio) + "°F";
                         break;
-                    case 'K':
-                        textRender = string.Format("{0:N1}", tempDiff) + "�K";
-                        break;
-                    case 'C':
+                    case "C":
                     default:
-                        textRender = string.Format("{0:N1}", tempDiff) + "�C";
+                        textRender = string.Format("{0:N1}", tempDiff) + "°C";
                         break;
                 }
 
@@ -118,16 +131,16 @@ namespace StatusHud
 
         protected StatusHudText text;
 
-        public StatusHudBodyheatRenderer(StatusHudSystem system, int slot, StatusHudBodyheatElement element, StatusHudTextConfig config) : base(system, slot)
+        public StatusHudBodyheatRenderer(StatusHudSystem system, int slot, StatusHudBodyheatElement element, StatusHudConfig config) : base(system, slot)
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config, this.system.textures.size);
+            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config);
         }
 
-        public override void Reload(StatusHudTextConfig config)
+        public override void Reload()
         {
-            text.ReloadText(config, pos);
+            text.ReloadText(pos);
         }
 
         public void setText(string value)
