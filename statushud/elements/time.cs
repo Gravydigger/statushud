@@ -20,9 +20,9 @@ namespace StatusHud
         protected StatusHudTimeRenderer renderer;
         protected StatusHudConfig config;
 
-        public StatusHudTimeElement(StatusHudSystem system, int slot, StatusHudConfig config) : base(system, slot)
+        public StatusHudTimeElement(StatusHudSystem system, StatusHudConfig config) : base(system)
         {
-            renderer = new StatusHudTimeRenderer(system, slot, this, config);
+            renderer = new StatusHudTimeRenderer(system, this, config);
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
             this.config = config;
@@ -108,11 +108,11 @@ namespace StatusHud
         protected StatusHudTimeElement element;
         protected StatusHudText text;
 
-        public StatusHudTimeRenderer(StatusHudSystem system, int slot, StatusHudTimeElement element, StatusHudConfig config) : base(system, slot)
+        public StatusHudTimeRenderer(StatusHudSystem system, StatusHudTimeElement element, StatusHudConfig config) : base(system)
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config);
+            text = new StatusHudText(this.system.capi, this.element.getTextKey(), config);
         }
 
                 public override void Reload()

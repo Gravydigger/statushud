@@ -15,9 +15,9 @@ namespace StatusHud
 
         protected StatusHudDurabilityRenderer renderer;
 
-        public StatusHudDurabilityElement(StatusHudSystem system, int slot, StatusHudConfig config) : base(system, slot, true)
+        public StatusHudDurabilityElement(StatusHudSystem system, StatusHudConfig config) : base(system, true)
         {
-            renderer = new StatusHudDurabilityRenderer(this.system, this.slot, this, config);
+            renderer = new StatusHudDurabilityRenderer(this.system, this, config);
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
         }
 
@@ -64,11 +64,11 @@ namespace StatusHud
 
         protected StatusHudText text;
 
-        public StatusHudDurabilityRenderer(StatusHudSystem system, int slot, StatusHudDurabilityElement element, StatusHudConfig config) : base(system, slot)
+        public StatusHudDurabilityRenderer(StatusHudSystem system, StatusHudDurabilityElement element, StatusHudConfig config) : base(system)
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config);
+            text = new StatusHudText(this.system.capi, this.element.getTextKey(), config);
         }
 
                 public override void Reload()

@@ -61,7 +61,7 @@ namespace StatusHud
         protected StatusHudConfigManager configManager;
         public StatusHudConfig Config => configManager.Config;
 
-        public IDictionary<int, StatusHudElement> elements;
+        public IList<StatusHudElement> elements;
         protected IList<StatusHudElement> slowElements;
         protected IList<StatusHudElement> fastElements;
         public StatusHudTextures textures;
@@ -69,34 +69,34 @@ namespace StatusHud
         private string uuid = null;
         public bool ShowHidden => configManager.Config.showHidden;
 
-        protected StatusHudElement Instantiate(int slot, string name)
+        protected StatusHudElement Instantiate(string name)
         {
-            StatusHudConfig config = this.configManager.Config;
+            StatusHudConfig config = configManager.Config;
 
             return name switch
             {
-                StatusHudAltitudeElement.name => new StatusHudAltitudeElement(this, slot, config),
-                StatusHudArmourElement.name => new StatusHudArmourElement(this, slot, config),
-                StatusHudBodyheatElement.name => new StatusHudBodyheatElement(this, slot, config),
-                // StatusHudCompassElement.name => new StatusHudCompassElement(this, slot, config, config.compassAbsolute),
-                StatusHudCompassElement.name => new StatusHudCompassElement(this, slot, config, true),
-                StatusHudDateElement.name => new StatusHudDateElement(this, slot, config),
-                StatusHudDurabilityElement.name => new StatusHudDurabilityElement(this, slot, config),
-                StatusHudLatitudeElement.name => new StatusHudLatitudeElement(this, slot, config),
-                StatusHudLightElement.name => new StatusHudLightElement(this, slot, config),
-                StatusHudPingElement.name => new StatusHudPingElement(this, slot, config),
-                StatusHudPlayersElement.name => new StatusHudPlayersElement(this, slot, config),
-                StatusHudRiftActivityElement.name => new StatusHudRiftActivityElement(this, slot, config),
-                StatusHudRoomElement.name => new StatusHudRoomElement(this, slot),
-                StatusHudSleepElement.name => new StatusHudSleepElement(this, slot, config),
-                StatusHudSpeedElement.name => new StatusHudSpeedElement(this, slot, config),
-                StatusHudStabilityElement.name => new StatusHudStabilityElement(this, slot, config),
-                StatusHudTempstormElement.name => new StatusHudTempstormElement(this, slot, config),
-                StatusHudTimeElement.name => new StatusHudTimeElement(this, slot, config),
-                StatusHudTimeLocalElement.name => new StatusHudTimeLocalElement(this, slot, config),
-                StatusHudWeatherElement.name => new StatusHudWeatherElement(this, slot, config),
-                StatusHudWetElement.name => new StatusHudWetElement(this, slot, config),
-                StatusHudWindElement.name => new StatusHudWindElement(this, slot, config),
+                StatusHudAltitudeElement.name => new StatusHudAltitudeElement(this, config),
+                StatusHudArmourElement.name => new StatusHudArmourElement(this, config),
+                StatusHudBodyheatElement.name => new StatusHudBodyheatElement(this, config),
+                // StatusHudCompassElement.name => new StatusHudCompassElement(this, config, config.compassAbsolute),
+                StatusHudCompassElement.name => new StatusHudCompassElement(this, config, true),
+                StatusHudDateElement.name => new StatusHudDateElement(this, config),
+                StatusHudDurabilityElement.name => new StatusHudDurabilityElement(this, config),
+                StatusHudLatitudeElement.name => new StatusHudLatitudeElement(this, config),
+                StatusHudLightElement.name => new StatusHudLightElement(this, config),
+                StatusHudPingElement.name => new StatusHudPingElement(this, config),
+                StatusHudPlayersElement.name => new StatusHudPlayersElement(this, config),
+                StatusHudRiftActivityElement.name => new StatusHudRiftActivityElement(this, config),
+                StatusHudRoomElement.name => new StatusHudRoomElement(this),
+                StatusHudSleepElement.name => new StatusHudSleepElement(this, config),
+                StatusHudSpeedElement.name => new StatusHudSpeedElement(this, config),
+                StatusHudStabilityElement.name => new StatusHudStabilityElement(this, config),
+                StatusHudTempstormElement.name => new StatusHudTempstormElement(this, config),
+                StatusHudTimeElement.name => new StatusHudTimeElement(this, config),
+                StatusHudTimeLocalElement.name => new StatusHudTimeLocalElement(this, config),
+                StatusHudWeatherElement.name => new StatusHudWeatherElement(this, config),
+                StatusHudWetElement.name => new StatusHudWetElement(this, config),
+                StatusHudWindElement.name => new StatusHudWindElement(this, config),
                 _ => null,
             };
         }
@@ -117,7 +117,7 @@ namespace StatusHud
 
             configManager = new StatusHudConfigManager(this);
 
-            elements = new Dictionary<int, StatusHudElement>();
+            elements = new List<StatusHudElement>();
             slowElements = new List<StatusHudElement>();
             fastElements = new List<StatusHudElement>();
             textures = new StatusHudTextures(this.capi, Config.iconSize);
@@ -220,9 +220,9 @@ namespace StatusHud
 
             capi.Event.UnregisterGameTickListener(slowListenerId);
             capi.Event.UnregisterGameTickListener(fastListenerId);
-            foreach (KeyValuePair<int, StatusHudElement> element in elements)
+            foreach (var element in elements)
             {
-                element.Value.Dispose();
+                element.Dispose();
             }
 
             textures.Dispose();
@@ -250,51 +250,38 @@ namespace StatusHud
             }
         }
 
-        public bool Set(int slot, string name)
+        public StatusHudElement Set(string name)
         {
-            StatusHudElement element = Instantiate(slot, name);
+            StatusHudElement element = Instantiate(name);
 
             if (element == null)
             {
                 // Invalid element.
-                return false;
+                return null;
             }
 
             StatusHudPos pos = null;
 
-            // Remove any existing element in that slot.
-            if (elements.ContainsKey(slot))
-            {
-                pos = elements[slot].pos;
-                elements[slot].Dispose();
-                elements.Remove(slot);
-            }
-
             // Remove any other element of the same type.
-            int key = 0;
-            foreach (KeyValuePair<int, StatusHudElement> kvp in elements)
+            foreach (StatusHudElement elementVal in elements)
             {
-                if (kvp.Value.GetType() == element.GetType())
+                if (elementVal.GetType() == element.GetType())
                 {
-                    key = kvp.Key;
+                    elementVal.Dispose();
                 }
             }
 
-            if (key != 0)
-            {
-                elements[key].Dispose();
-                elements.Remove(key);
-            }
+            elements.Add(element);
+            int index = elements.IndexOf(element);
 
-            elements.Add(slot, element);
             if (pos != null)
             {
                 // Retain previous position.
-                elements[slot].Pos(pos.halign, pos.x, pos.valign, pos.y);
+                elements[index].Pos(pos.halign, pos.x, pos.valign, pos.y);
             }
             else
             {
-                elements[slot].Repos();
+                elements[index].Repos();
             }
 
             if (element.fast)
@@ -305,33 +292,34 @@ namespace StatusHud
             {
                 slowElements.Add(element);
             }
-            return true;
+            return element;
         }
 
-        public bool Unset(int slot)
+        public bool Unset(string name)
         {
-            if (elements.ContainsKey(slot))
+            foreach (var element in elements)
             {
-                StatusHudElement element = elements[slot];
-
-                if (element.fast)
+                if (element.elementName == name)
                 {
-                    fastElements.Remove(element);
-                }
-                else
-                {
-                    slowElements.Remove(element);
-                }
+                    if (element.fast)
+                    {
+                        fastElements.Remove(element);
+                    }
+                    else
+                    {
+                        slowElements.Remove(element);
+                    }
 
-                elements[slot].Dispose();
-                elements.Remove(slot);
-                return true;
+                    element.Dispose();
+                    elements.Remove(element);
+                    return true;
+                }
             }
 
             return false;
         }
 
-        // Will reload elements in memory, but not in file.
+        // Will load elements from file
         public void Reload()
         {
             Clear();
@@ -346,9 +334,9 @@ namespace StatusHud
             }
         }
 
-        public void Pos(int slot, int halign, int x, int valign, int y)
+        public void Pos(StatusHudElement element, int halign, int x, int valign, int y)
         {
-            elements[slot].Pos(halign, x, valign, y);
+            element.Pos(halign, x, valign, y);
         }
 
         protected void Clear()
@@ -356,14 +344,11 @@ namespace StatusHud
             fastElements.Clear();
             slowElements.Clear();
 
-            foreach (KeyValuePair<int, StatusHudElement> kvp in elements)
+            foreach (var element in elements)
             {
-                elements[kvp.Key].Dispose();
+                element.Dispose();
             }
-            for (int i = 0; i < elements.Count; i++)
-            {
-                elements.Clear();
-            }
+            elements.Clear();
         }
 
         private void SetUUID(IClientPlayer byPlayer)
@@ -394,7 +379,7 @@ namespace StatusHud
                 return TextCommandResult.Error(PrintModName("Error: # must be positive or negative."));
             }
 
-            Set(slot, element);
+            Set(element);
             elements[slot].Ping();
 
             SaveConfig();
@@ -403,15 +388,15 @@ namespace StatusHud
 
         protected TextCommandResult CmdUnset(TextCommandCallingArgs args)
         {
-            int slot = (int)args[0];
+            string name = (string)args[0];
 
-            if (!Unset(slot))
+            if (!Unset(name))
             {
                 return TextCommandResult.Error(PrintModName("Error: # must be positive or negative."));
             }
 
             SaveConfig();
-            return TextCommandResult.Success(PrintModName("Element #" + slot + " unset."));
+            return TextCommandResult.Success(PrintModName("Element #" + name + " unset."));
         }
 
         protected TextCommandResult CmdClear(TextCommandCallingArgs args)
@@ -424,49 +409,46 @@ namespace StatusHud
 
         protected TextCommandResult CmdPos(TextCommandCallingArgs args)
         {
-            int slot = (int)args[0];
+            string name = (string)args[0];
             string halignWord = (string)args[1];
             int x = (int)args[2];
             string valignWord = (string)args[3];
             int y = (int)args[4];
 
-            if (slot == 0)
+            foreach (var element in elements)
             {
-                return TextCommandResult.Error(PrintModName("Error: # must be positive or negative."));
+                if (element.elementName == name)
+                {
+                    int halign = StatusHudSystem.HalignFromWord(halignWord);
+                    int valign = StatusHudSystem.ValignFromWord(valignWord);
+
+                    Pos(element, halign, x, valign, y);
+                    element.Ping();
+                    SaveConfig();
+                    return TextCommandResult.Success(PrintModName("#" + name + " position set."));
+                }
             }
-            if (!elements.ContainsKey(slot))
-            {
-                return TextCommandResult.Error(PrintModName("Error: No element at #" + slot + "."));
-            }
 
-            int halign = StatusHudSystem.HalignFromWord(halignWord);
-            int valign = StatusHudSystem.ValignFromWord(valignWord);
-
-            Pos(slot, halign, x, valign, y);
-            elements[slot].Ping();
-
-            SaveConfig();
-            return TextCommandResult.Success(PrintModName("#" + slot + " position set."));
+            return TextCommandResult.Error(PrintModName("Error: No element at #" + name + "."));
         }
 
         protected TextCommandResult CmdRepos(TextCommandCallingArgs args)
         {
-            int slot = (int)args[0];
+            string name = (string)args[0];
 
-            if (slot == 0)
+            foreach (var element in elements)
             {
-                return TextCommandResult.Error(PrintModName("Error: # must be positive or negative."));
-            }
-            if (!elements.ContainsKey(slot))
-            {
-                return TextCommandResult.Error(PrintModName("Error: No element at #" + slot + "."));
+                if (element.elementName == name)
+                {
+                    element.Repos();
+                    element.Ping();
+
+                    SaveConfig();
+                    return TextCommandResult.Success(PrintModName("#" + name + " position reset."));
+                }
             }
 
-            elements[slot].Repos();
-            elements[slot].Ping();
-
-            SaveConfig();
-            return TextCommandResult.Success(PrintModName("#" + slot + " position reset."));
+            return TextCommandResult.Error(PrintModName("Error: No element at #" + name + "."));
         }
 
         protected TextCommandResult CmdList(TextCommandCallingArgs args)
@@ -474,12 +456,11 @@ namespace StatusHud
             StringBuilder sb = new();
             sb.Append("Current elements:\n");
 
-            foreach (KeyValuePair<int, StatusHudElement> kvp in elements)
+            foreach (var element in elements)
             {
                 sb.Append('[');
-                sb.Append(kvp.Key);
+                sb.Append(element.elementName);
                 sb.Append("] ");
-                sb.Append((string)kvp.Value.GetType().GetField("name").GetValue(null));
                 sb.Append('\n');
             }
             return TextCommandResult.Success(PrintModName(sb.ToString()));
@@ -600,35 +581,25 @@ namespace StatusHud
             int bottomY = (int)Math.Round(size * 0.375f);
             int offset = (int)Math.Round(size * 1.5f);
 
-            Set(-6, StatusHudDateElement.name);
-            Pos(-6, StatusHudPos.halignLeft, sideX, StatusHudPos.valignBottom, bottomY);
+            Pos(Set(StatusHudDateElement.name), StatusHudPos.halignLeft, sideX, StatusHudPos.valignBottom, bottomY);
 
-            Set(-5, StatusHudTimeElement.name);
-            Pos(-5, StatusHudPos.halignLeft, sideX + (int)(offset * 1.3f), StatusHudPos.valignBottom, bottomY);
+            Pos(Set(StatusHudTimeElement.name), StatusHudPos.halignLeft, sideX + (int)(offset * 1.3f), StatusHudPos.valignBottom, bottomY);
 
-            Set(-4, StatusHudWeatherElement.name);
-            Pos(-4, StatusHudPos.halignLeft, sideX + (int)(offset * 2.5f), StatusHudPos.valignBottom, bottomY);
+            Pos(Set(StatusHudWeatherElement.name), StatusHudPos.halignLeft, sideX + (int)(offset * 2.5f), StatusHudPos.valignBottom, bottomY);
 
-            Set(-3, StatusHudWindElement.name);
-            Pos(-3, StatusHudPos.halignLeft, sideX + (int)(offset * 3.5f), StatusHudPos.valignBottom, bottomY);
+            Pos(Set(StatusHudWindElement.name), StatusHudPos.halignLeft, sideX + (int)(offset * 3.5f), StatusHudPos.valignBottom, bottomY);
 
-            Set(-2, StatusHudStabilityElement.name);
-            Pos(-2, StatusHudPos.halignCenter, sideX + (int)(offset * 9f), StatusHudPos.valignBottom, bottomY);
+            Pos(Set(StatusHudStabilityElement.name), StatusHudPos.halignCenter, sideX + (int)(offset * 9f), StatusHudPos.valignBottom, bottomY);
 
-            Set(-1, StatusHudArmourElement.name);
-            Pos(-1, StatusHudPos.halignCenter, sideX + (int)(offset * 10f), StatusHudPos.valignBottom, bottomY);
+            Pos(Set(StatusHudArmourElement.name), StatusHudPos.halignCenter, sideX + (int)(offset * 10f), StatusHudPos.valignBottom, bottomY);
 
-            Set(1, StatusHudRoomElement.name);
-            Pos(1, StatusHudPos.halignCenter, -1 * (sideX + (int)(offset * 9f)), StatusHudPos.valignBottom, bottomY);
+            Pos(Set(StatusHudRoomElement.name), StatusHudPos.halignCenter, -1 * (sideX + (int)(offset * 9f)), StatusHudPos.valignBottom, bottomY);
 
-            Set(2, StatusHudSleepElement.name);
-            Pos(2, StatusHudPos.halignRight, sideMinimapX + offset, StatusHudPos.valignTop, topY);
+            Pos(Set(StatusHudSleepElement.name), StatusHudPos.halignRight, sideMinimapX + offset, StatusHudPos.valignTop, topY);
 
-            Set(3, StatusHudWetElement.name);
-            Pos(3, StatusHudPos.halignRight, sideMinimapX, StatusHudPos.valignTop, topY);
+            Pos(Set(StatusHudWetElement.name), StatusHudPos.halignRight, sideMinimapX, StatusHudPos.valignTop, topY);
 
-            Set(4, StatusHudTimeLocalElement.name);
-            Pos(4, StatusHudPos.halignRight, sideX, StatusHudPos.valignBottom, bottomY);
+            Pos(Set(StatusHudTimeLocalElement.name), StatusHudPos.halignRight, sideX, StatusHudPos.valignBottom, bottomY);
         }
 
         public void SaveConfig()

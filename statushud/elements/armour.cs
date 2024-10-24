@@ -25,9 +25,9 @@ namespace StatusHud
 
         protected StatusHudArmourRenderer renderer;
 
-        public StatusHudArmourElement(StatusHudSystem system, int slot, StatusHudConfig config) : base(system, slot)
+        public StatusHudArmourElement(StatusHudSystem system, StatusHudConfig config) : base(system)
         {
-            renderer = new StatusHudArmourRenderer(this.system, this.slot, this, config);
+            renderer = new StatusHudArmourRenderer(this.system, this, config);
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
             active = false;
@@ -98,11 +98,11 @@ namespace StatusHud
 
         protected StatusHudText text;
 
-        public StatusHudArmourRenderer(StatusHudSystem system, int slot, StatusHudArmourElement element, StatusHudConfig config) : base(system, slot)
+        public StatusHudArmourRenderer(StatusHudSystem system, StatusHudArmourElement element, StatusHudConfig config) : base(system)
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config);
+            text = new StatusHudText(this.system.capi, this.element.getTextKey(), config);
         }
 
         public override void Reload()

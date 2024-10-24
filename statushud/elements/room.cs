@@ -18,9 +18,9 @@ namespace StatusHud
 
         protected StatusHudRoomRenderer renderer;
 
-        public StatusHudRoomElement(StatusHudSystem system, int slot) : base(system, slot)
+        public StatusHudRoomElement(StatusHudSystem system) : base(system)
         {
-            renderer = new StatusHudRoomRenderer(system, slot, this);
+            renderer = new StatusHudRoomRenderer(system, this);
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
         }
 
@@ -83,7 +83,7 @@ namespace StatusHud
 
         protected float ghy;
 
-        public StatusHudRoomRenderer(StatusHudSystem system, int slot, StatusHudRoomElement element) : base(system, slot)
+        public StatusHudRoomRenderer(StatusHudSystem system, StatusHudRoomElement element) : base(system)
         {
             this.element = element;
         }

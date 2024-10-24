@@ -11,7 +11,7 @@ namespace StatusHud
 
         public override string elementName => name;
 
-        public StatusHudTimeLocalElement(StatusHudSystem system, int slot, StatusHudConfig config) : base(system, slot, config)
+        public StatusHudTimeLocalElement(StatusHudSystem system, StatusHudConfig config) : base(system, config)
         {
             textureId = this.system.textures.texturesDict["time_local"].TextureId;
         }

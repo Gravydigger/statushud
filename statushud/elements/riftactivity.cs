@@ -24,12 +24,12 @@ namespace StatusHud
 
         protected static CurrentPattern riftActivityData;
 
-        public StatusHudRiftActivityElement(StatusHudSystem system, int slot, StatusHudConfig config) : base(system, slot)
+        public StatusHudRiftActivityElement(StatusHudSystem system, StatusHudConfig config) : base(system)
         {
             riftSystem = this.system.capi.ModLoader.GetModSystem<ModSystemRiftWeather>();
 
 
-            renderer = new StatusHudRiftAvtivityRenderer(system, slot, this, config);
+            renderer = new StatusHudRiftAvtivityRenderer(system, this, config);
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
             textureId = this.system.textures.texturesDict["empty"].TextureId;
@@ -112,11 +112,11 @@ namespace StatusHud
 
         protected StatusHudText text;
 
-        public StatusHudRiftAvtivityRenderer(StatusHudSystem system, int slot, StatusHudRiftActivityElement element, StatusHudConfig config) : base(system, slot)
+        public StatusHudRiftAvtivityRenderer(StatusHudSystem system, StatusHudRiftActivityElement element, StatusHudConfig config) : base(system)
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config);
+            text = new StatusHudText(this.system.capi, this.element.getTextKey(), config);
         }
 
                 public override void Reload()

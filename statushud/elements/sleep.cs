@@ -18,9 +18,9 @@ namespace StatusHud
 
         protected StatusHudSleepRenderer renderer;
 
-        public StatusHudSleepElement(StatusHudSystem system, int slot, StatusHudConfig config) : base(system, slot)
+        public StatusHudSleepElement(StatusHudSystem system, StatusHudConfig config) : base(system)
         {
-            renderer = new StatusHudSleepRenderer(system, slot, this, config);
+            renderer = new StatusHudSleepRenderer(system, this, config);
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
             active = false;
@@ -77,11 +77,11 @@ namespace StatusHud
 
         protected StatusHudText text;
 
-        public StatusHudSleepRenderer(StatusHudSystem system, int slot, StatusHudSleepElement element, StatusHudConfig config) : base(system, slot)
+        public StatusHudSleepRenderer(StatusHudSystem system, StatusHudSleepElement element, StatusHudConfig config) : base(system)
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config);
+            text = new StatusHudText(this.system.capi, this.element.getTextKey(), config);
         }
                 public override void Reload()
         {

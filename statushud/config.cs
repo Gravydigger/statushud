@@ -15,7 +15,7 @@ namespace StatusHud
         // public string[] months = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
         // public StatusHudOptions options = new StatusHudOptions('C', "24hr");
         // public bool compassAbsolute = false;
-        public IDictionary<int, StatusHudConfigElement> elements = new Dictionary<int, StatusHudConfigElement>();
+        public IList<StatusHudConfigElement> elements = new List<StatusHudConfigElement>();
         // public bool installed = false;
     }
 
@@ -132,11 +132,13 @@ namespace StatusHud
 
         public void LoadElements(StatusHudSystem system)
         {
-            foreach (KeyValuePair<int, StatusHudConfigElement> kvp in config.elements)
+            foreach (var configElement in config.elements)
             {
-                if (system.Set(kvp.Key, kvp.Value.name))
+                StatusHudElement element = system.Set(configElement.name);
+
+                if (element != null)
                 {
-                    system.Pos(kvp.Key, kvp.Value.halign, kvp.Value.x, kvp.Value.valign, kvp.Value.y);
+                    system.Pos(element, configElement.halign, configElement.x, configElement.valign, configElement.y);
                 }
             }
         }
@@ -146,14 +148,14 @@ namespace StatusHud
             // Save element data to config
             config.elements.Clear();
 
-            foreach (KeyValuePair<int, StatusHudElement> kvp in system.elements)
+            foreach (var element in system.elements)
             {
-                config.elements.Add(kvp.Key, new StatusHudConfigElement((string)kvp.Value.GetType().GetField("name").GetValue(null),
-                    kvp.Value.pos.x,
-                    kvp.Value.pos.y,
-                    kvp.Value.pos.halign,
-                    kvp.Value.pos.valign,
-                    kvp.Value.ElementOption)
+                config.elements.Add(new StatusHudConfigElement((string)element.GetType().GetField("name").GetValue(null),
+                    element.pos.x,
+                    element.pos.y,
+                    element.pos.halign,
+                    element.pos.valign,
+                    element.ElementOption)
                 );
             }
             // Save config file

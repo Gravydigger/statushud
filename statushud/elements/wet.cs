@@ -15,9 +15,9 @@ namespace StatusHud
 
         protected StatusHudWetRenderer renderer;
 
-        public StatusHudWetElement(StatusHudSystem system, int slot, StatusHudConfig config) : base(system, slot)
+        public StatusHudWetElement(StatusHudSystem system, StatusHudConfig config) : base(system)
         {
-            renderer = new StatusHudWetRenderer(system, slot, this, config);
+            renderer = new StatusHudWetRenderer(system, this, config);
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
             active = false;
@@ -67,11 +67,11 @@ namespace StatusHud
 
         protected StatusHudText text;
 
-        public StatusHudWetRenderer(StatusHudSystem system, int slot, StatusHudWetElement element, StatusHudConfig config) : base(system, slot)
+        public StatusHudWetRenderer(StatusHudSystem system, StatusHudWetElement element, StatusHudConfig config) : base(system)
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config);
+            text = new StatusHudText(this.system.capi, this.element.getTextKey(), config);
         }
 
                 public override void Reload()

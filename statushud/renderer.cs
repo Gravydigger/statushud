@@ -29,7 +29,6 @@ namespace StatusHud
         }
 
         protected StatusHudSystem system;
-        protected int slot;
 
         // Position values.
         protected StatusHudPos pos;
@@ -56,10 +55,9 @@ namespace StatusHud
         protected MeshRef hiddenMesh;
         protected Matrixf hiddenMatrix;
 
-        public StatusHudRenderer(StatusHudSystem system, int slot)
+        public StatusHudRenderer(StatusHudSystem system)
         {
             this.system = system;
-            this.slot = slot;
 
             pos = new StatusHudPos();
 

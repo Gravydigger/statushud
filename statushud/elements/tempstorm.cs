@@ -29,11 +29,11 @@ namespace StatusHud
 
         protected static TemporalStormRunTimeData data;
 
-        public StatusHudTempstormElement(StatusHudSystem system, int slot, StatusHudConfig config) : base(system, slot)
+        public StatusHudTempstormElement(StatusHudSystem system, StatusHudConfig config) : base(system)
         {
             stabilitySystem = this.system.capi.ModLoader.GetModSystem<SystemTemporalStability>();
 
-            renderer = new StatusHudTempstormRenderer(system, slot, this, config);
+            renderer = new StatusHudTempstormRenderer(system, this, config);
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
             active = false;
@@ -129,11 +129,11 @@ namespace StatusHud
 
         protected StatusHudText text;
 
-        public StatusHudTempstormRenderer(StatusHudSystem system, int slot, StatusHudTempstormElement element, StatusHudConfig config) : base(system, slot)
+        public StatusHudTempstormRenderer(StatusHudSystem system, StatusHudTempstormElement element, StatusHudConfig config) : base(system)
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config);
+            text = new StatusHudText(this.system.capi, this.element.getTextKey(), config);
         }
 
                 public override void Reload()

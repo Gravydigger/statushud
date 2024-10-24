@@ -8,7 +8,6 @@ namespace StatusHud
     {
         protected const string dialogNamePrefix = "d-";
 
-        private int slot;
         private string key;
         private StatusHudConfig config;
         private Vec4f colour = new(0.91f, 0.87f, 0.81f, 1);
@@ -25,9 +24,8 @@ namespace StatusHud
         public override bool Focusable => false;
         public override double DrawOrder => 0;
 
-        public StatusHudText(ICoreClientAPI capi, int slot, string key, StatusHudConfig config) : base(capi)
+        public StatusHudText(ICoreClientAPI capi, string key, StatusHudConfig config) : base(capi)
         {
-            this.slot = slot;
             this.key = key;
             this.config = config;
 

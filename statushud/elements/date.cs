@@ -16,9 +16,9 @@ namespace StatusHud
         protected StatusHudDateRenderer renderer;
         private string[] monthNames = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 
-        public StatusHudDateElement(StatusHudSystem system, int slot, StatusHudConfig config) : base(system, slot)
+        public StatusHudDateElement(StatusHudSystem system, StatusHudConfig config) : base(system)
         {
-            renderer = new StatusHudDateRenderer(this.system, this.slot, this, config);
+            renderer = new StatusHudDateRenderer(this.system, this, config);
 
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
@@ -90,11 +90,11 @@ namespace StatusHud
 
         protected StatusHudText text;
 
-        public StatusHudDateRenderer(StatusHudSystem system, int slot, StatusHudDateElement element, StatusHudConfig config) : base(system, slot)
+        public StatusHudDateRenderer(StatusHudSystem system, StatusHudDateElement element, StatusHudConfig config) : base(system)
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config);
+            text = new StatusHudText(this.system.capi, this.element.getTextKey(), config);
         }
 
         public override void Reload()

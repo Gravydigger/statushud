@@ -21,9 +21,9 @@ namespace StatusHud
 
         protected StatusHudPingRenderer renderer;
 
-        public StatusHudPingElement(StatusHudSystem system, int slot, StatusHudConfig config) : base(system, slot, true)
+        public StatusHudPingElement(StatusHudSystem system, StatusHudConfig config) : base(system, true)
         {
-            renderer = new StatusHudPingRenderer(system, slot, this, config);
+            renderer = new StatusHudPingRenderer(system, this, config);
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
 #if DEBUG
@@ -86,11 +86,11 @@ namespace StatusHud
 
         protected StatusHudText text;
 
-        public StatusHudPingRenderer(StatusHudSystem system, int slot, StatusHudPingElement element, StatusHudConfig config) : base(system, slot)
+        public StatusHudPingRenderer(StatusHudSystem system, StatusHudPingElement element, StatusHudConfig config) : base(system)
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config);
+            text = new StatusHudText(this.system.capi, this.element.getTextKey(), config);
         }
 
                 public override void Reload()

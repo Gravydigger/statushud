@@ -19,11 +19,11 @@ namespace StatusHud
         protected SystemTemporalStability stabilitySystem;
         protected StatusHudStabilityRenderer renderer;
 
-        public StatusHudStabilityElement(StatusHudSystem system, int slot, StatusHudConfig config) : base(system, slot)
+        public StatusHudStabilityElement(StatusHudSystem system, StatusHudConfig config) : base(system)
         {
             stabilitySystem = this.system.capi.ModLoader.GetModSystem<SystemTemporalStability>();
 
-            renderer = new StatusHudStabilityRenderer(system, slot, this, config);
+            renderer = new StatusHudStabilityRenderer(system, this, config);
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
             active = false;
@@ -77,11 +77,11 @@ namespace StatusHud
 
         protected StatusHudText text;
 
-        public StatusHudStabilityRenderer(StatusHudSystem system, int slot, StatusHudStabilityElement element, StatusHudConfig config) : base(system, slot)
+        public StatusHudStabilityRenderer(StatusHudSystem system, StatusHudStabilityElement element, StatusHudConfig config) : base(system)
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config);
+            text = new StatusHudText(this.system.capi, this.element.getTextKey(), config);
         }
 
                 public override void Reload()

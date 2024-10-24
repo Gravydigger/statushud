@@ -28,11 +28,11 @@ namespace StatusHud
 
         public int textureId;
 
-        public StatusHudWeatherElement(StatusHudSystem system, int slot, StatusHudConfig config) : base(system, slot)
+        public StatusHudWeatherElement(StatusHudSystem system, StatusHudConfig config) : base(system)
         {
             weatherSystem = this.system.capi.ModLoader.GetModSystem<WeatherSystemBase>();
 
-            renderer = new StatusHudWeatherRenderer(system, slot, this, config);
+            renderer = new StatusHudWeatherRenderer(system, this, config);
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
             this.config = config;
@@ -180,11 +180,11 @@ namespace StatusHud
         protected StatusHudWeatherElement element;
         protected StatusHudText text;
 
-        public StatusHudWeatherRenderer(StatusHudSystem system, int slot, StatusHudWeatherElement element, StatusHudConfig config) : base(system, slot)
+        public StatusHudWeatherRenderer(StatusHudSystem system, StatusHudWeatherElement element, StatusHudConfig config) : base(system)
         {
             this.element = element;
 
-            text = new StatusHudText(this.system.capi, this.slot, this.element.getTextKey(), config);
+            text = new StatusHudText(this.system.capi, this.element.getTextKey(), config);
         }
 
                 public override void Reload()
