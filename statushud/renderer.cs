@@ -74,6 +74,10 @@ namespace StatusHud
             pingTime = pingTimeInit;
             pingScale = pingScaleInit;
         }
+        public void UpdateRender()
+        {
+            Update();
+        }
 
         public void OnRenderFrame(float deltaTime, EnumRenderStage stage)
         {

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Vintagestory.API.Datastructures;
 
 namespace StatusHud
 {
@@ -45,6 +46,15 @@ namespace StatusHud
         public StatusHudConfigManager(StatusHudSystem system)
         {
             this.system = system;
+
+            // try
+            // {
+            //     JsonObject json = system.capi.LoadModConfig(filename);
+            //     if (json["installed"] != null){
+            //         UpdateConfigV1(json);
+            //     }
+            // }
+            // catch (Exception) { }
 
             // Load config file
             Load();
@@ -101,5 +111,14 @@ namespace StatusHud
             // Save config file
             system.capi.StoreModConfig(config, filename);
         }
+
+        // Extract items from JSON and place into update config
+        // private void UpdateConfigV1(JsonObject json)
+        // {
+        //     StatusHudConfig config = new();
+
+        //     config.iconSize = json["iconSize"].AsInt(config.iconSize);
+        //     config.textSize = json["text"]["size"].AsInt(config.textSize);
+        // }
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
@@ -51,12 +52,12 @@ namespace StatusHud
             typeof(StatusHudWetElement),
             typeof(StatusHudWindElement)
         };
-        protected static readonly string[] elementNames = InitElementNames();
+        public static readonly string[] elementNames = InitElementNames();
         protected static readonly string elementList = InitElementList();
 
         private static readonly int slotMax = elementTypes.Length;
 
-        protected StatusHudConfigManager configManager;
+        private StatusHudConfigManager configManager;
         public StatusHudConfig Config => configManager.Config;
 
         public IList<StatusHudElement> elements;
@@ -68,7 +69,7 @@ namespace StatusHud
         private string uuid = null;
         public bool ShowHidden => configManager.Config.showHidden;
 
-        protected StatusHudElement Instantiate(string name)
+        private StatusHudElement Instantiate(string name)
         {
             StatusHudConfig config = configManager.Config;
 
@@ -322,10 +323,19 @@ namespace StatusHud
         }
 
         // Will load elements from file
-        public void Reload()
+        public void LoadConfig()
         {
             Clear();
             configManager.Load();
+        }
+
+        public void Reload()
+        {
+            foreach (var element in elements)
+            {
+                element.GetRenderer().Reload();
+                element.GetRenderer().UpdateRender();
+            }
         }
 
         public void Reload(IClientPlayer byPlayer)
@@ -619,14 +629,14 @@ namespace StatusHud
 
         protected static string[] InitElementNames()
         {
-            string[] names = new string[StatusHudSystem.elementTypes.Length];
+            List<string> names = new();
 
-            for (int i = 0; i < names.Length; i++)
+            foreach (var type in elementTypes)
             {
-                names[i] = (string)StatusHudSystem.elementTypes[i].GetField("name").GetValue(null);
+                names.Add((string)type.GetField("name").GetValue(null));
             }
 
-            return names;
+            return names.OrderBy(name => name).ToArray();
         }
 
         protected static string InitElementList()

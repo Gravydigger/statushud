@@ -7,12 +7,12 @@ public class GuiDialogMoveable : GuiDialog
     public override string ToggleKeyCombinationCode => "statushudconfigselector";
 
     private bool moving = false;
-    private Vec2i movingStartPos = new();
+    public Vec2i Pos = new();
     private ElementBounds bounds;
 
     public GuiDialogMoveable(ICoreClientAPI capi) : base(capi)
     {
-        bounds = ElementBounds.Fixed(30, 30, 20, 20);
+        bounds = ElementBounds.Fixed(0, 0, 20, 20);
 
         SingleComposer = capi.Gui.CreateCompo("statushudconfigselector", bounds)
             .AddShadedDialogBG(ElementBounds.Fill, false)
@@ -26,7 +26,7 @@ public class GuiDialogMoveable : GuiDialog
         if (!args.Handled)
         {
             moving = true;
-            movingStartPos.Set(args.X, args.Y);
+            Pos.Set(args.X, args.Y);
         }
     }
 
@@ -35,9 +35,9 @@ public class GuiDialogMoveable : GuiDialog
         base.OnMouseDown(args);
         if (moving)
         {
-            bounds.fixedX += (float)(args.X - movingStartPos.X) / RuntimeEnv.GUIScale;
-            bounds.fixedY += (float)(args.Y - movingStartPos.Y) / RuntimeEnv.GUIScale;
-            movingStartPos.Set(args.X, args.Y);
+            bounds.fixedX += (float)(args.X - Pos.X) / RuntimeEnv.GUIScale;
+            bounds.fixedY += (float)(args.Y - Pos.Y) / RuntimeEnv.GUIScale;
+            Pos.Set(args.X, args.Y);
             bounds.CalcWorldBounds();
         }
     }

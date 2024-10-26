@@ -1,19 +1,22 @@
+using System;
 using StatusHud;
 using Vintagestory.API.Client;
+using Vintagestory.API.Util;
 
 public class StatusHudConfigGui : GuiDialog
 {
     public override string ToggleKeyCombinationCode => "statushudconfiggui";
 
     private StatusHudSystem system;
-    private GuiDialog elementSelector;
-
-    private int fontSize;
-    private int iconSize;
+    private GuiDialogMoveable elementSelector;
+    private string selectedElementName;
 
     public StatusHudConfigGui(ICoreClientAPI capi, StatusHudSystem system) : base(capi)
     {
         this.system = system;
+
+        selectedElementName = StatusHudSystem.elementNames[0];
+
         SetupDialog();
     }
 
@@ -40,10 +43,6 @@ public class StatusHudConfigGui : GuiDialog
         ElementBounds showHiddenButtonBounds = ElementBounds.Fixed(0, 0, 320, 23).WithFixedPadding(10, 4).FixedUnder(fontSizeTextBounds, vertOffset * 1.5f);
 
         // Create Drop Down for Selecting Elements
-        int selectedIndex = 0;
-        string[] names = { "nOne", "ntwo", "nthree" };
-        string[] values = { "vOne", "vtwo", "vthree" };
-
         ElementBounds moveElementDropdownBounds = ElementBounds.Fixed(0, 0, 340, 25).FixedUnder(showHiddenButtonBounds, vertOffset * 1.5f);
 
         // Create Selected Element Buttons
@@ -79,20 +78,28 @@ public class StatusHudConfigGui : GuiDialog
                 .AddButton("Default", OnDefault, defaultButtonBounds)
                 .AddButton("Restore", OnRestore, restoreButtonBounds)
                 .AddStaticTextAutoFontSize("Icon Size", CairoFont.WhiteSmallishText(), iconSizeTextBounds)
-                .AddTextInput(iconSizeInputBounds, OnIconSize)
+                .AddTextInput(iconSizeInputBounds, OnIconSize, key: "iconsize")
                 .AddStaticTextAutoFontSize("Font Size", CairoFont.WhiteSmallishText(), fontSizeTextBounds)
-                .AddTextInput(fontSizeInputBounds, OnFontSize)
+                .AddTextInput(fontSizeInputBounds, OnFontSize, key: "fontsize")
                 .AddToggleButton("Show Hidden Elements", CairoFont.ButtonText(), OnHidden, showHiddenButtonBounds)
-                .AddDropDown(values, names, selectedIndex, OnSelectionChange, moveElementDropdownBounds)
+                .AddDropDown(StatusHudSystem.elementNames, StatusHudSystem.elementNames, 0, OnSelectionChange, moveElementDropdownBounds)
                 .BeginChildElements(editingBgBounds)
                     .BeginChildElements(editingBounds)
-                        .AddToggleButton("Edit", CairoFont.ButtonText(), OnEdit, editElementPosButtonBounds)
+                        .AddToggleButton("Edit", CairoFont.ButtonText(), OnEdit, editElementPosButtonBounds, "editbutton")
                         .AddToggleButton("Enable", CairoFont.ButtonText(), OnEnable, enableElementButtonBounds)
                     .EndChildElements()
                 .EndChildElements()
             .EndChildElements()
             .Compose()
         ;
+
+        SingleComposer.GetTextInput("iconsize").SetValue(system.Config.iconSize);
+        SingleComposer.GetTextInput("iconsize").SetPlaceHolderText("Icon Size...");
+
+        SingleComposer.GetTextInput("fontsize").SetValue(system.Config.textSize);
+        SingleComposer.GetTextInput("fontsize").SetPlaceHolderText("Font Size...");
+
+        // SingleComposer.GetToggleButton("editbutton").SetValue(true);
 
         elementSelector = new GuiDialogMoveable(capi);
     }
@@ -104,62 +111,117 @@ public class StatusHudConfigGui : GuiDialog
 
     private bool OnSave()
     {
-        capi.Logger.Debug("Save Button Pressed");
+        capi.Logger.Debug(StatusHudSystem.PrintModName("Saving configuration to disk"));
         system.SaveConfig();
         return true;
     }
 
     private bool OnDefault()
     {
-        capi.Logger.Notification("You pressed the Default Button!");
+        capi.Logger.Debug(StatusHudSystem.PrintModName("Setting configuration to default layout"));
         system.InstallDefault();
         return true;
     }
 
     private bool OnRestore()
     {
-        capi.Logger.Notification("You pressed the Restore Button!");
-        // system.LoadConfig();
+        capi.Logger.Debug(StatusHudSystem.PrintModName("Restoring configuration from disk"));
+        system.LoadConfig();
         return true;
     }
 
     private void OnIconSize(string value)
     {
-        capi.Logger.Notification("You typed in a number!");
+        system.Config.iconSize = SanitiseInt(value, system.Config.iconSize);
+        system.Reload();
+        capi.Logger.Debug(StatusHudSystem.PrintModName($"Icon size changed to {system.Config.iconSize}"));
     }
 
     private void OnFontSize(string value)
     {
-        capi.Logger.Notification("You typed in a number!");
+        system.Config.textSize = SanitiseInt(value, system.Config.textSize);
+        system.Reload();
+        capi.Logger.Debug(StatusHudSystem.PrintModName($"Font size changed to {system.Config.textSize}"));
     }
 
-    private void OnSelectionChange(string code, bool selected)
+    private int SanitiseInt(string value, int defaultInt)
     {
-        capi.Logger.Notification("You changed the drop down value! code: {0}, selected {1}", code, selected);
+        const int minSize = 8;
+        const int maxSize = 100;
+
+        return Math.Max(minSize, Math.Min(maxSize, value.ToInt(defaultInt))); ;
     }
 
     private void OnHidden(bool on)
     {
+        system.Config.showHidden = on;
+
         if (on)
         {
-            capi.Logger.Notification("Showing Hidden Elements");
+            capi.Logger.Debug(StatusHudSystem.PrintModName("Showing Hidden Elements"));
+
         }
         else
         {
-            capi.Logger.Notification("Hiding Hidden Elements");
+            capi.Logger.Debug(StatusHudSystem.PrintModName("Hiding Hidden Elements"));
         }
 
     }
 
+    private void OnSelectionChange(string name, bool selected)
+    {
+        foreach (var element in StatusHudSystem.elementNames)
+        {
+            if (element == name)
+            {
+                selectedElementName = element;
+                capi.Logger.Debug(StatusHudSystem.PrintModName($"Changed selected element to {selectedElementName}"));
+                break;
+            }
+        }
+
+        foreach (var element in StatusHudSystem.elementNames)
+        {
+            if (element == name)
+            {
+                selectedElementName = element;
+                capi.Logger.Debug(StatusHudSystem.PrintModName($"Changed selected element to {selectedElementName}"));
+                break;
+            }
+        }
+    }
+
     private void OnEdit(bool on)
     {
+        StatusHudElement element = null;
+
+        foreach (var item in system.elements)
+        {
+            if (item.ElementName == selectedElementName)
+            {
+                element = item;
+                break;
+            }
+        }
+
+        if (element == null) return;
+
         if (on)
         {
-            capi.Logger.Notification("Editing Element");
+            int i = element.pos.x;
+            elementSelector.TryOpen();
+
+            capi.Logger.Debug(StatusHudSystem.PrintModName($"Editing Element {selectedElementName}'s position"));
         }
         else
         {
-            capi.Logger.Notification("Stopped Editing Element");
+            if (elementSelector.IsOpened())
+            {
+                elementSelector.TryClose();
+            }
+
+
+            capi.Logger.Debug(StatusHudSystem.PrintModName($"Setting Element {selectedElementName}'s position"));
         }
 
     }
@@ -168,11 +230,13 @@ public class StatusHudConfigGui : GuiDialog
     {
         if (on)
         {
-            capi.Logger.Notification("Enabling Element");
+            system.Set(selectedElementName);
+            capi.Logger.Debug(StatusHudSystem.PrintModName($"Enabling Element {selectedElementName}"));
         }
         else
         {
-            capi.Logger.Notification("Disabling Element");
+            system.Unset(selectedElementName);
+            capi.Logger.Debug(StatusHudSystem.PrintModName($"Disabling Element {selectedElementName}"));
         }
 
     }
