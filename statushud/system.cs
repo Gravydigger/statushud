@@ -327,6 +327,7 @@ namespace StatusHud
         {
             Clear();
             configManager.Load();
+            configManager.LoadElements(this);
         }
 
         public void Reload()
