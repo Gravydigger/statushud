@@ -27,6 +27,9 @@ namespace StatusHud
         protected float w;
         protected float h;
 
+        public float X => x;
+        public float Y => y;
+
         protected float scale;
         protected float frameWidth;
         protected float frameHeight;

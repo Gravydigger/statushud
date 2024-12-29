@@ -1,6 +1,7 @@
 using System;
 using StatusHud;
 using Vintagestory.API.Client;
+using Vintagestory.API.MathTools;
 using Vintagestory.API.Util;
 
 public class StatusHudConfigGui : GuiDialog
@@ -24,12 +25,12 @@ public class StatusHudConfigGui : GuiDialog
     {
         const int titleBarHeight = 25;
         const int vertOffset = 20;
-        const int horzOffset = 5;
+        const int horzOffset = 25;
 
         // Create Config Buttons
         ElementBounds saveButtonBounds = ElementBounds.Fixed(0, 0, 90, 23).WithFixedPadding(10, 4);
-        ElementBounds defaultButtonBounds = saveButtonBounds.FlatCopy().FixedRightOf(saveButtonBounds, horzOffset + 20);
-        ElementBounds restoreButtonBounds = saveButtonBounds.FlatCopy().FixedRightOf(defaultButtonBounds, horzOffset + 20);
+        ElementBounds defaultButtonBounds = saveButtonBounds.FlatCopy().FixedRightOf(saveButtonBounds, horzOffset);
+        ElementBounds restoreButtonBounds = saveButtonBounds.FlatCopy().FixedRightOf(defaultButtonBounds, horzOffset);
 
         // Create Number Inputs
         const int textOffset = 4; // Used to help vertically center the text to the text inputs
@@ -46,13 +47,18 @@ public class StatusHudConfigGui : GuiDialog
         ElementBounds moveElementDropdownBounds = ElementBounds.Fixed(0, 0, 340, 25).FixedUnder(showHiddenButtonBounds, vertOffset * 1.5f);
 
         // Create Selected Element Buttons
-        ElementBounds editElementPosButtonBounds = ElementBounds.Fixed(0, 0, 90, 23).WithFixedPadding(10, 4);
-        ElementBounds enableElementButtonBounds = editElementPosButtonBounds.RightCopy(horzOffset);
+        ElementBounds enableElementButtonBounds = ElementBounds.Fixed(0, 0, 90, 23).WithFixedPadding(10, 4);
+        // ElementBounds editElementPosButtonBounds = enableElementButtonBounds.RightCopy(horzOffset);
+
+        ElementBounds xPosTextBounds = ElementBounds.Fixed(0, 0, 90, 30).FixedUnder(enableElementButtonBounds, vertOffset * 1.5f + textOffset);
+        ElementBounds xPosInputBounds = ElementBounds.Fixed(xPosTextBounds.fixedWidth + horzOffset, xPosTextBounds.fixedY - textOffset, 205, 30);
+        ElementBounds yPosTextBounds = ElementBounds.Fixed(0, 0, 90, 30).FixedUnder(xPosInputBounds, vertOffset / 2 + textOffset);
+        ElementBounds yPosInputBounds = ElementBounds.Fixed(yPosTextBounds.fixedWidth + horzOffset, yPosTextBounds.fixedY - textOffset, 205, 30);
 
         // Create Element Editing Group
         ElementBounds editingBounds = ElementBounds.Fill.WithFixedPadding(10);
         editingBounds.BothSizing = ElementSizing.FitToChildren;
-        editingBounds.WithChildren(editElementPosButtonBounds, enableElementButtonBounds);
+        editingBounds.WithChildren(/*editElementPosButtonBounds,*/xPosInputBounds, xPosInputBounds, yPosTextBounds, yPosInputBounds, enableElementButtonBounds);
 
         // Create Element Editing Group Background
         ElementBounds editingBgBounds = ElementBounds.Fill.FixedUnder(moveElementDropdownBounds, vertOffset);
@@ -85,8 +91,12 @@ public class StatusHudConfigGui : GuiDialog
                 .AddDropDown(StatusHudSystem.elementNames, StatusHudSystem.elementNames, 0, OnSelectionChange, moveElementDropdownBounds)
                 .BeginChildElements(editingBgBounds)
                     .BeginChildElements(editingBounds)
-                        .AddToggleButton("Edit", CairoFont.ButtonText(), OnEdit, editElementPosButtonBounds, "editbutton")
-                        .AddToggleButton("Enable", CairoFont.ButtonText(), OnEnable, enableElementButtonBounds)
+                        // .AddToggleButton("Edit", CairoFont.ButtonText(), OnEdit, editElementPosButtonBounds, "editbutton")
+                        .AddToggleButton("Enable", CairoFont.ButtonText(), OnEnable, enableElementButtonBounds, "enablebutton")
+                        .AddStaticTextAutoFontSize("X Position", CairoFont.WhiteSmallishText(), xPosTextBounds)
+                        .AddTextInput(xPosInputBounds, OnXPos, key: "xpos")
+                        .AddStaticTextAutoFontSize("Y Position", CairoFont.WhiteSmallishText(), yPosTextBounds)
+                        .AddTextInput(yPosInputBounds, OnYPos, key: "ypos")
                     .EndChildElements()
                 .EndChildElements()
             .EndChildElements()
@@ -102,6 +112,18 @@ public class StatusHudConfigGui : GuiDialog
         // SingleComposer.GetToggleButton("editbutton").SetValue(true);
 
         elementSelector = new GuiDialogMoveable(capi);
+    }
+
+    private StatusHudElement GetElementFromName(string name)
+    {
+        foreach (var element in system.elements)
+        {
+            if (element.ElementName == name)
+            {
+                return element;
+            }
+        }
+        return null;
     }
 
     private void OnTitleBarCloseClicked()
@@ -132,24 +154,48 @@ public class StatusHudConfigGui : GuiDialog
 
     private void OnIconSize(string value)
     {
-        system.Config.iconSize = SanitiseInt(value, system.Config.iconSize);
+        system.Config.iconSize = SanitiseIconInt(value, system.Config.iconSize);
         system.Reload();
         capi.Logger.Debug(StatusHudSystem.PrintModName($"Icon size changed to {system.Config.iconSize}"));
     }
 
     private void OnFontSize(string value)
     {
-        system.Config.textSize = SanitiseInt(value, system.Config.textSize);
+        system.Config.textSize = SanitiseIconInt(value, system.Config.textSize);
         system.Reload();
         capi.Logger.Debug(StatusHudSystem.PrintModName($"Font size changed to {system.Config.textSize}"));
     }
 
-    private int SanitiseInt(string value, int defaultInt)
+    private void OnXPos(string value)
+    {
+        StatusHudElement element = GetElementFromName(selectedElementName);
+        if (element == null) return;
+
+        // This may need to be changed in a different alignment is used, currently using left alignment
+        element.pos.x = Math.Max(0, Math.Min(system.capi.Render.FrameWidth, value.ToInt(0)));
+        element.Pos();
+        capi.Logger.Debug(StatusHudSystem.PrintModName($"Element X Position changed to {element.pos.x}"));
+    }
+
+    private void OnYPos(string value)
+    {
+        StatusHudElement element = GetElementFromName(selectedElementName);
+        if (element == null) return;
+
+        // This may need to be changed in a different alignment is used, currently using top alignment
+        element.pos.y = Math.Max(0, Math.Min(system.capi.Render.FrameHeight, value.ToInt(0)));
+        element.Pos();
+        capi.Logger.Debug(StatusHudSystem.PrintModName($"Element Y Position changed to {element.pos.y}"));
+    }
+
+
+
+    private int SanitiseIconInt(string value, int defaultInt)
     {
         const int minSize = 8;
         const int maxSize = 100;
 
-        return Math.Max(minSize, Math.Min(maxSize, value.ToInt(defaultInt))); ;
+        return Math.Max(minSize, Math.Min(maxSize, value.ToInt(defaultInt)));
     }
 
     private void OnHidden(bool on)
@@ -170,45 +216,33 @@ public class StatusHudConfigGui : GuiDialog
 
     private void OnSelectionChange(string name, bool selected)
     {
-        foreach (var element in StatusHudSystem.elementNames)
+        StatusHudElement element = GetElementFromName(name);
+
+        if (element == null)
         {
-            if (element == name)
-            {
-                selectedElementName = element;
-                capi.Logger.Debug(StatusHudSystem.PrintModName($"Changed selected element to {selectedElementName}"));
-                break;
-            }
+            SingleComposer.GetToggleButton("enablebutton").SetValue(false);
+            SingleComposer.GetTextInput("xpos").SetValue(0);
+            SingleComposer.GetTextInput("ypos").SetValue(0);
+        }
+        else
+        {
+            SingleComposer.GetToggleButton("enablebutton").SetValue(true);
+            SingleComposer.GetTextInput("xpos").SetValue(element.pos.x);
+            SingleComposer.GetTextInput("ypos").SetValue(element.pos.y);
         }
 
-        foreach (var element in StatusHudSystem.elementNames)
-        {
-            if (element == name)
-            {
-                selectedElementName = element;
-                capi.Logger.Debug(StatusHudSystem.PrintModName($"Changed selected element to {selectedElementName}"));
-                break;
-            }
-        }
+        capi.Logger.Debug(StatusHudSystem.PrintModName($"Element {name} Selected"));
     }
 
     private void OnEdit(bool on)
     {
-        StatusHudElement element = null;
-
-        foreach (var item in system.elements)
-        {
-            if (item.ElementName == selectedElementName)
-            {
-                element = item;
-                break;
-            }
-        }
+        StatusHudElement element = GetElementFromName(selectedElementName);
 
         if (element == null) return;
 
         if (on)
         {
-            int i = element.pos.x;
+            elementSelector.UpdateSelectedElement(element);
             elementSelector.TryOpen();
 
             capi.Logger.Debug(StatusHudSystem.PrintModName($"Editing Element {selectedElementName}'s position"));
@@ -219,7 +253,6 @@ public class StatusHudConfigGui : GuiDialog
             {
                 elementSelector.TryClose();
             }
-
 
             capi.Logger.Debug(StatusHudSystem.PrintModName($"Setting Element {selectedElementName}'s position"));
         }

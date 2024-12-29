@@ -1,14 +1,16 @@
 using Vintagestory.API.Client;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Config;
+using StatusHud;
 
 public class GuiDialogMoveable : GuiDialog
 {
     public override string ToggleKeyCombinationCode => "statushudconfigselector";
 
     private bool moving = false;
-    public Vec2i Pos = new();
+    private Vec2i Pos = new();
     private ElementBounds bounds;
+    private StatusHudElement selectedEelement;
 
     public GuiDialogMoveable(ICoreClientAPI capi) : base(capi)
     {
@@ -18,6 +20,14 @@ public class GuiDialogMoveable : GuiDialog
             .AddShadedDialogBG(ElementBounds.Fill, false)
             .Compose()
         ;
+    }
+
+    public void UpdateSelectedElement(StatusHudElement element)
+    {
+        selectedEelement = element;
+        Pos.Set((int)selectedEelement.GetRenderer().X, (int)selectedEelement.GetRenderer().Y);
+        bounds.WithFixedPosition(Pos.X, Pos.Y);
+        SingleComposer.ReCompose();
     }
 
     public override void OnMouseDown(MouseEvent args)
@@ -35,10 +45,14 @@ public class GuiDialogMoveable : GuiDialog
         base.OnMouseDown(args);
         if (moving)
         {
-            bounds.fixedX += (float)(args.X - Pos.X) / RuntimeEnv.GUIScale;
-            bounds.fixedY += (float)(args.Y - Pos.Y) / RuntimeEnv.GUIScale;
+            bounds.fixedX += (args.X - Pos.X) / RuntimeEnv.GUIScale;
+            bounds.fixedY += (args.Y - Pos.Y) / RuntimeEnv.GUIScale;
             Pos.Set(args.X, args.Y);
             bounds.CalcWorldBounds();
+
+            selectedEelement.pos.x = Pos.X;
+            selectedEelement.pos.y = Pos.Y;
+            selectedEelement.Pos();
         }
     }
 
