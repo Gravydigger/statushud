@@ -20,7 +20,7 @@ namespace StatusHud
         public int y;
         public int halign;
         public int valign;
-        public string elementOptions;
+        public string Options;
 
         public StatusHudConfigElement(string name, int x, int y, int halign, int valign, string elementOptions)
         {
@@ -29,7 +29,7 @@ namespace StatusHud
             this.halign = halign;
             this.y = y;
             this.valign = valign;
-            this.elementOptions = elementOptions;
+            this.Options = elementOptions;
         }
     }
 
