@@ -27,6 +27,8 @@ public class StatusHudConfigGui : GuiDialog
         const int vertOffset = 20;
         const int horzOffset = 25;
 
+        // TODO: Update with GUI Scale
+
         // Create Config Buttons
         ElementBounds saveButtonBounds = ElementBounds.Fixed(0, 0, 90, 23).WithFixedPadding(10, 4);
         ElementBounds defaultButtonBounds = saveButtonBounds.FlatCopy().FixedRightOf(saveButtonBounds, horzOffset);
@@ -171,8 +173,6 @@ public class StatusHudConfigGui : GuiDialog
         StatusHudElement element = GetElementFromName(selectedElementName);
         if (element == null) return;
 
-        // This may need to be changed in a different alignment is used, currently using left alignment
-        element.pos.x = Math.Max(0, Math.Min(system.capi.Render.FrameWidth, value.ToInt(0)));
         element.Pos();
         capi.Logger.Debug(StatusHudSystem.PrintModName($"Element X Position changed to {element.pos.x}"));
     }
@@ -182,13 +182,9 @@ public class StatusHudConfigGui : GuiDialog
         StatusHudElement element = GetElementFromName(selectedElementName);
         if (element == null) return;
 
-        // This may need to be changed in a different alignment is used, currently using top alignment
-        element.pos.y = Math.Max(0, Math.Min(system.capi.Render.FrameHeight, value.ToInt(0)));
         element.Pos();
         capi.Logger.Debug(StatusHudSystem.PrintModName($"Element Y Position changed to {element.pos.y}"));
     }
-
-
 
     private int SanitiseIconInt(string value, int defaultInt)
     {
@@ -211,7 +207,6 @@ public class StatusHudConfigGui : GuiDialog
         {
             capi.Logger.Debug(StatusHudSystem.PrintModName("Hiding Hidden Elements"));
         }
-
     }
 
     private void OnSelectionChange(string name, bool selected)
@@ -256,7 +251,6 @@ public class StatusHudConfigGui : GuiDialog
 
             capi.Logger.Debug(StatusHudSystem.PrintModName($"Setting Element {selectedElementName}'s position"));
         }
-
     }
 
     private void OnEnable(bool on)
@@ -271,6 +265,5 @@ public class StatusHudConfigGui : GuiDialog
             system.Unset(selectedElementName);
             capi.Logger.Debug(StatusHudSystem.PrintModName($"Disabling Element {selectedElementName}"));
         }
-
     }
 }
