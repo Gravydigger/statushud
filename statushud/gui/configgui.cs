@@ -12,6 +12,8 @@ public class StatusHudConfigGui : GuiDialog
     private GuiDialogMoveable elementSelector;
     private string selectedElementName;
 
+    private readonly string[] elementAlignments = { "Top Left", "Top Center", "Top Right", "Center Left", "True Center", "Center Right", "Bottom Left", "Bottom Center", "Bottom Right" };
+
     public StatusHudConfigGui(ICoreClientAPI capi, StatusHudSystem system) : base(capi)
     {
         this.system = system;
@@ -43,13 +45,15 @@ public class StatusHudConfigGui : GuiDialog
         ElementBounds fontSizeInputBounds = ElementBounds.Fixed(0, fontSizeTextBounds.fixedY - textOffset, 245, 30).WithAlignment(EnumDialogArea.RightFixed);
 
         // Create Show Hidden Button
-        ElementBounds showHiddenButtonBounds = ElementBounds.Fixed(0, 0, 320, 23).WithFixedPadding(10, 4).FixedUnder(fontSizeTextBounds, vertOffset * 1.5f);
+        ElementBounds showHiddenButtonBounds = ElementBounds.Fixed(0, 0, 320, 23).WithFixedPadding(10, 4).FixedUnder(fontSizeTextBounds, vertOffset);
 
         // Create Drop Down for Selecting Elements
-        ElementBounds moveElementDropdownBounds = ElementBounds.Fixed(0, 0, 340, 25).FixedUnder(showHiddenButtonBounds, vertOffset * 1.5f);
+        ElementBounds moveElementTextBounds = ElementBounds.Fixed(0, 0, 320, 23).WithAlignment(EnumDialogArea.CenterFixed).FixedUnder(showHiddenButtonBounds, vertOffset * 1.25f);
+        ElementBounds moveElementDropdownBounds = ElementBounds.Fixed(0, 0, 340, 25).FixedUnder(moveElementTextBounds, vertOffset * 1.25f);
 
         // Create Selected Element Buttons
         ElementBounds enableElementButtonBounds = ElementBounds.Fixed(0, 0, 90, 23).WithFixedPadding(10, 4);
+        ElementBounds alignElementDropdownBounds = ElementBounds.Fixed(0, 0, 200, 29).FixedRightOf(enableElementButtonBounds, horzOffset);
         // ElementBounds editElementPosButtonBounds = enableElementButtonBounds.RightCopy(horzOffset);
 
         ElementBounds xPosTextBounds = ElementBounds.Fixed(0, 0, 90, 30).FixedUnder(enableElementButtonBounds, vertOffset * 1.5f + textOffset);
@@ -60,7 +64,7 @@ public class StatusHudConfigGui : GuiDialog
         // Create Element Editing Group
         ElementBounds editingBounds = ElementBounds.Fill.WithFixedPadding(10);
         editingBounds.BothSizing = ElementSizing.FitToChildren;
-        editingBounds.WithChildren(/*editElementPosButtonBounds,*/xPosInputBounds, xPosInputBounds, yPosTextBounds, yPosInputBounds, enableElementButtonBounds);
+        editingBounds.WithChildren(enableElementButtonBounds, alignElementDropdownBounds, /*editElementPosButtonBounds,*/xPosInputBounds, xPosInputBounds, yPosTextBounds, yPosInputBounds);
 
         // Create Element Editing Group Background
         ElementBounds editingBgBounds = ElementBounds.Fill.FixedUnder(moveElementDropdownBounds, vertOffset);
@@ -86,30 +90,35 @@ public class StatusHudConfigGui : GuiDialog
                 .AddButton("Default", OnDefault, defaultButtonBounds)
                 .AddButton("Restore", OnRestore, restoreButtonBounds)
                 .AddStaticTextAutoFontSize("Icon Size", CairoFont.WhiteSmallishText(), iconSizeTextBounds)
-                .AddTextInput(iconSizeInputBounds, OnIconSize, key: "iconsize")
+                .AddTextInput(iconSizeInputBounds, OnIconSize, key: "shud-iconsize")
                 .AddStaticTextAutoFontSize("Font Size", CairoFont.WhiteSmallishText(), fontSizeTextBounds)
-                .AddTextInput(fontSizeInputBounds, OnFontSize, key: "fontsize")
+                .AddTextInput(fontSizeInputBounds, OnFontSize, key: "shud-fontsize")
                 .AddToggleButton("Show Hidden Elements", CairoFont.ButtonText(), OnHidden, showHiddenButtonBounds)
+                .AddStaticText("Edit Element", CairoFont.ButtonText(), EnumTextOrientation.Center, moveElementTextBounds)
                 .AddDropDown(StatusHudSystem.elementNames, StatusHudSystem.elementNames, 0, OnSelectionChange, moveElementDropdownBounds)
                 .BeginChildElements(editingBgBounds)
                     .BeginChildElements(editingBounds)
                         // .AddToggleButton("Edit", CairoFont.ButtonText(), OnEdit, editElementPosButtonBounds, "editbutton")
-                        .AddToggleButton("Enable", CairoFont.ButtonText(), OnEnable, enableElementButtonBounds, "enablebutton")
+                        .AddToggleButton("Enable", CairoFont.ButtonText(), OnEnable, enableElementButtonBounds, "shud-enablebutton")
+                        .AddDropDown(elementAlignments, elementAlignments, 0, OnAlignChange, alignElementDropdownBounds, "shud-align")
                         .AddStaticTextAutoFontSize("X Position", CairoFont.WhiteSmallishText(), xPosTextBounds)
-                        .AddTextInput(xPosInputBounds, OnXPos, key: "xpos")
+                        .AddTextInput(xPosInputBounds, OnXPos, key: "shud-xpos")
                         .AddStaticTextAutoFontSize("Y Position", CairoFont.WhiteSmallishText(), yPosTextBounds)
-                        .AddTextInput(yPosInputBounds, OnYPos, key: "ypos")
+                        .AddTextInput(yPosInputBounds, OnYPos, key: "shud-ypos")
                     .EndChildElements()
                 .EndChildElements()
             .EndChildElements()
             .Compose()
         ;
 
-        SingleComposer.GetTextInput("iconsize").SetValue(system.Config.iconSize);
-        SingleComposer.GetTextInput("iconsize").SetPlaceHolderText("Icon Size...");
+        SingleComposer.GetTextInput("shud-iconsize").SetValue(system.Config.iconSize);
+        SingleComposer.GetTextInput("shud-iconsize").SetPlaceHolderText("Icon Size...");
 
-        SingleComposer.GetTextInput("fontsize").SetValue(system.Config.textSize);
-        SingleComposer.GetTextInput("fontsize").SetPlaceHolderText("Font Size...");
+        SingleComposer.GetTextInput("shud-fontsize").SetValue(system.Config.textSize);
+        SingleComposer.GetTextInput("shud-fontsize").SetPlaceHolderText("Font Size...");
+
+        // "altitude" is the first alphabetical element
+        ReloadElementInputs(GetElementFromName("altitude"));
 
         // SingleComposer.GetToggleButton("editbutton").SetValue(true);
 
@@ -128,6 +137,73 @@ public class StatusHudConfigGui : GuiDialog
         return null;
     }
 
+    private void ReloadElementInputs(StatusHudElement element)
+    {
+        if (element == null)
+        {
+            SingleComposer.GetToggleButton("shud-enablebutton").SetValue(false);
+            SingleComposer.GetTextInput("shud-xpos").SetValue(0);
+            SingleComposer.GetTextInput("shud-ypos").SetValue(0);
+            SingleComposer.GetDropDown("shud-align").SetSelectedValue("True Center");
+        }
+        else
+        {
+            SingleComposer.GetToggleButton("shud-enablebutton").SetValue(true);
+            SingleComposer.GetTextInput("shud-xpos").SetValue(element.pos.x);
+            SingleComposer.GetTextInput("shud-ypos").SetValue(element.pos.y);
+
+            string value = "";
+
+            switch (element.pos.valign)
+            {
+                case -1:
+                    switch (element.pos.valign)
+                    {
+                        case -1:
+                            value = "Top Left";
+                            break;
+                        case 0:
+                            value = "Top Center";
+                            break;
+                        case 1:
+                            value = "Top Right";
+                            break;
+                    }
+                    break;
+                case 0:
+                    switch (element.pos.valign)
+                    {
+                        case -1:
+                            value = "Center Left";
+                            break;
+                        case 0:
+                            value = "True Center";
+                            break;
+                        case 1:
+                            value = "Center Right";
+                            break;
+                    }
+                    break;
+                case 1:
+                    switch (element.pos.valign)
+                    {
+                        case -1:
+                            value = "Bottom Left";
+                            break;
+                        case 0:
+                            value = "Bottom Center";
+                            break;
+                        case 1:
+                            value = "Bottom Right";
+                            break;
+                    }
+                    break;
+            }
+
+            SingleComposer.GetDropDown("shud-align").SetSelectedValue(value);
+        }
+    }
+
     private void OnTitleBarCloseClicked()
     {
         TryClose();
@@ -144,6 +220,8 @@ public class StatusHudConfigGui : GuiDialog
     {
         capi.Logger.Debug(StatusHudSystem.PrintModName("Setting configuration to default layout"));
         system.InstallDefault();
+        ReloadElementInputs(GetElementFromName(selectedElementName));
+
         return true;
     }
 
@@ -173,6 +251,7 @@ public class StatusHudConfigGui : GuiDialog
         StatusHudElement element = GetElementFromName(selectedElementName);
         if (element == null) return;
 
+        element.pos.x = value.ToInt(0);
         element.Pos();
         capi.Logger.Debug(StatusHudSystem.PrintModName($"Element X Position changed to {element.pos.x}"));
     }
@@ -182,6 +261,7 @@ public class StatusHudConfigGui : GuiDialog
         StatusHudElement element = GetElementFromName(selectedElementName);
         if (element == null) return;
 
+        element.pos.y = value.ToInt(0);
         element.Pos();
         capi.Logger.Debug(StatusHudSystem.PrintModName($"Element Y Position changed to {element.pos.y}"));
     }
@@ -200,33 +280,70 @@ public class StatusHudConfigGui : GuiDialog
 
         if (on)
         {
-            capi.Logger.Debug(StatusHudSystem.PrintModName("Showing Hidden Elements"));
-
+            capi.Logger.Debug(StatusHudSystem.PrintModName("Showing hidden elements"));
         }
         else
         {
-            capi.Logger.Debug(StatusHudSystem.PrintModName("Hiding Hidden Elements"));
+            capi.Logger.Debug(StatusHudSystem.PrintModName("Hiding hidden elements"));
         }
     }
 
     private void OnSelectionChange(string name, bool selected)
     {
-        StatusHudElement element = GetElementFromName(name);
+        selectedElementName = name;
+        ReloadElementInputs(GetElementFromName(name));
 
-        if (element == null)
+        capi.Logger.Debug(StatusHudSystem.PrintModName($"Element {name} selected"));
+    }
+
+    private void OnAlignChange(string name, bool selected)
+    {
+        StatusHudElement element = GetElementFromName(selectedElementName);
+        if (element == null) return;
+
+        switch (name)
         {
-            SingleComposer.GetToggleButton("enablebutton").SetValue(false);
-            SingleComposer.GetTextInput("xpos").SetValue(0);
-            SingleComposer.GetTextInput("ypos").SetValue(0);
-        }
-        else
-        {
-            SingleComposer.GetToggleButton("enablebutton").SetValue(true);
-            SingleComposer.GetTextInput("xpos").SetValue(element.pos.x);
-            SingleComposer.GetTextInput("ypos").SetValue(element.pos.y);
+            case "Top Left":
+                element.pos.valign = -1;
+                element.pos.halign = -1;
+                break;
+            case "Top Center":
+                element.pos.valign = -1;
+                element.pos.halign = 0;
+                break;
+            case "Top Right":
+                element.pos.valign = -1;
+                element.pos.halign = 1;
+                break;
+            case "Center Left":
+                element.pos.valign = 0;
+                element.pos.halign = -1;
+                break;
+            case "True Center":
+                element.pos.valign = 0;
+                element.pos.halign = 0;
+                break;
+            case "Center Right":
+                element.pos.valign = 0;
+                element.pos.halign = 1;
+                break;
+            case "Bottom Left":
+                element.pos.valign = 1;
+                element.pos.halign = -1;
+                break;
+            case "Bottom Center":
+                element.pos.valign = 1;
+                element.pos.halign = 0;
+                break;
+            case "Bottom Right":
+                element.pos.valign = 1;
+                element.pos.halign = 1;
+                break;
+            default:
+                break;
         }
 
-        capi.Logger.Debug(StatusHudSystem.PrintModName($"Element {name} Selected"));
+        capi.Logger.Debug(StatusHudSystem.PrintModName($"Element {selectedElementName} set to {name} alignment"));
     }
 
     private void OnEdit(bool on)
