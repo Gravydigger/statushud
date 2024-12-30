@@ -22,7 +22,7 @@ public class StatusHudConfigGui : GuiDialog
         selectedElementName = StatusHudSystem.elementNames[0];
         selectedElementIndex = 0;
 
-        ComposeDialog();
+        ReloadElementInputs(GetElementFromName(selectedElementName));
     }
 
     private void ComposeDialog()
@@ -114,14 +114,26 @@ public class StatusHudConfigGui : GuiDialog
                     .BeginChildElements(editingBounds)
                         // .AddToggleButton("Edit", CairoFont.ButtonText(), OnEdit, editElementPosButtonBounds, "editbutton")
                         .AddToggleButton("Enable", CairoFont.ButtonText(), OnEnable, enableElementButtonBounds, "shud-enablebutton")
-                        .AddDropDown(elementAlignments, elementAlignments, 0, OnAlignChange, alignElementDropdownBounds, "shud-align")
+                        .AddDropDown(elementAlignments, elementAlignments, 4, OnAlignChange, alignElementDropdownBounds, "shud-align")
                         .AddStaticTextAutoFontSize("X Position", CairoFont.WhiteSmallishText(), xPosTextBounds)
                         .AddTextInput(xPosInputBounds, OnXPos, key: "shud-xpos")
                         .AddStaticTextAutoFontSize("Y Position", CairoFont.WhiteSmallishText(), yPosTextBounds)
                         .AddTextInput(yPosInputBounds, OnYPos, key: "shud-ypos")
                         .AddIf(selectedElementName == "time" || selectedElementName == "time-local")
                             .AddStaticText("Time Format", CairoFont.WhiteSmallText(), optionalConfigTextBounds)
-                            .AddDropDown(StatusHudTimeElement.timeFormatWords, StatusHudTimeElement.timeFormatWords, 0, OnOptionalConfig, optionalConfigDropdownBounds)
+                            .AddDropDown(StatusHudTimeElement.timeFormatWords, StatusHudTimeElement.timeFormatWords, StatusHudTimeElement.timeFormatWords.IndexOf(element.ElementOption), OnOptionalConfig, optionalConfigDropdownBounds)
+                        .EndIf()
+                        .AddIf(selectedElementName == "weather")
+                            .AddStaticText("Temp Scale", CairoFont.WhiteSmallText(), optionalConfigTextBounds)
+                            .AddDropDown(StatusHudWeatherElement.tempFormatWords, StatusHudWeatherElement.tempFormatWords, StatusHudWeatherElement.tempFormatWords.IndexOf(element.ElementOption), OnOptionalConfig, optionalConfigDropdownBounds)
+                        .EndIf()
+                        .AddIf(selectedElementName == "bodyheat")
+                            .AddStaticText("Temp Scale", CairoFont.WhiteSmallText(), optionalConfigTextBounds)
+                            .AddDropDown(StatusHudBodyheatElement.tempFormatWords, StatusHudBodyheatElement.tempFormatWords, StatusHudBodyheatElement.tempFormatWords.IndexOf(element.ElementOption), OnOptionalConfig, optionalConfigDropdownBounds)
+                        .EndIf()
+                        .AddIf(selectedElementName == "compass")
+                            .AddStaticText("Direction", CairoFont.WhiteSmallText(), optionalConfigTextBounds)
+                            .AddDropDown(StatusHudCompassElement.compassBearingOptions, StatusHudCompassElement.compassBearingOptions, StatusHudCompassElement.compassBearingOptions.IndexOf(element.ElementOption), OnOptionalConfig, optionalConfigDropdownBounds)
                         .EndIf()
                     .EndChildElements()
                 .EndChildElements()
@@ -148,12 +160,7 @@ public class StatusHudConfigGui : GuiDialog
         StatusHudElement element = GetElementFromName(selectedElementName);
         if (element == null) return;
 
-        if (selectedElementName == "time" || selectedElementName == "time-local")
-        {
-            element.ConfigOptions(code);
-        }
-
-        // TODO: Add weather, compass, body heat
+        element.ConfigOptions(code);
     }
 
     private StatusHudElement GetElementFromName(string name)
@@ -170,6 +177,7 @@ public class StatusHudConfigGui : GuiDialog
 
     private void ReloadElementInputs(StatusHudElement element)
     {
+        ComposeDialog();
         if (element == null)
         {
             SingleComposer.GetToggleButton("shud-enablebutton").SetValue(false);
@@ -233,8 +241,6 @@ public class StatusHudConfigGui : GuiDialog
 
             SingleComposer.GetDropDown("shud-align").SetSelectedValue(value);
         }
-
-        ComposeDialog();
     }
 
     private void OnTitleBarCloseClicked()

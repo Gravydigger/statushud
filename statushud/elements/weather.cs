@@ -16,7 +16,7 @@ namespace StatusHud
         private const float cfdiff = 32;
         private const float ckdiff = 273.15f;
 
-        static readonly string[] tempFormatWords = new string[] { "C", "F", "K" };
+        public static readonly string[] tempFormatWords = new string[] { "C", "F", "K" };
         private string tempScale;
         public int textureId;
 

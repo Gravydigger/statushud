@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Vintagestory.API.Datastructures;
 
 namespace StatusHud
 {
@@ -20,7 +19,7 @@ namespace StatusHud
         public int y;
         public int halign;
         public int valign;
-        public string Options;
+        public string options;
 
         public StatusHudConfigElement(string name, int x, int y, int halign, int valign, string elementOptions)
         {
@@ -29,7 +28,7 @@ namespace StatusHud
             this.halign = halign;
             this.y = y;
             this.valign = valign;
-            this.Options = elementOptions;
+            this.options = elementOptions;
         }
     }
 
@@ -46,20 +45,8 @@ namespace StatusHud
         public StatusHudConfigManager(StatusHudSystem system)
         {
             this.system = system;
-
-            // try
-            // {
-            //     JsonObject json = system.capi.LoadModConfig(filename);
-            //     if (json["installed"] != null){
-            //         UpdateConfigV1(json);
-            //     }
-            // }
-            // catch (Exception) { }
-
-            // Load config file
             Load();
 
-            // Create new config file if none is present
             if (config == null)
             {
                 config = new StatusHudConfig();
@@ -95,7 +82,6 @@ namespace StatusHud
 
         public void Save()
         {
-            // Save element data to config
             config.elements.Clear();
 
             foreach (var element in system.elements)
@@ -108,17 +94,8 @@ namespace StatusHud
                     element.ElementOption)
                 );
             }
-            // Save config file
+
             system.capi.StoreModConfig(config, filename);
         }
-
-        // Extract items from JSON and place into update config
-        // private void UpdateConfigV1(JsonObject json)
-        // {
-        //     StatusHudConfig config = new();
-
-        //     config.iconSize = json["iconSize"].AsInt(config.iconSize);
-        //     config.textSize = json["text"]["size"].AsInt(config.textSize);
-        // }
     }
 }
