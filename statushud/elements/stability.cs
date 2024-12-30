@@ -7,7 +7,7 @@ namespace StatusHud
     public class StatusHudStabilityElement : StatusHudElement
     {
         public new const string name = "Stability";
-        public new const string desc = $"The '{name}' element displays the temporal stability at the player's position if it is below 100%. Otherwise, it is hidden.";
+        public new const string desc = $"The '{name}' element displays the temporal stability at the player's position if it is below 150%. Otherwise, it is hidden.";
         protected const string textKey = "shud-stability";
 
         public override string ElementName => name;

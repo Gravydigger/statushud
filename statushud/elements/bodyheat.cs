@@ -6,7 +6,7 @@ namespace StatusHud
     public class StatusHudBodyheatElement : StatusHudElement
     {
         public new const string name = "Body heat";
-        public new const string desc = $"The '{name}' element displays the deviation of the player's ideal body heat (in C or F). If body heat is ideal, it is hidden.";
+        public new const string desc = $"The '{name}' element displays the player's current drop in body heat. If it is at normal body temperature (37°C), this element is hidden.";
         protected const string textKey = "shud-bodyheat";
 
         protected const float cfratio = 9f / 5f;
