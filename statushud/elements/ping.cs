@@ -8,8 +8,8 @@ namespace StatusHud
 {
     public class StatusHudPingElement : StatusHudElement
     {
-        public new const string name = "ping";
-        public new const string desc = "The 'ping' element displays your current ping to the server.";
+        public new const string name = "Ping";
+        public new const string desc = $"The '{name}' element displays your current ping to the server.";
         protected const string textKey = "shud-ping";
 
         public override string ElementName => name;

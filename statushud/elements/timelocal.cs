@@ -5,8 +5,8 @@ namespace StatusHud
 {
     public class StatusHudTimeLocalElement : StatusHudTimeElement
     {
-        public new const string name = "time-local";
-        public new const string desc = "The 'time-local' element displays the system's local time.";
+        public new const string name = "Time (Local)";
+        public new const string desc = $"The '{name}' element displays the system's local time.";
         protected new const string textKey = "shud-timelocal";
 
         private new string timeFormat;

@@ -5,8 +5,8 @@ namespace StatusHud
 {
     public class StatusHudDurabilityElement : StatusHudElement
     {
-        public new const string name = "durability";
-        public new const string desc = "The 'durability' element displays the selected item's remaining durability. If there is no durability, it is hidden.";
+        public new const string name = "Durability";
+        public new const string desc = $"The '{name}' element displays the selected item's remaining durability. If the item does not have durability, it is hidden.";
         protected const string textKey = "shud-durability";
 
         public override string ElementName => name;
@@ -35,8 +35,7 @@ namespace StatusHud
         {
             CollectibleObject item = system.capi.World.Player.InventoryManager.ActiveHotbarSlot?.Itemstack?.Collectible;
 
-            if (item != null
-                    && item.Durability != 0)
+            if (item != null && item.Durability != 0)
             {
                 renderer.SetText(item.GetRemainingDurability(system.capi.World.Player.InventoryManager.ActiveHotbarSlot.Itemstack).ToString());
                 active = true;

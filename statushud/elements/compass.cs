@@ -1,15 +1,14 @@
 using System;
 using Vintagestory.API.Client;
 using Vintagestory.API.MathTools;
-using Vintagestory.API.Util;
 using Vintagestory.GameContent;
 
 namespace StatusHud
 {
     public class StatusHudCompassElement : StatusHudElement
     {
-        public new const string name = "compass";
-        public new const string desc = "The 'compass' element displays the player's facing direction (in degrees) in relation to the north.";
+        public new const string name = "Compass";
+        public new const string desc = $"The '{name}' element displays the player's facing direction (in degrees) in relation to North.";
         protected const string textKey = "shud-compass";
 
         public static readonly string[] compassBearingOptions = { "Relative", "Absolute" };
@@ -25,7 +24,7 @@ namespace StatusHud
         {
             weatherSystem = this.system.capi.ModLoader.GetModSystem<WeatherSystemBase>();
 
-            renderer = new StatusHudCompassRenderer(this.system, this, config, compassBearing);
+            renderer = new StatusHudCompassRenderer(this.system, this, config);
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
             compassBearing = "Relative";
@@ -65,14 +64,12 @@ namespace StatusHud
     {
         protected StatusHudCompassElement element;
         protected StatusHudText text;
-        private string compassBearing;
 
         protected const float dirAdjust = 180 * GameMath.DEG2RAD;
 
-        public StatusHudCompassRenderer(StatusHudSystem system, StatusHudCompassElement element, StatusHudConfig config, string compassBearing) : base(system)
+        public StatusHudCompassRenderer(StatusHudSystem system, StatusHudCompassElement element, StatusHudConfig config) : base(system)
         {
             this.element = element;
-            this.compassBearing = compassBearing;
             text = new StatusHudText(this.system.capi, this.element.GetTextKey(), config);
         }
 
@@ -108,7 +105,7 @@ namespace StatusHud
 
             float angle = system.capi.World.Player.CameraYaw;
 
-            if (compassBearing == "Absolute")
+            if (element.ElementOption == "Absolute")
             {
                 // Show player's absolute direction instead of relation to north.
                 angle *= -1;

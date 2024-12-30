@@ -6,8 +6,8 @@ namespace StatusHud
 {
     public class StatusHudSleepElement : StatusHudElement
     {
-        public new const string name = "sleep";
-        public new const string desc = "The 'sleep' element displays a countdown until the next time the player is able to sleep. If the player can sleep, it is hidden.";
+        public new const string name = "Sleep";
+        public new const string desc = $"The '{name}' element displays a countdown until the next time the player is able to sleep. If the player can sleep, it is hidden.";
         protected const string textKey = "shud-sleep";
 
         public override string ElementName => name;

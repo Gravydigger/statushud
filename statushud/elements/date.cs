@@ -5,8 +5,8 @@ namespace StatusHud
 {
     public class StatusHudDateElement : StatusHudElement
     {
-        public new const string name = "date";
-        public new const string desc = "The 'date' element displays the current date and an icon for the current season.";
+        public new const string name = "Date";
+        public new const string desc = $"The '{name}' element displays the current date and an icon for the current season.";
         protected const string textKey = "shud-date";
 
         public override string ElementName => name;

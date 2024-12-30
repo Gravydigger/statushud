@@ -6,8 +6,8 @@ namespace StatusHud
 {
     public class StatusHudLatitudeElement : StatusHudElement
     {
-        public new const string name = "latitude";
-        public new const string desc = "The 'latitude' element displays the player's current latitude (in degrees).";
+        public new const string name = "Latitude";
+        public new const string desc = $"The '{name}' element displays the player's current latitude (in degrees).";
         protected const string textKey = "shud-latitude";
 
         public override string ElementName => name;

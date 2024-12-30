@@ -31,6 +31,16 @@ public class StatusHudConfigGui : GuiDialog
         const int vertOffset = 20;
         const int horzOffset = 25;
         int optionIndex = 0;
+        string tooltip = "";
+
+        foreach (Type type in StatusHudSystem.elementTypes)
+        {
+            if (type.GetField("name").GetValue(null).ToString() == selectedElementName)
+            {
+                tooltip = type.GetField("desc").GetValue(null).ToString();
+                break;
+            }
+        }
 
         StatusHudElement element = GetElementFromName(selectedElementName);
         // TODO: Update with GUI Scale
@@ -84,17 +94,17 @@ public class StatusHudConfigGui : GuiDialog
 
             switch (element.ElementName)
             {
-                case "time":
-                case "time-local":
+                case "Time":
+                case "Time (Local)":
                     options = StatusHudTimeElement.timeFormatWords;
                     break;
-                case "weather":
+                case "Weather":
                     options = StatusHudWeatherElement.tempFormatWords;
                     break;
-                case "bodyheat":
+                case "Body heat":
                     options = StatusHudBodyheatElement.tempFormatWords;
                     break;
-                case "compass":
+                case "Compass":
                     options = StatusHudCompassElement.compassBearingOptions;
                     break;
                 default:
@@ -119,7 +129,8 @@ public class StatusHudConfigGui : GuiDialog
         // Auto-sized dialog at the center of the screen
         ElementBounds dialogBounds = ElementStdBounds.AutosizedMainDialog.WithAlignment(EnumDialogArea.CenterMiddle);
 
-        // Lastly, create the dialog
+        if (SingleComposer != null) SingleComposer.Dispose();
+
         SingleComposer = capi.Gui.CreateCompo("statushudconfiggui", dialogBounds)
             .AddShadedDialogBG(ElementBounds.Fill)
             .AddInset(editingBgBounds, 0, 0.7f)
@@ -135,6 +146,7 @@ public class StatusHudConfigGui : GuiDialog
                 .AddToggleButton("Show Hidden Elements", CairoFont.ButtonText(), OnHidden, showHiddenButtonBounds)
                 .AddStaticText("Edit Element", CairoFont.ButtonText(), EnumTextOrientation.Center, moveElementTextBounds)
                 .AddDropDown(StatusHudSystem.elementNames, StatusHudSystem.elementNames, selectedElementIndex, OnSelectionChange, moveElementDropdownBounds)
+                .AddAutoSizeHoverText(tooltip, CairoFont.WhiteSmallText(), 400, moveElementDropdownBounds.FlatCopy())
                 .BeginChildElements(editingBgBounds)
                     .BeginChildElements(editingBounds)
                         // .AddToggleButton("Edit", CairoFont.ButtonText(), OnEdit, editElementPosButtonBounds, "editbutton")
@@ -144,19 +156,19 @@ public class StatusHudConfigGui : GuiDialog
                         .AddTextInput(xPosInputBounds, OnXPos, key: "shud-xpos")
                         .AddStaticTextAutoFontSize("Y Position", CairoFont.WhiteSmallishText(), yPosTextBounds)
                         .AddTextInput(yPosInputBounds, OnYPos, key: "shud-ypos")
-                        .AddIf(selectedElementName == "time" || selectedElementName == "time-local")
+                        .AddIf(selectedElementName == "Time" || selectedElementName == "Time (Local)")
                             .AddStaticText("Time Format", CairoFont.WhiteSmallText(), optionalConfigTextBounds)
                             .AddDropDown(StatusHudTimeElement.timeFormatWords, StatusHudTimeElement.timeFormatWords, optionIndex, OnOptionalConfig, optionalConfigDropdownBounds)
                         .EndIf()
-                        .AddIf(selectedElementName == "weather")
+                        .AddIf(selectedElementName == "Weather")
                             .AddStaticText("Temp Scale", CairoFont.WhiteSmallText(), optionalConfigTextBounds)
                             .AddDropDown(StatusHudWeatherElement.tempFormatWords, StatusHudWeatherElement.tempFormatWords, optionIndex, OnOptionalConfig, optionalConfigDropdownBounds)
                         .EndIf()
-                        .AddIf(selectedElementName == "bodyheat")
+                        .AddIf(selectedElementName == "Body heat")
                             .AddStaticText("Temp Scale", CairoFont.WhiteSmallText(), optionalConfigTextBounds)
                             .AddDropDown(StatusHudBodyheatElement.tempFormatWords, StatusHudBodyheatElement.tempFormatWords, optionIndex, OnOptionalConfig, optionalConfigDropdownBounds)
                         .EndIf()
-                        .AddIf(selectedElementName == "compass")
+                        .AddIf(selectedElementName == "Compass")
                             .AddStaticText("Direction", CairoFont.WhiteSmallishText(), optionalConfigTextBounds)
                             .AddDropDown(StatusHudCompassElement.compassBearingOptions, StatusHudCompassElement.compassBearingOptions, optionIndex, OnOptionalConfig, optionalConfigDropdownBounds)
                         .EndIf()
@@ -171,9 +183,6 @@ public class StatusHudConfigGui : GuiDialog
 
         SingleComposer.GetTextInput("shud-fontsize").SetValue(system.Config.textSize);
         SingleComposer.GetTextInput("shud-fontsize").SetPlaceHolderText("Font Size...");
-
-        // "altitude" is the first alphabetical element
-        // ReloadElementInputs(GetElementFromName("altitude"));
 
         // SingleComposer.GetToggleButton("editbutton").SetValue(true);
 
@@ -277,7 +286,7 @@ public class StatusHudConfigGui : GuiDialog
     {
         capi.Logger.Debug(StatusHudSystem.PrintModName("Saving configuration to disk"));
         system.SaveConfig();
-        
+
         return true;
     }
 

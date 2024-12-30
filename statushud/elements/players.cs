@@ -4,8 +4,8 @@ namespace StatusHud
 {
     public class StatusHudPlayersElement : StatusHudElement
     {
-        public new const string name = "players";
-        public new const string desc = "The 'players' element displays the number of players currently online.";
+        public new const string name = "Players";
+        public new const string desc = $"The '{name}' element displays the number of players currently online.";
         protected const string textKey = "shud-players";
 
         public override string ElementName => name;

@@ -29,7 +29,7 @@ namespace StatusHud
         protected const int slowListenInterval = 1000;
         protected const int fastListenInterval = 100;
 
-        protected static readonly Type[] elementTypes = {
+        public static readonly Type[] elementTypes = {
             typeof(StatusHudAltitudeElement),
             typeof(StatusHudArmourElement),
             typeof(StatusHudBodyheatElement),

@@ -7,8 +7,8 @@ namespace StatusHud
 {
     public class StatusHudTimeElement : StatusHudElement
     {
-        public new const string name = "time";
-        public new const string desc = "The 'time' element displays the current time and an icon for the position of the sun relative to the horizon.";
+        public new const string name = "Time";
+        public new const string desc = $"The '{name}' element displays the current time and an icon for the position of the sun relative to the horizon.";
         protected const string textKey = "shud-time";
         public static readonly string[] timeFormatWords = new string[] { "12hr", "24hr" };
 

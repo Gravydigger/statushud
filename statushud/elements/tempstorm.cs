@@ -8,8 +8,8 @@ namespace StatusHud
 {
     public class StatusHudTempstormElement : StatusHudElement
     {
-        public new const string name = "tempstorm";
-        public new const string desc = "The 'tempstorm' element displays a timer when a temporal storm is approaching or in progress. Otherwise, it is hidden.";
+        public new const string name = "Temporal Storm";
+        public new const string desc = $"The '{name}' element displays a timer when a temporal storm is approaching or is in progress. Otherwise, it is hidden.";
         protected const string textKey = "shud-tempstorm";
         protected const string harmonyId = "shud-tempstorm";
 
