@@ -9,22 +9,6 @@ namespace StatusHud
 {
     public class StatusHudSystem : ModSystem
     {
-        public const string halignWordLeft = "left";
-        public const string halignWordCenter = "center";
-        public const string halignWordRight = "right";
-        public const string valignWordTop = "top";
-        public const string valignWordMiddle = "middle";
-        public const string valignWordBottom = "bottom";
-        public static readonly string[] halignWords = new string[] { halignWordLeft, halignWordCenter, halignWordRight };
-        public static readonly string[] valignWords = new string[] { valignWordTop, valignWordMiddle, valignWordBottom };
-
-        public const string visWordShow = "show";
-        public const string visWordHide = "hide";
-        public static readonly string[] visWords = new string[] { visWordShow, visWordHide };
-
-        public static readonly string[] timeFormatWords = new string[] { "12hr", "24hr" };
-        public static readonly string[] tempScaleWords = new string[] { "C", "F", "K" };
-
         public const string domain = "statushudcont";
         protected const int slowListenInterval = 1000;
         protected const int fastListenInterval = 100;
@@ -53,9 +37,6 @@ namespace StatusHud
             typeof(StatusHudWindElement)
         };
         public static readonly string[] elementNames = InitElementNames();
-        protected static readonly string elementList = InitElementList();
-
-        private static readonly int slotMax = elementTypes.Length;
 
         private StatusHudConfigManager configManager;
         public StatusHudConfig Config => configManager.Config;
@@ -64,9 +45,10 @@ namespace StatusHud
         protected IList<StatusHudElement> slowElements;
         protected IList<StatusHudElement> fastElements;
         public StatusHudTextures textures;
-
         private GuiDialog dialog;
+
         private string uuid = null;
+        public string UUID => uuid;
         public bool ShowHidden => configManager.Config.showHidden;
 
         private StatusHudElement Instantiate(string name)
@@ -123,75 +105,6 @@ namespace StatusHud
 
             configManager.LoadElements(this);
 
-            capi.ChatCommands.Create("shud")
-                .WithDescription("Configure Status HUD")
-                    .BeginSubCommand("default")
-                        .WithDescription("Reset all elements to a default layout")
-                        .HandleWith(CmdDefault)
-                    .EndSubCommand()
-                    .BeginSubCommand("set")
-                        .WithDescription("Set status HUD element")
-                        .WithArgs(capi.ChatCommands.Parsers.IntRange("slot", 0, slotMax),
-                                capi.ChatCommands.Parsers.WordRange("element", StatusHudSystem.elementNames))
-                        .HandleWith(CmdSet)
-                    .EndSubCommand()
-                    .BeginSubCommand("unset")
-                        .WithDescription("Unset status HUD element")
-                        .WithArgs(capi.ChatCommands.Parsers.IntRange("slot", 0, slotMax))
-                        .HandleWith(CmdUnset)
-                    .EndSubCommand()
-                    .BeginSubCommand("clear")
-                        .WithDescription("Unset all status HUD elements")
-                        .HandleWith(CmdClear)
-                    .EndSubCommand()
-                    .BeginSubCommand("pos")
-                        .WithDescription("Set status HUD element's position")
-                        .WithArgs(capi.ChatCommands.Parsers.IntRange("slot", 0, slotMax),
-                                capi.ChatCommands.Parsers.WordRange("halign", StatusHudSystem.halignWords),
-                                capi.ChatCommands.Parsers.Int("x"),
-                                capi.ChatCommands.Parsers.WordRange("valign", StatusHudSystem.valignWords),
-                                capi.ChatCommands.Parsers.Int("y"))
-                        .HandleWith(CmdPos)
-                    .EndSubCommand()
-                    .BeginSubCommand("repos")
-                        .WithDescription("Reset status HUD element's position")
-                        .WithArgs(capi.ChatCommands.Parsers.IntRange("slot", 0, slotMax))
-                        .HandleWith(CmdRepos)
-                    .EndSubCommand()
-                    .BeginSubCommand("list")
-                        .WithDescription("List current status HUD elements")
-                        .HandleWith(CmdList)
-                    .EndSubCommand()
-                    .BeginSubCommand("info")
-                        .WithDescription("Show status HUD element info")
-                        .WithArgs(capi.ChatCommands.Parsers.WordRange("element", StatusHudSystem.elementNames))
-                        .HandleWith(CmdInfo)
-                    .EndSubCommand()
-                    .BeginSubCommand("hidden")
-                        .WithDescription("Show or hide hidden elements")
-                        .WithArgs(capi.ChatCommands.Parsers.WordRange("show/hide", StatusHudSystem.visWords))
-                        .HandleWith(CmdHidden)
-                    .EndSubCommand()
-                    // .BeginSubCommand("options")
-                    //     .WithDescription("Change how certian elements are displayed")
-                    //     .BeginSubCommand("timeformat")
-                    //         .WithDescription("Change clock elements to 12-hour or 24-hour time")
-                    //         .WithArgs(capi.ChatCommands.Parsers.WordRange("12hr/24hr", StatusHudSystem.timeFormatWords))
-                    //         .HandleWith(CmdTimeFormat)
-                    //         .EndSubCommand()
-                    //     .BeginSubCommand("tempscale")
-                    //         .WithDescription("Change temperature scale to °C, °F, or °K")
-                    //         .WithArgs(capi.ChatCommands.Parsers.WordRange("C/F/K", tempScaleWords))
-                    //         .HandleWith(CmdTempScale)
-                    //         .EndSubCommand()
-                    // .EndSubCommand()
-                    .BeginSubCommand("help")
-                        .WithDescription("Show status HUD command help")
-                        .HandleWith(CmdHelp)
-                    .EndSubCommand();
-#if DEBUG
-            capi.ChatCommands.GetOrCreate("shud").BeginSubCommand("reload").HandleWith(CmdReload);
-#endif
             slowListenerId = this.capi.Event.RegisterGameTickListener(SlowTick, slowListenInterval);
             fastListenerId = this.capi.Event.RegisterGameTickListener(FastTick, fastListenInterval);
 
@@ -229,6 +142,7 @@ namespace StatusHud
             }
 
             textures.Dispose();
+            dialog.Dispose();
             capi.Event.PlayerJoin -= SetUUID;
         }
 
@@ -380,217 +294,6 @@ namespace StatusHud
             return true;
         }
 
-        public string UUID { get { return uuid; } }
-
-        protected TextCommandResult CmdDefault(TextCommandCallingArgs args)
-        {
-            InstallDefault();
-
-            SaveConfig();
-            return TextCommandResult.Success(PrintModName("Default layout set."));
-        }
-
-        protected TextCommandResult CmdSet(TextCommandCallingArgs args)
-        {
-            int slot = (int)args[0];
-            string element = (string)args[1];
-
-            if (slot == 0)
-            {
-                return TextCommandResult.Error(PrintModName("Error: # must be positive or negative."));
-            }
-
-            Set(element);
-            elements[slot].Ping();
-
-            SaveConfig();
-            return TextCommandResult.Success(PrintModName("Element #" + slot + " set to: " + element));
-        }
-
-        protected TextCommandResult CmdUnset(TextCommandCallingArgs args)
-        {
-            string name = (string)args[0];
-
-            if (!Unset(name))
-            {
-                return TextCommandResult.Error(PrintModName("Error: # must be positive or negative."));
-            }
-
-            SaveConfig();
-            return TextCommandResult.Success(PrintModName("Element #" + name + " unset."));
-        }
-
-        protected TextCommandResult CmdClear(TextCommandCallingArgs args)
-        {
-            Clear();
-
-            SaveConfig();
-            return TextCommandResult.Success(PrintModName("All elements unset."));
-        }
-
-        protected TextCommandResult CmdPos(TextCommandCallingArgs args)
-        {
-            string name = (string)args[0];
-            string halignWord = (string)args[1];
-            int x = (int)args[2];
-            string valignWord = (string)args[3];
-            int y = (int)args[4];
-
-            foreach (var element in elements)
-            {
-                if (element.ElementName == name)
-                {
-                    int halign = HalignFromWord(halignWord);
-                    int valign = ValignFromWord(valignWord);
-
-                    Pos(element, halign, x, valign, y);
-                    element.Ping();
-                    SaveConfig();
-                    return TextCommandResult.Success(PrintModName("#" + name + " position set."));
-                }
-            }
-
-            return TextCommandResult.Error(PrintModName("Error: No element at #" + name + "."));
-        }
-
-        protected TextCommandResult CmdRepos(TextCommandCallingArgs args)
-        {
-            string name = (string)args[0];
-
-            foreach (var element in elements)
-            {
-                if (element.ElementName == name)
-                {
-                    element.Repos();
-                    element.Ping();
-
-                    SaveConfig();
-                    return TextCommandResult.Success(PrintModName("#" + name + " position reset."));
-                }
-            }
-
-            return TextCommandResult.Error(PrintModName("Error: No element at #" + name + "."));
-        }
-
-        protected TextCommandResult CmdList(TextCommandCallingArgs args)
-        {
-            StringBuilder sb = new();
-            sb.Append("Current elements:\n");
-
-            foreach (var element in elements)
-            {
-                sb.Append('[');
-                sb.Append(element.ElementName);
-                sb.Append("] ");
-                sb.Append('\n');
-            }
-            return TextCommandResult.Success(PrintModName(sb.ToString()));
-        }
-
-        protected static TextCommandResult CmdInfo(TextCommandCallingArgs args)
-        {
-            string element = (string)args[0];
-            string message = null;
-
-
-
-            foreach (Type type in elementTypes)
-            {
-                if (type.GetField("name").GetValue(null).ToString() == element)
-                {
-                    message = type.GetField("desc").GetValue(null).ToString();
-                    break;
-                }
-            }
-
-            if (message == null)
-            {
-                message = "Invalid element. Try: " + elementList;
-            }
-
-
-
-            return TextCommandResult.Success(PrintModName(message));
-        }
-
-        protected TextCommandResult CmdHidden(TextCommandCallingArgs args)
-        {
-            string vis = (string)args[0];
-            string message = null;
-
-            switch (vis)
-            {
-                case visWordShow:
-                    {
-                        message = "Showing hidden elements.";
-                        Config.showHidden = true;
-                        break;
-                    }
-                case visWordHide:
-                    {
-                        message = "Hiding hidden elements.";
-                        Config.showHidden = false;
-                        break;
-                    }
-            }
-
-            SaveConfig();
-            return TextCommandResult.Success(PrintModName(message));
-        }
-
-        // protected TextCommandResult CmdTimeFormat(TextCommandCallingArgs args)
-        // {
-        //     string timeFormat = (string)args[0];
-
-        //     Config.options.timeFormat = timeFormat;
-
-        //     string message = "Time format now set to " + timeFormat + " time";
-
-        //     return TextCommandResult.Success(PrintModName(message));
-        // }
-
-        // protected TextCommandResult CmdTempScale(TextCommandCallingArgs args)
-        // {
-        //     string tempScale = (string)args[0];
-
-        //     Config.options.temperatureScale = tempScale[0];
-
-        //     string message = "Temperature scale now set to °" + tempScale;
-
-        //     SaveConfig();
-        //     return TextCommandResult.Success(PrintModName(message));
-        // }
-
-        protected static TextCommandResult CmdHelp(TextCommandCallingArgs args)
-        {
-            string message = "[Status HUD] Instructions:\n"
-                    + "To use the default layout, use:\t.shud default\n"
-                    + "To set an element, use:\t.shud set [#] [element]\n"
-                    + "To unset an element, use:\t.shud unset [#]\n"
-                    + "To unset all elements, use:\t.shud clear\n"
-                    + "To change an element's position, use:\t.shud pos [#] [left, center, right] x [top, middle, bottom] y\n"
-                    + "To reset an element's position, use:\t.shud repos [#]\n"
-                    + "To list current elements, use:\t.shud list\n"
-                    + "To view an element's description, use:\t.shud info [element]\n"
-                    + "To show or hide hidden elements, use:\t.shud hidden [show, hide]\n"
-                    + "To configure element's options, use:\t.shud options [option] [value]"
-                    + "\n"
-                    + "[#] is a non-zero number between 0 and " + slotMax + ".\n"
-                    + "[element] is one of the following:\t" + elementList;
-
-            return TextCommandResult.Success(message);
-        }
-
-#if DEBUG
-        protected TextCommandResult CmdReload(TextCommandCallingArgs args)
-        {
-            string message = "Elements Reloaded";
-
-            Reload();
-
-            return TextCommandResult.Success(PrintModName(message));
-        }
-#endif
         public void InstallDefault()
         {
             Clear();
@@ -628,7 +331,7 @@ namespace StatusHud
             configManager.Save();
         }
 
-        protected static string[] InitElementNames()
+        private static string[] InitElementNames()
         {
             List<string> names = new();
 
@@ -638,42 +341,6 @@ namespace StatusHud
             }
 
             return names.OrderBy(name => name).ToArray();
-        }
-
-        protected static string InitElementList()
-        {
-            StringBuilder sb = new();
-            sb.Append('[');
-            sb.Append(StatusHudSystem.elementNames[0]);
-            for (int i = 1; i < StatusHudSystem.elementTypes.Length; i++)
-            {
-                sb.Append(", ");
-                sb.Append(StatusHudSystem.elementNames[i]);
-            }
-            sb.Append(']');
-            return sb.ToString();
-        }
-
-        protected static int HalignFromWord(string word)
-        {
-            return word switch
-            {
-                halignWordLeft => StatusHudPos.halignLeft,
-                halignWordCenter => StatusHudPos.halignCenter,
-                halignWordRight => StatusHudPos.halignRight,
-                _ => 0,
-            };
-        }
-
-        protected static int ValignFromWord(string word)
-        {
-            return word switch
-            {
-                valignWordTop => StatusHudPos.valignTop,
-                valignWordMiddle => StatusHudPos.valignMiddle,
-                valignWordBottom => StatusHudPos.valignBottom,
-                _ => 0,
-            };
         }
     }
 }
