@@ -30,6 +30,7 @@ public class StatusHudConfigGui : GuiDialog
         const int titleBarHeight = 25;
         const int vertOffset = 20;
         const int horzOffset = 25;
+        int optionIndex = 0;
 
         StatusHudElement element = GetElementFromName(selectedElementName);
         // TODO: Update with GUI Scale
@@ -71,13 +72,37 @@ public class StatusHudConfigGui : GuiDialog
         ElementBounds editingBounds = ElementBounds.Fill.WithFixedPadding(10);
         editingBounds.BothSizing = ElementSizing.FitToChildren;
 
-        if (element.ElementOption != "")
+        if (element == null || element.ElementOption == "")
         {
-            editingBounds.WithChildren(enableElementButtonBounds, alignElementDropdownBounds, xPosInputBounds, xPosInputBounds, yPosTextBounds, yPosInputBounds, optionalConfigTextBounds, optionalConfigDropdownBounds);
+            editingBounds.WithChildren(enableElementButtonBounds, alignElementDropdownBounds, xPosInputBounds, xPosInputBounds, yPosTextBounds, yPosInputBounds);
         }
         else
         {
-            editingBounds.WithChildren(enableElementButtonBounds, alignElementDropdownBounds, xPosInputBounds, xPosInputBounds, yPosTextBounds, yPosInputBounds);
+            editingBounds.WithChildren(enableElementButtonBounds, alignElementDropdownBounds, xPosInputBounds, xPosInputBounds, yPosTextBounds, yPosInputBounds, optionalConfigTextBounds, optionalConfigDropdownBounds);
+
+            string[] options = Array.Empty<string>();
+
+            switch (element.ElementName)
+            {
+                case "time":
+                case "time-local":
+                    options = StatusHudTimeElement.timeFormatWords;
+                    break;
+                case "weather":
+                    options = StatusHudWeatherElement.tempFormatWords;
+                    break;
+                case "bodyheat":
+                    options = StatusHudBodyheatElement.tempFormatWords;
+                    break;
+                case "compass":
+                    options = StatusHudCompassElement.compassBearingOptions;
+                    break;
+                default:
+                    capi.Logger.Warning(StatusHudSystem.PrintModName($"Tried to get config options from {element.ElementName}, but it doesn't have any!"));
+                    break;
+            }
+
+            optionIndex = options.IndexOf(element.ElementOption);
         }
 
         // Create Element Editing Group Background
@@ -121,19 +146,19 @@ public class StatusHudConfigGui : GuiDialog
                         .AddTextInput(yPosInputBounds, OnYPos, key: "shud-ypos")
                         .AddIf(selectedElementName == "time" || selectedElementName == "time-local")
                             .AddStaticText("Time Format", CairoFont.WhiteSmallText(), optionalConfigTextBounds)
-                            .AddDropDown(StatusHudTimeElement.timeFormatWords, StatusHudTimeElement.timeFormatWords, StatusHudTimeElement.timeFormatWords.IndexOf(element.ElementOption), OnOptionalConfig, optionalConfigDropdownBounds)
+                            .AddDropDown(StatusHudTimeElement.timeFormatWords, StatusHudTimeElement.timeFormatWords, optionIndex, OnOptionalConfig, optionalConfigDropdownBounds)
                         .EndIf()
                         .AddIf(selectedElementName == "weather")
                             .AddStaticText("Temp Scale", CairoFont.WhiteSmallText(), optionalConfigTextBounds)
-                            .AddDropDown(StatusHudWeatherElement.tempFormatWords, StatusHudWeatherElement.tempFormatWords, StatusHudWeatherElement.tempFormatWords.IndexOf(element.ElementOption), OnOptionalConfig, optionalConfigDropdownBounds)
+                            .AddDropDown(StatusHudWeatherElement.tempFormatWords, StatusHudWeatherElement.tempFormatWords, optionIndex, OnOptionalConfig, optionalConfigDropdownBounds)
                         .EndIf()
                         .AddIf(selectedElementName == "bodyheat")
                             .AddStaticText("Temp Scale", CairoFont.WhiteSmallText(), optionalConfigTextBounds)
-                            .AddDropDown(StatusHudBodyheatElement.tempFormatWords, StatusHudBodyheatElement.tempFormatWords, StatusHudBodyheatElement.tempFormatWords.IndexOf(element.ElementOption), OnOptionalConfig, optionalConfigDropdownBounds)
+                            .AddDropDown(StatusHudBodyheatElement.tempFormatWords, StatusHudBodyheatElement.tempFormatWords, optionIndex, OnOptionalConfig, optionalConfigDropdownBounds)
                         .EndIf()
                         .AddIf(selectedElementName == "compass")
-                            .AddStaticText("Direction", CairoFont.WhiteSmallText(), optionalConfigTextBounds)
-                            .AddDropDown(StatusHudCompassElement.compassBearingOptions, StatusHudCompassElement.compassBearingOptions, StatusHudCompassElement.compassBearingOptions.IndexOf(element.ElementOption), OnOptionalConfig, optionalConfigDropdownBounds)
+                            .AddStaticText("Direction", CairoFont.WhiteSmallishText(), optionalConfigTextBounds)
+                            .AddDropDown(StatusHudCompassElement.compassBearingOptions, StatusHudCompassElement.compassBearingOptions, optionIndex, OnOptionalConfig, optionalConfigDropdownBounds)
                         .EndIf()
                     .EndChildElements()
                 .EndChildElements()
@@ -196,7 +221,7 @@ public class StatusHudConfigGui : GuiDialog
             switch (element.pos.valign)
             {
                 case -1:
-                    switch (element.pos.valign)
+                    switch (element.pos.halign)
                     {
                         case -1:
                             value = "Top Left";
@@ -210,7 +235,7 @@ public class StatusHudConfigGui : GuiDialog
                     }
                     break;
                 case 0:
-                    switch (element.pos.valign)
+                    switch (element.pos.halign)
                     {
                         case -1:
                             value = "Center Left";
@@ -224,7 +249,7 @@ public class StatusHudConfigGui : GuiDialog
                     }
                     break;
                 case 1:
-                    switch (element.pos.valign)
+                    switch (element.pos.halign)
                     {
                         case -1:
                             value = "Bottom Left";
@@ -252,6 +277,7 @@ public class StatusHudConfigGui : GuiDialog
     {
         capi.Logger.Debug(StatusHudSystem.PrintModName("Saving configuration to disk"));
         system.SaveConfig();
+        
         return true;
     }
 
@@ -268,6 +294,8 @@ public class StatusHudConfigGui : GuiDialog
     {
         capi.Logger.Debug(StatusHudSystem.PrintModName("Restoring configuration from disk"));
         system.LoadConfig();
+        ReloadElementInputs(GetElementFromName(selectedElementName));
+
         return true;
     }
 
@@ -345,52 +373,59 @@ public class StatusHudConfigGui : GuiDialog
         capi.Logger.Debug(StatusHudSystem.PrintModName($"Element {name} selected"));
     }
 
+    private Vec2i AlignmentNameToValues(string name)
+    {
+        Vec2i align = new();
+
+        switch (name)
+        {
+            case "Top Left":
+                align.Y = -1;
+                align.X = -1;
+                break;
+            case "Top Center":
+                align.Y = -1;
+                align.X = 0;
+                break;
+            case "Top Right":
+                align.Y = -1;
+                align.X = 1;
+                break;
+            case "Center Left":
+                align.Y = 0;
+                align.X = -1;
+                break;
+            case "Center Right":
+                align.Y = 0;
+                align.X = 1;
+                break;
+            case "Bottom Left":
+                align.Y = 1;
+                align.X = -1;
+                break;
+            case "Bottom Center":
+                align.Y = 1;
+                align.X = 0;
+                break;
+            case "Bottom Right":
+                align.Y = 1;
+                align.X = 1;
+                break;
+            default: // "True Center"
+                align.Y = 0;
+                align.X = 0;
+                break;
+        }
+        return align;
+    }
+
     private void OnAlignChange(string name, bool selected)
     {
         StatusHudElement element = GetElementFromName(selectedElementName);
         if (element == null) return;
 
-        switch (name)
-        {
-            case "Top Left":
-                element.pos.valign = -1;
-                element.pos.halign = -1;
-                break;
-            case "Top Center":
-                element.pos.valign = -1;
-                element.pos.halign = 0;
-                break;
-            case "Top Right":
-                element.pos.valign = -1;
-                element.pos.halign = 1;
-                break;
-            case "Center Left":
-                element.pos.valign = 0;
-                element.pos.halign = -1;
-                break;
-            case "True Center":
-                element.pos.valign = 0;
-                element.pos.halign = 0;
-                break;
-            case "Center Right":
-                element.pos.valign = 0;
-                element.pos.halign = 1;
-                break;
-            case "Bottom Left":
-                element.pos.valign = 1;
-                element.pos.halign = -1;
-                break;
-            case "Bottom Center":
-                element.pos.valign = 1;
-                element.pos.halign = 0;
-                break;
-            case "Bottom Right":
-                element.pos.valign = 1;
-                element.pos.halign = 1;
-                break;
-            default:
-                break;
-        }
+        Vec2i align = AlignmentNameToValues(name);
+        element.Pos(align.X, element.pos.x, align.Y, element.pos.y);
 
         capi.Logger.Debug(StatusHudSystem.PrintModName($"Element {selectedElementName} set to {name} alignment"));
     }
@@ -423,8 +458,14 @@ public class StatusHudConfigGui : GuiDialog
     {
         if (on)
         {
-            system.Set(selectedElementName);
+            StatusHudElement element = system.Set(selectedElementName);
             capi.Logger.Debug(StatusHudSystem.PrintModName($"Enabling Element {selectedElementName}"));
+
+            int x = SingleComposer.GetTextInput("shud-xpos").GetText().ToInt(0);
+            int y = SingleComposer.GetTextInput("shud-ypos").GetText().ToInt(0);
+            Vec2i align = AlignmentNameToValues(SingleComposer.GetDropDown("shud-align").SelectedValue);
+
+            element.Pos(align.X, x, align.Y, y);
         }
         else
         {
