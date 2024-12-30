@@ -310,14 +310,14 @@ public class StatusHudConfigGui : GuiDialog
 
     private void OnIconSize(string value)
     {
-        system.Config.iconSize = SanitiseIconInt(value, system.Config.iconSize);
+        system.Config.iconSize = Math.Max(0, SanitiseIconInt(value, system.Config.iconSize));
         system.Reload();
         capi.Logger.Debug(StatusHudSystem.PrintModName($"Icon size changed to {system.Config.iconSize}"));
     }
 
     private void OnFontSize(string value)
     {
-        system.Config.textSize = SanitiseIconInt(value, system.Config.textSize);
+        system.Config.textSize = Math.Clamp(SanitiseIconInt(value, system.Config.textSize), 0, system.Config.iconSize);
         system.Reload();
         capi.Logger.Debug(StatusHudSystem.PrintModName($"Font size changed to {system.Config.textSize}"));
     }

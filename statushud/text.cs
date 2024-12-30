@@ -11,14 +11,12 @@ namespace StatusHud
         private readonly string key;
         private readonly StatusHudConfig config;
         private readonly Vec4f colour = new(0.91f, 0.87f, 0.81f, 1);
-        private readonly float width;
-        private readonly float height;
+        private float width;
+        private float height;
 
         private readonly string dialogName;
         private CairoFont font;
         private GuiElementDynamicText text;
-
-        private bool composed;
 
         public override EnumDialogType DialogType => EnumDialogType.HUD;
         public override bool Focusable => false;
@@ -29,13 +27,11 @@ namespace StatusHud
             this.key = key;
             this.config = config;
 
-            width = this.config.iconSize * 3;
-            height = this.config.iconSize;
+            // width = this.config.iconSize * 3;
+            // height = this.config.iconSize;
 
             dialogName = dialogNamePrefix + this.key;
             font = InitFont();
-
-            composed = false;
         }
 
         public override void Dispose()
@@ -130,6 +126,8 @@ namespace StatusHud
             float iconHalf = config.iconSize / 2f;
             float frameWidth = capi.Render.FrameWidth;
             float frameHeight = capi.Render.FrameHeight;
+            width = config.iconSize * 3;
+            height = config.iconSize;
             // While boundaryScale shouldn't need to be set to anything other than 1f,
             // the center alignment seems to leave the screen way before it would hit the actual frame.
             // 0.8f seems to be the right scale to fix this issue.
@@ -193,13 +191,9 @@ namespace StatusHud
         protected void Compose(EnumDialogArea area, float x, float y)
         {
             const int offsetX = 0;
-            const int offsetY = -19;
+            int offsetY = -config.textSize;
 
-            if (composed)
-            {
-                Dispose();
-            }
-
+            if (SingleComposer != null) SingleComposer.Dispose();
             ElementBounds dialogBounds = ElementBounds.Fixed(area, x + offsetX, y + offsetY, width, height);
             ElementBounds textBounds = ElementBounds.Fixed(EnumDialogArea.CenterTop, 0, 0, width, height);
             SingleComposer = capi.Gui.CreateCompo(dialogName, dialogBounds)
@@ -207,8 +201,6 @@ namespace StatusHud
                     .Compose();
             text = SingleComposer.GetDynamicText(key);
             TryOpen();
-
-            composed = true;
         }
 
         protected virtual CairoFont InitFont()
