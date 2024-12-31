@@ -6,7 +6,7 @@ namespace StatusHud
     public class StatusHudLightElement : StatusHudElement
     {
         public new const string name = "Light";
-        public new const string desc = $"The '{name}' element displays the hovered block's light level. If no block is being hovered over, it is hidden.";
+        public new const string desc = $"The '{name}' element displays the targeted block's light level. If no block is being targeted, it is hidden.";
         protected const string textKey = "shud-light";
 
         public override string ElementName => name;

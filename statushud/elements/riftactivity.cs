@@ -9,7 +9,7 @@ namespace StatusHud
     public class StatusHudRiftActivityElement : StatusHudElement
     {
         public new const string name = "Rift Activity";
-        public new const string desc = $"The '{name}' element displays the current rift activity, varifying from calm to apocalyptic. Is hidden when rifts are disabled.";
+        public new const string desc = $"The '{name}' element displays the time until next rift activity, and an icon for the current rift activity, varifying from calm to apocalyptic. Is hidden when rifts are disabled.";
         protected const string textKey = "shud-riftactivity";
         protected const string harmonyId = "shud-riftactivity";
 
@@ -18,28 +18,29 @@ namespace StatusHud
         public int textureId;
         public bool active;
 
-        protected ModSystemRiftWeather riftSystem;
-        protected StatusHudRiftAvtivityRenderer renderer;
-        protected Harmony harmony;
+        private ModSystemRiftWeather riftSystem;
+        private StatusHudRiftActivityRenderer renderer;
+        private Harmony harmony;
 
-        protected static CurrentPattern riftActivityData;
+        private static CurrentPattern riftActivityData;
 
         public StatusHudRiftActivityElement(StatusHudSystem system, StatusHudConfig config) : base(system)
         {
             riftSystem = this.system.capi.ModLoader.GetModSystem<ModSystemRiftWeather>();
 
-
-            renderer = new StatusHudRiftAvtivityRenderer(system, this, config);
+            renderer = new StatusHudRiftActivityRenderer(system, this, config);
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
-            textureId = this.system.textures.texturesDict["empty"].TextureId;
+            // When a player first activates this element when already in a world, the element hasn't gotten the rift data yet.
+            // Until the player gets rift data, show the element with the unknown icon
+            textureId = this.system.textures.texturesDict["rift_unknown"].TextureId;
 
             active = this.system.capi.World.Config.GetString("temporalRifts") != "off";
 
             // World has to be reloaded for changes to apply
             harmony = new Harmony(harmonyId);
             harmony.Patch(typeof(ModSystemRiftWeather).GetMethod("onPacket", BindingFlags.Instance | BindingFlags.NonPublic),
-                    postfix: new HarmonyMethod(typeof(StatusHudRiftActivityElement).GetMethod(nameof(StatusHudRiftActivityElement.ReceiveData))));
+                    postfix: new HarmonyMethod(typeof(StatusHudRiftActivityElement).GetMethod(nameof(ReceiveData))));
 
             if (!active)
             {
@@ -106,13 +107,13 @@ namespace StatusHud
         }
     }
 
-    public class StatusHudRiftAvtivityRenderer : StatusHudRenderer
+    public class StatusHudRiftActivityRenderer : StatusHudRenderer
     {
         protected StatusHudRiftActivityElement element;
 
         protected StatusHudText text;
 
-        public StatusHudRiftAvtivityRenderer(StatusHudSystem system, StatusHudRiftActivityElement element, StatusHudConfig config) : base(system)
+        public StatusHudRiftActivityRenderer(StatusHudSystem system, StatusHudRiftActivityElement element, StatusHudConfig config) : base(system)
         {
             this.element = element;
 
@@ -137,16 +138,14 @@ namespace StatusHud
 
         protected override void Render()
         {
-            if (!element.active)
+            if (element.active)
             {
-                if (system.ShowHidden)
-                {
-                    this.RenderHidden(system.textures.texturesDict["rift_calm"].TextureId);
-                }
-                return;
+                system.capi.Render.RenderTexture(element.textureId, x, y, w, h);
             }
-
-            system.capi.Render.RenderTexture(element.textureId, x, y, w, h);
+            else if (system.ShowHidden)
+            {
+                RenderHidden(system.textures.texturesDict["rift_calm"].TextureId);
+            }
         }
 
         public override void Dispose()
