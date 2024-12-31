@@ -1,4 +1,5 @@
 using System;
+using System.Net.Http;
 using StatusHud;
 using Vintagestory.API.Client;
 using Vintagestory.API.MathTools;
@@ -284,26 +285,35 @@ public class StatusHudConfigGui : GuiDialog
 
     private bool OnSave()
     {
-        capi.Logger.Debug(StatusHudSystem.PrintModName("Saving configuration to disk"));
         system.SaveConfig();
+
+        string message = StatusHudSystem.PrintModName("Saved HUD to disk");
+        capi.ShowChatMessage(message);
+        capi.Logger.Debug(message);
 
         return true;
     }
 
     private bool OnDefault()
     {
-        capi.Logger.Debug(StatusHudSystem.PrintModName("Setting configuration to default layout"));
         system.InstallDefault();
         ReloadElementInputs(GetElementFromName(selectedElementName));
+
+        string message = StatusHudSystem.PrintModName("HUD set to default layout");
+        capi.ShowChatMessage(message);
+        capi.Logger.Debug(message);
 
         return true;
     }
 
     private bool OnRestore()
     {
-        capi.Logger.Debug(StatusHudSystem.PrintModName("Restoring configuration from disk"));
         system.LoadConfig();
         ReloadElementInputs(GetElementFromName(selectedElementName));
+
+        string message = StatusHudSystem.PrintModName("HUD restored from disk");
+        capi.ShowChatMessage(message);
+        capi.Logger.Debug(message);
 
         return true;
     }
@@ -465,21 +475,26 @@ public class StatusHudConfigGui : GuiDialog
 
     private void OnEnable(bool on)
     {
+        string message;
+
         if (on)
         {
             StatusHudElement element = system.Set(selectedElementName);
-            capi.Logger.Debug(StatusHudSystem.PrintModName($"Enabling Element {selectedElementName}"));
 
             int x = SingleComposer.GetTextInput("shud-xpos").GetText().ToInt(0);
             int y = SingleComposer.GetTextInput("shud-ypos").GetText().ToInt(0);
             Vec2i align = AlignmentNameToValues(SingleComposer.GetDropDown("shud-align").SelectedValue);
-
             element.Pos(align.X, x, align.Y, y);
+
+            message = StatusHudSystem.PrintModName($"Element {selectedElementName} created");
         }
         else
         {
             system.Unset(selectedElementName);
-            capi.Logger.Debug(StatusHudSystem.PrintModName($"Disabling Element {selectedElementName}"));
+            message = StatusHudSystem.PrintModName($"Element {selectedElementName} removed");
         }
+
+        capi.ShowChatMessage(message);
+        capi.Logger.Debug(message);
     }
 }
