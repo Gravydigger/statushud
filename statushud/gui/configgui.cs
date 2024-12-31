@@ -1,5 +1,4 @@
 using System;
-using System.Net.Http;
 using StatusHud;
 using Vintagestory.API.Client;
 using Vintagestory.API.MathTools;
