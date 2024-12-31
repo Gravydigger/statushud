@@ -70,10 +70,11 @@ namespace StatusHud
 
         protected override void Render()
         {
-            Entity mount = system.capi.World.Player.Entity.MountedOn?.MountSupplier as Entity;
+            Entity mount = system.capi.World.Player.Entity.MountedOn?.Entity;
+
             if (mount != null)
             {
-                text.Set(((int)Math.Round(mount.Pos.Motion.Length() * 1000, 0) / 10f).ToString());
+                text.Set(((int)Math.Round(mount.Pos.Motion.Length() * 1000) / 10f).ToString());
             }
             else
             {
