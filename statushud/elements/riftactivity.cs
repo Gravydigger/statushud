@@ -2,6 +2,7 @@ using System;
 using System.Reflection;
 using HarmonyLib;
 using Vintagestory.API.Client;
+using Vintagestory.API.Util;
 using Vintagestory.GameContent;
 
 namespace StatusHud
@@ -13,7 +14,11 @@ namespace StatusHud
         protected const string textKey = "shud-riftactivity";
         protected const string harmonyId = "shud-riftactivity";
 
+        public static readonly string[] riftChangeOptions = { "True", "False" };
+        private string showRiftChange;
+
         public override string ElementName => name;
+        public override string ElementOption => showRiftChange;
 
         public int textureId;
         public bool active;
@@ -36,6 +41,8 @@ namespace StatusHud
             textureId = this.system.textures.texturesDict["rift_unknown"].TextureId;
 
             active = this.system.capi.World.Config.GetString("temporalRifts") != "off";
+
+            showRiftChange = "false";
 
             // World has to be reloaded for changes to apply
             harmony = new Harmony(harmonyId);
@@ -63,6 +70,18 @@ namespace StatusHud
             return textKey;
         }
 
+        public override void ConfigOptions(string value)
+        {
+            if (value.ToLower().ToBool())
+            {
+                showRiftChange = "True";
+            }
+            else
+            {
+                showRiftChange = "False";
+            }
+        }
+
         public override void Tick()
         {
             if (!active)
@@ -75,13 +94,21 @@ namespace StatusHud
                 return;
             }
 
-            double hours = system.capi.World.Calendar.TotalHours;
-            double nextRiftChange = Math.Max(riftActivityData.UntilTotalHours - hours, 0);
+            if (showRiftChange.ToLower().ToBool())
+            {
+                double hours = system.capi.World.Calendar.TotalHours;
+                double nextRiftChange = Math.Max(riftActivityData.UntilTotalHours - hours, 0);
 
-            TimeSpan ts = TimeSpan.FromHours(nextRiftChange);
-            string text = (int)nextRiftChange + ":" + ts.ToString("mm");
+                TimeSpan ts = TimeSpan.FromHours(nextRiftChange);
+                string text = (int)nextRiftChange + ":" + ts.ToString("mm");
 
-            renderer.SetText(text);
+                renderer.SetText(text);
+            }
+            else
+            {
+                renderer.SetText("");
+            }
+
             updateTexture(riftActivityData.Code);
         }
 
