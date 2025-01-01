@@ -129,7 +129,7 @@ public class StatusHudConfigGui : GuiDialog
         // Auto-sized dialog at the center of the screen
         ElementBounds dialogBounds = ElementStdBounds.AutosizedMainDialog.WithAlignment(EnumDialogArea.CenterMiddle);
 
-        if (SingleComposer != null) SingleComposer.Dispose();
+        SingleComposer?.Dispose();
 
         SingleComposer = capi.Gui.CreateCompo("statushudconfiggui", dialogBounds)
             .AddShadedDialogBG(ElementBounds.Fill)
@@ -143,7 +143,7 @@ public class StatusHudConfigGui : GuiDialog
                 .AddTextInput(iconSizeInputBounds, OnIconSize, key: "shud-iconsize")
                 .AddStaticTextAutoFontSize("Font Size", CairoFont.WhiteSmallishText(), fontSizeTextBounds)
                 .AddTextInput(fontSizeInputBounds, OnFontSize, key: "shud-fontsize")
-                .AddToggleButton("Show Hidden Elements", CairoFont.ButtonText(), OnHidden, showHiddenButtonBounds)
+                .AddToggleButton("Show Hidden Elements", CairoFont.ButtonText(), OnHidden, showHiddenButtonBounds, "shud-hidden")
                 .AddStaticText("Edit Element", CairoFont.ButtonText(), EnumTextOrientation.Center, moveElementTextBounds)
                 .AddDropDown(StatusHudSystem.elementNames, StatusHudSystem.elementNames, selectedElementIndex, OnSelectionChange, moveElementDropdownBounds)
                 .AddAutoSizeHoverText(tooltip, CairoFont.WhiteSmallText(), 400, moveElementDropdownBounds.FlatCopy())
@@ -275,6 +275,8 @@ public class StatusHudConfigGui : GuiDialog
 
             SingleComposer.GetDropDown("shud-align").SetSelectedValue(value);
         }
+
+        SingleComposer.GetToggleButton("shud-hidden").SetValue(system.Config.showHidden);
     }
 
     private void OnTitleBarCloseClicked()
