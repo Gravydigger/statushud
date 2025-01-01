@@ -1,6 +1,7 @@
 using System;
 using StatusHud;
 using Vintagestory.API.Client;
+using Vintagestory.API.Config;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Util;
 
@@ -17,6 +18,7 @@ public class StatusHudConfigGui : GuiDialog
 
     public StatusHudConfigGui(ICoreClientAPI capi, StatusHudSystem system) : base(capi)
     {
+            Lang.Get("statushudcont:Top Left");
         this.system = system;
 
         selectedElementName = StatusHudSystem.elementNames[0];
@@ -134,42 +136,42 @@ public class StatusHudConfigGui : GuiDialog
         SingleComposer = capi.Gui.CreateCompo("statushudconfiggui", dialogBounds)
             .AddShadedDialogBG(ElementBounds.Fill)
             .AddInset(editingBgBounds, 0, 0.7f)
-            .AddDialogTitleBar("Status Hud", OnTitleBarCloseClicked)
+            .AddDialogTitleBar(Lang.Get("statushudcont:Status Hud"), OnTitleBarCloseClicked)
             .BeginChildElements(bgBounds)
-                .AddButton("Save", OnSave, saveButtonBounds)
-                .AddButton("Default", OnDefault, defaultButtonBounds)
-                .AddButton("Restore", OnRestore, restoreButtonBounds)
-                .AddStaticTextAutoFontSize("Icon Size", CairoFont.WhiteSmallishText(), iconSizeTextBounds)
+                .AddButton(Lang.Get("statushudcont:Save"), OnSave, saveButtonBounds)
+                .AddButton(Lang.Get("statushudcont:Default"), OnDefault, defaultButtonBounds)
+                .AddButton(Lang.Get("statushudcont:Restore"), OnRestore, restoreButtonBounds)
+                .AddStaticTextAutoFontSize(Lang.Get("statushudcont:Icon Size"), CairoFont.WhiteSmallishText(), iconSizeTextBounds)
                 .AddTextInput(iconSizeInputBounds, OnIconSize, key: "shud-iconsize")
-                .AddStaticTextAutoFontSize("Font Size", CairoFont.WhiteSmallishText(), fontSizeTextBounds)
+                .AddStaticTextAutoFontSize(Lang.Get("statushudcont:Font Size"), CairoFont.WhiteSmallishText(), fontSizeTextBounds)
                 .AddTextInput(fontSizeInputBounds, OnFontSize, key: "shud-fontsize")
-                .AddToggleButton("Show Hidden Elements", CairoFont.ButtonText(), OnHidden, showHiddenButtonBounds, "shud-hidden")
-                .AddStaticText("Edit Element", CairoFont.ButtonText(), EnumTextOrientation.Center, moveElementTextBounds)
+                .AddToggleButton(Lang.Get("statushudcont:Show Hidden Elements"), CairoFont.ButtonText(), OnHidden, showHiddenButtonBounds, "shud-hidden")
+                .AddStaticText(Lang.Get("statushudcont:Edit Element"), CairoFont.ButtonText(), EnumTextOrientation.Center, moveElementTextBounds)
                 .AddDropDown(StatusHudSystem.elementNames, StatusHudSystem.elementNames, selectedElementIndex, OnSelectionChange, moveElementDropdownBounds)
                 .AddAutoSizeHoverText(tooltip, CairoFont.WhiteSmallText(), 400, moveElementDropdownBounds.FlatCopy())
                 .BeginChildElements(editingBgBounds)
                     .BeginChildElements(editingBounds)
-                        // .AddToggleButton("Edit", CairoFont.ButtonText(), OnEdit, editElementPosButtonBounds, "editbutton")
-                        .AddToggleButton("Enable", CairoFont.ButtonText(), OnEnable, enableElementButtonBounds, "shud-enablebutton")
+                        // .AddToggleButton(Lang.Get("statushudcont:Edit"), CairoFont.ButtonText(), OnEdit, editElementPosButtonBounds, "editbutton")
+                        .AddToggleButton(Lang.Get("statushudcont:Enable"), CairoFont.ButtonText(), OnEnable, enableElementButtonBounds, "shud-enablebutton")
                         .AddDropDown(elementAlignments, elementAlignments, 4, OnAlignChange, alignElementDropdownBounds, "shud-align")
-                        .AddStaticTextAutoFontSize("X Position", CairoFont.WhiteSmallishText(), xPosTextBounds)
+                        .AddStaticTextAutoFontSize(Lang.Get("statushudcont:X Position"), CairoFont.WhiteSmallishText(), xPosTextBounds)
                         .AddTextInput(xPosInputBounds, OnXPos, key: "shud-xpos")
-                        .AddStaticTextAutoFontSize("Y Position", CairoFont.WhiteSmallishText(), yPosTextBounds)
+                        .AddStaticTextAutoFontSize(Lang.Get("statushudcont:Y Position"), CairoFont.WhiteSmallishText(), yPosTextBounds)
                         .AddTextInput(yPosInputBounds, OnYPos, key: "shud-ypos")
                         .AddIf(selectedElementName == "Time" || selectedElementName == "Time (Local)")
-                            .AddStaticText("Time Format", CairoFont.WhiteSmallText(), optionalConfigTextBounds)
+                            .AddStaticText(Lang.Get("statushudcont:Time Format"), CairoFont.WhiteSmallText(), optionalConfigTextBounds)
                             .AddDropDown(StatusHudTimeElement.timeFormatWords, StatusHudTimeElement.timeFormatWords, optionIndex, OnOptionalConfig, optionalConfigDropdownBounds)
                         .EndIf()
                         .AddIf(selectedElementName == "Weather")
-                            .AddStaticText("Temp Scale", CairoFont.WhiteSmallText(), optionalConfigTextBounds)
+                            .AddStaticText(Lang.Get("statushudcont:Temp Scale"), CairoFont.WhiteSmallText(), optionalConfigTextBounds)
                             .AddDropDown(StatusHudWeatherElement.tempFormatWords, StatusHudWeatherElement.tempFormatWords, optionIndex, OnOptionalConfig, optionalConfigDropdownBounds)
                         .EndIf()
                         .AddIf(selectedElementName == "Body heat")
-                            .AddStaticText("Temp Scale", CairoFont.WhiteSmallText(), optionalConfigTextBounds)
+                            .AddStaticText(Lang.Get("statushudcont:Temp Scale"), CairoFont.WhiteSmallText(), optionalConfigTextBounds)
                             .AddDropDown(StatusHudBodyheatElement.tempFormatWords, StatusHudBodyheatElement.tempFormatWords, optionIndex, OnOptionalConfig, optionalConfigDropdownBounds)
                         .EndIf()
                         .AddIf(selectedElementName == "Compass")
-                            .AddStaticText("Direction", CairoFont.WhiteSmallishText(), optionalConfigTextBounds)
+                            .AddStaticText(Lang.Get("statushudcont:Direction"), CairoFont.WhiteSmallishText(), optionalConfigTextBounds)
                             .AddDropDown(StatusHudCompassElement.compassBearingOptions, StatusHudCompassElement.compassBearingOptions, optionIndex, OnOptionalConfig, optionalConfigDropdownBounds)
                         .EndIf()
                     .EndChildElements()
@@ -179,10 +181,10 @@ public class StatusHudConfigGui : GuiDialog
         ;
 
         SingleComposer.GetTextInput("shud-iconsize").SetValue(system.Config.iconSize);
-        SingleComposer.GetTextInput("shud-iconsize").SetPlaceHolderText("Icon Size...");
+        SingleComposer.GetTextInput("shud-iconsize").SetPlaceHolderText(Lang.Get("statushudcont:Icon Size..."));
 
         SingleComposer.GetTextInput("shud-fontsize").SetValue(system.Config.textSize);
-        SingleComposer.GetTextInput("shud-fontsize").SetPlaceHolderText("Font Size...");
+        SingleComposer.GetTextInput("shud-fontsize").SetPlaceHolderText(Lang.Get("statushudcont:Font Size..."));
 
         // SingleComposer.GetToggleButton("editbutton").SetValue(true);
 
