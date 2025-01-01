@@ -65,8 +65,6 @@ namespace StatusHud
         protected StatusHudCompassElement element;
         protected StatusHudText text;
 
-        protected const float dirAdjust = 180 * GameMath.DEG2RAD;
-
         public StatusHudCompassRenderer(StatusHudSystem system, StatusHudCompassElement element, StatusHudConfig config) : base(system)
         {
             this.element = element;
@@ -91,7 +89,7 @@ namespace StatusHud
 
         protected override void Render()
         {
-            int direction = (Modulo((int)Math.Round(-system.capi.World.Player.CameraYaw * GameMath.RAD2DEG, 0), 360) + 90) % 360;
+            int direction = (Modulo((int)Math.Round(-system.capi.World.Player.CameraYaw * GameMath.RAD2DEG), 360) + 180) % 360;
             text.Set(direction + "°");
 
             system.capi.Render.RenderTexture(system.textures.texturesDict["compass"].TextureId, x, y, w, h);
@@ -108,11 +106,11 @@ namespace StatusHud
             if (element.ElementOption == "Absolute")
             {
                 // Show player's absolute direction instead of relation to north.
-                angle *= -1;
+                angle = GameMath.PIHALF - angle;
             }
             else
             {
-                angle += dirAdjust;
+                angle += GameMath.PIHALF;
             }
 
             // Use hidden matrix and mesh because this element is never hidden.
