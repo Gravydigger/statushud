@@ -146,7 +146,7 @@ public class StatusHudConfigGui : GuiDialog
         SingleComposer = capi.Gui.CreateCompo("statushudconfiggui", dialogBounds)
             .AddShadedDialogBG(ElementBounds.Fill)
             .AddInset(editingBgBounds, 0, 0.7f)
-            .AddDialogTitleBar(Lang.Get("statushudcont:Status Hud"), OnTitleBarCloseClicked)
+            .AddDialogTitleBar("Status Hud", OnTitleBarCloseClicked)
             .BeginChildElements(bgBounds)
                 .AddButton(Lang.Get("statushudcont:Save"), OnSave, saveButtonBounds)
                 .AddButton(Lang.Get("statushudcont:Default"), OnDefault, defaultButtonBounds)
@@ -170,7 +170,7 @@ public class StatusHudConfigGui : GuiDialog
                         .AddTextInput(yPosInputBounds, OnYPos, key: "shud-ypos")
                         .AddIf(selectedElementName == StatusHudTimeElement.name || selectedElementName == StatusHudTimeLocalElement.name)
                             .AddStaticText(Lang.Get("statushudcont:Time Format"), CairoFont.WhiteSmallText(), optionalConfigTextBounds)
-                            .AddDropDown(StatusHudTimeElement.timeFormatWords, StatusHudTimeElement.timeFormatWords, optionIndex, OnOptionalConfig, optionalConfigDropdownBounds)
+                            .AddDropDown(StatusHudTimeElement.timeFormatWords, new string[] { Lang.Get("statushudcont:time-opt-1"), Lang.Get("statushudcont:time-opt-2") }, optionIndex, OnOptionalConfig, optionalConfigDropdownBounds)
                             .AddAutoSizeHoverText(Lang.Get("statushudcont:time-format-tooltip"), CairoFont.WhiteSmallText(), tooltipLength, optionalConfigDropdownBounds.FlatCopy())
                         .EndIf()
                         .AddIf(selectedElementName == StatusHudWeatherElement.name)
@@ -185,12 +185,12 @@ public class StatusHudConfigGui : GuiDialog
                         .EndIf()
                         .AddIf(selectedElementName == StatusHudCompassElement.name)
                             .AddStaticText(Lang.Get("statushudcont:Heading"), CairoFont.WhiteSmallishText(), optionalConfigTextBounds)
-                            .AddDropDown(StatusHudCompassElement.compassBearingOptions, StatusHudCompassElement.compassBearingOptions, optionIndex, OnOptionalConfig, optionalConfigDropdownBounds)
+                            .AddDropDown(StatusHudCompassElement.compassBearingOptions, new string[] { Lang.Get("statushudcont:compass-opt-1"), Lang.Get("statushudcont:compass-opt-2") }, optionIndex, OnOptionalConfig, optionalConfigDropdownBounds)
                             .AddAutoSizeHoverText(Lang.Get("statushudcont:compass-heading-tooltip"), CairoFont.WhiteSmallText(), tooltipLength, optionalConfigDropdownBounds.FlatCopy())
                         .EndIf()
                         .AddIf(selectedElementName == StatusHudRiftActivityElement.name)
                             .AddStaticText(Lang.Get("statushudcont:Display Time"), CairoFont.WhiteSmallText(), optionalConfigTextBounds)
-                            .AddDropDown(StatusHudRiftActivityElement.riftChangeOptions, StatusHudRiftActivityElement.riftChangeOptions, optionIndex, OnOptionalConfig, optionalConfigDropdownBounds)
+                            .AddDropDown(StatusHudRiftActivityElement.riftChangeOptions, new string[] { Lang.Get("statushudcont:riftactivity-opt-1"), Lang.Get("statushudcont:riftactivity-opt-2") }, optionIndex, OnOptionalConfig, optionalConfigDropdownBounds)
                             .AddAutoSizeHoverText(Lang.Get("statushudcont:riftactivity-tooltip"), CairoFont.WhiteSmallText(), tooltipLength, optionalConfigDropdownBounds.FlatCopy())
                         .EndIf()
                     .EndChildElements()
@@ -310,7 +310,7 @@ public class StatusHudConfigGui : GuiDialog
         system.SaveConfig();
 
         string message = StatusHudSystem.PrintModName("Saved HUD to disk");
-        capi.ShowChatMessage(message);
+        capi.ShowChatMessage(Lang.Get(message));
         capi.Logger.Debug(message);
 
         return true;
@@ -322,7 +322,7 @@ public class StatusHudConfigGui : GuiDialog
         ReloadElementInputs(GetElementFromName(selectedElementName));
 
         string message = StatusHudSystem.PrintModName("HUD set to default layout");
-        capi.ShowChatMessage(message);
+        capi.ShowChatMessage(Lang.Get(message));
         capi.Logger.Debug(message);
 
         return true;
@@ -334,7 +334,7 @@ public class StatusHudConfigGui : GuiDialog
         ReloadElementInputs(GetElementFromName(selectedElementName));
 
         string message = StatusHudSystem.PrintModName("HUD restored from disk");
-        capi.ShowChatMessage(message);
+        capi.ShowChatMessage(Lang.Get(message));
         capi.Logger.Debug(message);
 
         return true;
@@ -497,8 +497,6 @@ public class StatusHudConfigGui : GuiDialog
 
     private void OnEnable(bool on)
     {
-        string message;
-
         if (on)
         {
             StatusHudElement element = system.Set(selectedElementName);
@@ -508,15 +506,14 @@ public class StatusHudConfigGui : GuiDialog
             Vec2i align = AlignmentNameToValues(SingleComposer.GetDropDown("shud-align").SelectedValue);
             element.Pos(align.X, x, align.Y, y);
 
-            message = StatusHudSystem.PrintModName($"Element {selectedElementName} created");
+            capi.ShowChatMessage(StatusHudSystem.PrintModName(Lang.Get("Element {0} created", Lang.Get($"statushudcont:{selectedElementName}-name"))));
+            capi.Logger.Debug(StatusHudSystem.PrintModName(string.Format("Element {0} created", selectedElementName)));
         }
         else
         {
             system.Unset(selectedElementName);
-            message = StatusHudSystem.PrintModName($"Element {selectedElementName} removed");
+            capi.ShowChatMessage(StatusHudSystem.PrintModName(Lang.Get("Element {0} removed", Lang.Get($"statushudcont:{selectedElementName}-name"))));
+            capi.Logger.Debug(StatusHudSystem.PrintModName(string.Format("Element {0} removed", selectedElementName)));
         }
-
-        capi.ShowChatMessage(message);
-        capi.Logger.Debug(message);
     }
 }

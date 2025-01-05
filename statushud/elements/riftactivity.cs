@@ -13,7 +13,7 @@ namespace StatusHud
         protected const string textKey = "shud-riftactivity";
         protected const string harmonyId = "shud-riftactivity";
 
-        public static readonly string[] riftChangeOptions = { "True", "False" };
+        public static readonly string[] riftChangeOptions = { "true", "false" };
         private string showRiftChange;
 
         public override string ElementName => name;
@@ -71,13 +71,13 @@ namespace StatusHud
 
         public override void ConfigOptions(string value)
         {
-            if (value.ToLower().ToBool())
+            if (value.ToBool())
             {
-                showRiftChange = "True";
+                showRiftChange = "true";
             }
             else
             {
-                showRiftChange = "False";
+                showRiftChange = "false";
             }
         }
 

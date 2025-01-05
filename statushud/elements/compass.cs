@@ -10,7 +10,7 @@ namespace StatusHud
         public new const string name = "compass";
         protected const string textKey = "shud-compass";
 
-        public static readonly string[] compassBearingOptions = { "Relative", "Absolute" };
+        public static readonly string[] compassBearingOptions = { "relative", "absolute" };
         private string compassBearing;
 
         public override string ElementName => name;
@@ -26,7 +26,7 @@ namespace StatusHud
             renderer = new StatusHudCompassRenderer(this.system, this, config);
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
-            compassBearing = "Relative";
+            compassBearing = "relative";
         }
 
         public override StatusHudRenderer GetRenderer()
@@ -102,7 +102,7 @@ namespace StatusHud
 
             float angle = system.capi.World.Player.CameraYaw;
 
-            if (element.ElementOption == "Absolute")
+            if (element.ElementOption == "absolute")
             {
                 // Show player's absolute direction instead of relation to north.
                 angle = GameMath.PIHALF - angle;
