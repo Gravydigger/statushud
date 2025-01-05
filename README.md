@@ -38,5 +38,5 @@ _Status HUD Continued_ offers a collection of various elements to display on the
 As I work on maintaining this mod, there are a few goals that I wish to achieve to improve this mod further. These aren't guarantees, but ideally features I'd like to have within the mod:
 - ~~Replace chat commands with a native GUI~~ ✅ Done as of 3.0.0
 - Set native GUI to correcly scale with varying GUI scales
-- Add support for multiple languages
+- ~~Add support for multiple languages~~ ✅ Done as of 3.2.0
 - Add option to drag around elements onto the screen with the mouse

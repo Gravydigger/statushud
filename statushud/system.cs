@@ -107,7 +107,7 @@ namespace StatusHud
             slowListenerId = this.capi.Event.RegisterGameTickListener(SlowTick, slowListenInterval);
             fastListenerId = this.capi.Event.RegisterGameTickListener(FastTick, fastListenInterval);
 
-            if (Config.version <= 0)
+            if (Config.version < StatusHudConfigManager.version)
             {
                 if (Config.elements.Count == 0)
                 {

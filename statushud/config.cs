@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Vintagestory.API.Util;
 
 namespace StatusHud
 {
@@ -35,7 +36,7 @@ namespace StatusHud
     public class StatusHudConfigManager
     {
         private const string filename = "statushud.json";
-        public const int version = 2;
+        public const int version = 3;
 
         private StatusHudConfig config;
         private readonly StatusHudSystem system;
@@ -52,6 +53,10 @@ namespace StatusHud
                 config = new StatusHudConfig();
                 system.capi.Logger.Debug(StatusHudSystem.PrintModName($"Generated new config file {filename}"));
                 this.system.capi.StoreModConfig(config, filename);
+            }
+            else if (config.version == 2)
+            {
+                ConfigToV3();
             }
         }
 
@@ -97,6 +102,97 @@ namespace StatusHud
             }
 
             system.capi.StoreModConfig(config, filename);
+        }
+
+        private void ConfigToV3()
+        {
+            foreach (var element in config.elements)
+            {
+                switch (element.name)
+                {
+                    case "Date":
+                        element.name = StatusHudDateElement.name;
+                        break;
+                    case "Time":
+                        element.name = StatusHudTimeElement.name;
+                        break;
+                    case "Weather":
+                        element.name = StatusHudWeatherElement.name;
+                        break;
+                    case "Wind":
+                        element.name = StatusHudWindElement.name;
+                        break;
+                    case "Stability":
+                        element.name = StatusHudStabilityElement.name;
+                        break;
+                    case "Armour":
+                        element.name = StatusHudArmourElement.name;
+                        break;
+                    case "Room":
+                        element.name = StatusHudRoomElement.name;
+                        break;
+                    case "Sleep":
+                        element.name = StatusHudSleepElement.name;
+                        break;
+                    case "Wetness":
+                        element.name = StatusHudWetElement.name;
+                        break;
+                    case "Time (Local)":
+                        element.name = StatusHudTimeLocalElement.name;
+                        break;
+                    case "Body heat":
+                        element.name = StatusHudBodyheatElement.name;
+                        break;
+                    case "Durability":
+                        element.name = StatusHudDurabilityElement.name;
+                        break;
+                    case "Latitude":
+                        element.name = StatusHudLatitudeElement.name;
+                        break;
+                    case "Light":
+                        element.name = StatusHudLightElement.name;
+                        break;
+                    case "Ping":
+                        element.name = StatusHudPingElement.name;
+                        break;
+                    case "Players":
+                        element.name = StatusHudPlayersElement.name;
+                        break;
+                    case "Speed":
+                        element.name = StatusHudSpeedElement.name;
+                        break;
+                    case "Temporal Storm":
+                        element.name = StatusHudTempstormElement.name;
+                        break;
+                    case "Rift Activity":
+                        element.name = StatusHudRiftActivityElement.name;
+                        if (element.options == "True")
+                        {
+                            element.options = StatusHudRiftActivityElement.riftChangeOptions[0];
+                        }
+                        else
+                        {
+                            element.options = StatusHudRiftActivityElement.riftChangeOptions[1];
+                        }
+                        break;
+                    case "Altitude":
+                        element.name = StatusHudAltitudeElement.name;
+                        break;
+                    case "Compass":
+                        element.name = StatusHudCompassElement.name;
+                        if (element.options == "Relative")
+                        {
+                            element.options = StatusHudCompassElement.compassBearingOptions[0];
+                        }
+                        else
+                        {
+                            element.options = StatusHudCompassElement.compassBearingOptions[1];
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
     }
 }
