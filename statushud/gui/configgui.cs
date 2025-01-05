@@ -308,9 +308,9 @@ public class StatusHudConfigGui : GuiDialog
     {
         system.SaveConfig();
 
-        string message = StatusHudSystem.PrintModName("Saved HUD to disk");
-        capi.ShowChatMessage(Lang.Get(message));
-        capi.Logger.Debug(message);
+        const string message = "Saved HUD to disk";
+        capi.ShowChatMessage(StatusHudSystem.PrintModName(Lang.Get($"statushudcont:{message}")));
+        capi.Logger.Debug(StatusHudSystem.PrintModName(message));
 
         return true;
     }
@@ -320,9 +320,9 @@ public class StatusHudConfigGui : GuiDialog
         system.InstallDefault();
         ReloadElementInputs(GetElementFromName(selectedElementName));
 
-        string message = StatusHudSystem.PrintModName("HUD set to default layout");
-        capi.ShowChatMessage(Lang.Get(message));
-        capi.Logger.Debug(message);
+        const string message = "HUD set to default layout";
+        capi.ShowChatMessage(StatusHudSystem.PrintModName(Lang.Get($"statushudcont:{message}")));
+        capi.Logger.Debug(StatusHudSystem.PrintModName(message));
 
         return true;
     }
@@ -332,9 +332,9 @@ public class StatusHudConfigGui : GuiDialog
         system.LoadConfig();
         ReloadElementInputs(GetElementFromName(selectedElementName));
 
-        string message = StatusHudSystem.PrintModName("HUD restored from disk");
-        capi.ShowChatMessage(Lang.Get(message));
-        capi.Logger.Debug(message);
+        const string message = "HUD restored from disk";
+        capi.ShowChatMessage(StatusHudSystem.PrintModName(Lang.Get($"statushudcont:{message}")));
+        capi.Logger.Debug(StatusHudSystem.PrintModName(message));
 
         return true;
     }
@@ -505,13 +505,13 @@ public class StatusHudConfigGui : GuiDialog
             Vec2i align = AlignmentNameToValues(SingleComposer.GetDropDown("shud-align").SelectedValue);
             element.Pos(align.X, x, align.Y, y);
 
-            capi.ShowChatMessage(StatusHudSystem.PrintModName(Lang.Get("Element {0} created", Lang.Get($"statushudcont:{selectedElementName}-name"))));
+            capi.ShowChatMessage(StatusHudSystem.PrintModName(Lang.Get("statushudcont:Element {0} created", Lang.Get($"statushudcont:{selectedElementName}-name"))));
             capi.Logger.Debug(StatusHudSystem.PrintModName(string.Format("Element {0} created", selectedElementName)));
         }
         else
         {
             system.Unset(selectedElementName);
-            capi.ShowChatMessage(StatusHudSystem.PrintModName(Lang.Get("Element {0} removed", Lang.Get($"statushudcont:{selectedElementName}-name"))));
+            capi.ShowChatMessage(StatusHudSystem.PrintModName(Lang.Get("statushudcont:Element {0} removed", Lang.Get($"statushudcont:{selectedElementName}-name"))));
             capi.Logger.Debug(StatusHudSystem.PrintModName(string.Format("Element {0} removed", selectedElementName)));
         }
     }
