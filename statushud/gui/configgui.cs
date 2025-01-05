@@ -96,25 +96,28 @@ public class StatusHudConfigGui : GuiDialog
 
             switch (element.ElementName)
             {
-                case "Time":
-                case "Time (Local)":
+                case StatusHudTimeElement.name:
+                case StatusHudTimeLocalElement.name:
                     options = StatusHudTimeElement.timeFormatWords;
                     break;
-                case "Weather":
+                case StatusHudWeatherElement.name:
                     options = StatusHudWeatherElement.tempFormatWords;
                     break;
-                case "Body heat":
+                case StatusHudBodyheatElement.name:
                     options = StatusHudBodyheatElement.tempFormatWords;
                     break;
-                case "Compass":
+                case StatusHudCompassElement.name:
                     options = StatusHudCompassElement.compassBearingOptions;
+                    break;
+                case StatusHudRiftActivityElement.name:
+                    options = StatusHudRiftActivityElement.riftChangeOptions;
                     break;
                 default:
                     capi.Logger.Warning(StatusHudSystem.PrintModName($"Tried to get config options from {element.ElementName}, but it doesn't have any!"));
                     break;
             }
 
-            optionIndex = options.IndexOf(element.ElementOption);
+            optionIndex = Math.Max(options.IndexOf(element.ElementOption), 0);
         }
 
         // Create Element Editing Group Background
@@ -158,21 +161,30 @@ public class StatusHudConfigGui : GuiDialog
                         .AddTextInput(xPosInputBounds, OnXPos, key: "shud-xpos")
                         .AddStaticTextAutoFontSize(Lang.Get("statushudcont:Y Position"), CairoFont.WhiteSmallishText(), yPosTextBounds)
                         .AddTextInput(yPosInputBounds, OnYPos, key: "shud-ypos")
-                        .AddIf(selectedElementName == "Time" || selectedElementName == "Time (Local)")
+                        .AddIf(selectedElementName == StatusHudTimeElement.name || selectedElementName == StatusHudTimeLocalElement.name)
                             .AddStaticText(Lang.Get("statushudcont:Time Format"), CairoFont.WhiteSmallText(), optionalConfigTextBounds)
                             .AddDropDown(StatusHudTimeElement.timeFormatWords, StatusHudTimeElement.timeFormatWords, optionIndex, OnOptionalConfig, optionalConfigDropdownBounds)
+                            .AddAutoSizeHoverText("12hr - e.g. 1:20pm\n24hr - e.g. 13:20", CairoFont.WhiteSmallText(), 400, optionalConfigDropdownBounds.FlatCopy())
                         .EndIf()
-                        .AddIf(selectedElementName == "Weather")
+                        .AddIf(selectedElementName == StatusHudWeatherElement.name)
                             .AddStaticText(Lang.Get("statushudcont:Temp Scale"), CairoFont.WhiteSmallText(), optionalConfigTextBounds)
                             .AddDropDown(StatusHudWeatherElement.tempFormatWords, StatusHudWeatherElement.tempFormatWords, optionIndex, OnOptionalConfig, optionalConfigDropdownBounds)
+                            .AddAutoSizeHoverText("C - Celsius\nF - Fahrenheit\nK - Kelvin", CairoFont.WhiteSmallText(), 400, optionalConfigDropdownBounds.FlatCopy())
                         .EndIf()
-                        .AddIf(selectedElementName == "Body heat")
+                        .AddIf(selectedElementName == StatusHudBodyheatElement.name)
                             .AddStaticText(Lang.Get("statushudcont:Temp Scale"), CairoFont.WhiteSmallText(), optionalConfigTextBounds)
                             .AddDropDown(StatusHudBodyheatElement.tempFormatWords, StatusHudBodyheatElement.tempFormatWords, optionIndex, OnOptionalConfig, optionalConfigDropdownBounds)
+                            .AddAutoSizeHoverText("C - Celsius\nF - Fahrenheit", CairoFont.WhiteSmallText(), 400, optionalConfigDropdownBounds.FlatCopy())
                         .EndIf()
-                        .AddIf(selectedElementName == "Compass")
-                            .AddStaticText(Lang.Get("statushudcont:Direction"), CairoFont.WhiteSmallishText(), optionalConfigTextBounds)
+                        .AddIf(selectedElementName == StatusHudCompassElement.name)
+                            .AddStaticText(Lang.Get("statushudcont:Heading"), CairoFont.WhiteSmallishText(), optionalConfigTextBounds)
                             .AddDropDown(StatusHudCompassElement.compassBearingOptions, StatusHudCompassElement.compassBearingOptions, optionIndex, OnOptionalConfig, optionalConfigDropdownBounds)
+                            .AddAutoSizeHoverText("Relative - Points to North\nAbsolute - Points to heading", CairoFont.WhiteSmallText(), 400, optionalConfigDropdownBounds.FlatCopy())
+                        .EndIf()
+                        .AddIf(selectedElementName == StatusHudRiftActivityElement.name)
+                            .AddStaticText("Display Time", CairoFont.WhiteSmallText(), optionalConfigTextBounds)
+                            .AddDropDown(StatusHudRiftActivityElement.riftChangeOptions, StatusHudRiftActivityElement.riftChangeOptions, optionIndex, OnOptionalConfig, optionalConfigDropdownBounds)
+                            .AddAutoSizeHoverText("True - Shows time till next rift activity change\nFalse - Only show rift activity", CairoFont.WhiteSmallText(), 400, optionalConfigDropdownBounds.FlatCopy())
                         .EndIf()
                     .EndChildElements()
                 .EndChildElements()
