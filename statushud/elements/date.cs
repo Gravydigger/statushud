@@ -1,5 +1,6 @@
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
+using Vintagestory.API.Config;
 
 namespace StatusHud
 {
@@ -13,7 +14,19 @@ namespace StatusHud
         public int textureId;
 
         protected StatusHudDateRenderer renderer;
-        private readonly string[] monthNames = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+        private readonly string[] monthNames = {
+            Lang.Get("statushudcont:short-month-january"),
+            Lang.Get("statushudcont:short-month-february"),
+            Lang.Get("statushudcont:short-month-march"),
+            Lang.Get("statushudcont:short-month-april"),
+            Lang.Get("statushudcont:short-month-may"),
+            Lang.Get("statushudcont:short-month-june"),
+            Lang.Get("statushudcont:short-month-july"),
+            Lang.Get("statushudcont:short-month-august"),
+            Lang.Get("statushudcont:short-month-september"),
+            Lang.Get("statushudcont:short-month-october"),
+            Lang.Get("statushudcont:short-month-november"),
+            Lang.Get("statushudcont:short-month-december")};
 
         public StatusHudDateElement(StatusHudSystem system, StatusHudConfig config) : base(system)
         {
