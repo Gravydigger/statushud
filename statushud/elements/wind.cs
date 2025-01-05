@@ -8,8 +8,7 @@ namespace StatusHud
 {
     public class StatusHudWindElement : StatusHudElement
     {
-        public new const string name = "Wind";
-        public new const string desc = $"The '{name}' element displays the current wind speed (in %) at the player's position, and wind direction relative to the player.";
+        public new const string name = "wind";
         protected const string textKey = "shud-wind";
 
         public override string ElementName => name;

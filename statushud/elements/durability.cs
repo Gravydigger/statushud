@@ -5,8 +5,7 @@ namespace StatusHud
 {
     public class StatusHudDurabilityElement : StatusHudElement
     {
-        public new const string name = "Durability";
-        public new const string desc = $"The '{name}' element displays the selected item's remaining durability. If the item does not have durability, it is hidden.";
+        public new const string name = "durability";
         protected const string textKey = "shud-durability";
 
         public override string ElementName => name;

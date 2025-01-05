@@ -9,8 +9,7 @@ namespace StatusHud
 {
     public class StatusHudRiftActivityElement : StatusHudElement
     {
-        public new const string name = "Rift Activity";
-        public new const string desc = $"The '{name}' element displays the time until next rift activity, and an icon for the current rift activity, varifying from calm to apocalyptic. Is hidden when rifts are disabled.";
+        public new const string name = "riftactivity";
         protected const string textKey = "shud-riftactivity";
         protected const string harmonyId = "shud-riftactivity";
 

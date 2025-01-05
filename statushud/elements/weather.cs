@@ -9,8 +9,7 @@ namespace StatusHud
 {
     public class StatusHudWeatherElement : StatusHudElement
     {
-        public new const string name = "Weather";
-        public new const string desc = $"The '{name}' element displays the current temperature and an icon for the current condition.";
+        public new const string name = "weather";
         protected const string textKey = "shud-weather";
         private const float cfratio = 9f / 5f;
         private const float cfdiff = 32;

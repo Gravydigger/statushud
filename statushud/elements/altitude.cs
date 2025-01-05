@@ -7,8 +7,7 @@ namespace StatusHud
 {
     public class StatusHudAltitudeElement : StatusHudElement
     {
-        public new const string name = "Altitude";
-        public new const string desc = $"The '{name}' element displays the player's current height (in meters) in relation to sea level.";
+        public new const string name = "altitude";
         protected const string textKey = "shud-altitude";
 
         public override string ElementName => name;

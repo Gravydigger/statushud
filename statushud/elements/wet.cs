@@ -5,8 +5,7 @@ namespace StatusHud
 {
     public class StatusHudWetElement : StatusHudElement
     {
-        public new const string name = "Wetness";
-        public new const string desc = $"The '{name}' element displays how wet (in %) the player is. If the player is dry, it is hidden.";
+        public new const string name = "wet";
         protected const string textKey = "shud-wet";
 
         public override string ElementName => name;

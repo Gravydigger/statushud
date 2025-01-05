@@ -6,8 +6,7 @@ namespace StatusHud
 {
     public class StatusHudSpeedElement : StatusHudElement
     {
-        public new const string name = "Speed";
-        public new const string desc = $"The '{name}' element displays the player's current speed (in m/s).";
+        public new const string name = "speed";
         protected const string textKey = "shud-speed";
 
         public override string ElementName => name;

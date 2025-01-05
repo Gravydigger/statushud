@@ -7,8 +7,7 @@ namespace StatusHud
 {
     public class StatusHudCompassElement : StatusHudElement
     {
-        public new const string name = "Compass";
-        public new const string desc = $"The '{name}' element displays the player's facing direction (in degrees) in relation to North.";
+        public new const string name = "compass";
         protected const string textKey = "shud-compass";
 
         public static readonly string[] compassBearingOptions = { "Relative", "Absolute" };

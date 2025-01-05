@@ -8,8 +8,7 @@ namespace StatusHud
 {
     public class StatusHudArmourElement : StatusHudElement
     {
-        public new const string name = "Armour";
-        public new const string desc = $"The '{name}' element displays the equipped armour's average durability (in %). If no armour is equipped, it is hidden.";
+        public new const string name = "armour";
         protected const string textKey = "shud-armour";
 
         public override string ElementName => name;

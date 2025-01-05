@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using StatusHud;
 using Vintagestory.API.Client;
 using Vintagestory.API.Config;
@@ -13,6 +14,7 @@ public class StatusHudConfigGui : GuiDialog
     // private GuiDialogMoveable elementSelector;
     private string selectedElementName;
     private int selectedElementIndex;
+    private readonly List<string> elementNamesTranslated = new();
 
     private readonly string[] elementAlignments = {
         Lang.Get("statushudcont:Top Left"),
@@ -33,6 +35,11 @@ public class StatusHudConfigGui : GuiDialog
         selectedElementName = StatusHudSystem.elementNames[0];
         selectedElementIndex = 0;
 
+        foreach (var name in StatusHudSystem.elementNames)
+        {
+            elementNamesTranslated.Add(Lang.Get($"statushudcont:{name}-name"));
+        }
+
         ReloadElementInputs(GetElementFromName(selectedElementName));
     }
 
@@ -41,17 +48,8 @@ public class StatusHudConfigGui : GuiDialog
         const int titleBarHeight = 25;
         const int vertOffset = 20;
         const int horzOffset = 25;
+        const int tooltipLength = 350;
         int optionIndex = 0;
-        string tooltip = "";
-
-        foreach (Type type in StatusHudSystem.elementTypes)
-        {
-            if (type.GetField("name").GetValue(null).ToString() == selectedElementName)
-            {
-                tooltip = type.GetField("desc").GetValue(null).ToString();
-                break;
-            }
-        }
 
         StatusHudElement element = GetElementFromName(selectedElementName);
         // TODO: Update with GUI Scale
@@ -159,8 +157,8 @@ public class StatusHudConfigGui : GuiDialog
                 .AddTextInput(fontSizeInputBounds, OnFontSize, key: "shud-fontsize")
                 .AddToggleButton(Lang.Get("statushudcont:Show Hidden Elements"), CairoFont.ButtonText(), OnHidden, showHiddenButtonBounds, "shud-hidden")
                 .AddStaticText(Lang.Get("statushudcont:Edit Element"), CairoFont.ButtonText(), EnumTextOrientation.Center, moveElementTextBounds)
-                .AddDropDown(StatusHudSystem.elementNames, StatusHudSystem.elementNames, selectedElementIndex, OnSelectionChange, moveElementDropdownBounds)
-                .AddAutoSizeHoverText(tooltip, CairoFont.WhiteSmallText(), 400, moveElementDropdownBounds.FlatCopy())
+                .AddDropDown(StatusHudSystem.elementNames, elementNamesTranslated.ToArray(), selectedElementIndex, OnSelectionChange, moveElementDropdownBounds)
+                .AddAutoSizeHoverText(Lang.Get($"statushudcont:{selectedElementName}-desc"), CairoFont.WhiteSmallText(), tooltipLength, moveElementDropdownBounds.FlatCopy())
                 .BeginChildElements(editingBgBounds)
                     .BeginChildElements(editingBounds)
                         // .AddToggleButton(Lang.Get("statushudcont:Edit"), CairoFont.ButtonText(), OnEdit, editElementPosButtonBounds, "editbutton")
@@ -173,27 +171,27 @@ public class StatusHudConfigGui : GuiDialog
                         .AddIf(selectedElementName == StatusHudTimeElement.name || selectedElementName == StatusHudTimeLocalElement.name)
                             .AddStaticText(Lang.Get("statushudcont:Time Format"), CairoFont.WhiteSmallText(), optionalConfigTextBounds)
                             .AddDropDown(StatusHudTimeElement.timeFormatWords, StatusHudTimeElement.timeFormatWords, optionIndex, OnOptionalConfig, optionalConfigDropdownBounds)
-                            .AddAutoSizeHoverText(Lang.Get("statushudcont:time-format-tooltip"), CairoFont.WhiteSmallText(), 400, optionalConfigDropdownBounds.FlatCopy())
+                            .AddAutoSizeHoverText(Lang.Get("statushudcont:time-format-tooltip"), CairoFont.WhiteSmallText(), tooltipLength, optionalConfigDropdownBounds.FlatCopy())
                         .EndIf()
                         .AddIf(selectedElementName == StatusHudWeatherElement.name)
                             .AddStaticText(Lang.Get("statushudcont:Temp Scale"), CairoFont.WhiteSmallText(), optionalConfigTextBounds)
                             .AddDropDown(StatusHudWeatherElement.tempFormatWords, StatusHudWeatherElement.tempFormatWords, optionIndex, OnOptionalConfig, optionalConfigDropdownBounds)
-                            .AddAutoSizeHoverText(Lang.Get("statushudcont:temp-scale-weather-tooltip"), CairoFont.WhiteSmallText(), 400, optionalConfigDropdownBounds.FlatCopy())
+                            .AddAutoSizeHoverText(Lang.Get("statushudcont:temp-scale-weather-tooltip"), CairoFont.WhiteSmallText(), tooltipLength, optionalConfigDropdownBounds.FlatCopy())
                         .EndIf()
                         .AddIf(selectedElementName == StatusHudBodyheatElement.name)
                             .AddStaticText(Lang.Get("statushudcont:Temp Scale"), CairoFont.WhiteSmallText(), optionalConfigTextBounds)
                             .AddDropDown(StatusHudBodyheatElement.tempFormatWords, StatusHudBodyheatElement.tempFormatWords, optionIndex, OnOptionalConfig, optionalConfigDropdownBounds)
-                            .AddAutoSizeHoverText(Lang.Get("statushudcont:temp-scale-bodyheat-tooltip"), CairoFont.WhiteSmallText(), 400, optionalConfigDropdownBounds.FlatCopy())
+                            .AddAutoSizeHoverText(Lang.Get("statushudcont:temp-scale-bodyheat-tooltip"), CairoFont.WhiteSmallText(), tooltipLength, optionalConfigDropdownBounds.FlatCopy())
                         .EndIf()
                         .AddIf(selectedElementName == StatusHudCompassElement.name)
                             .AddStaticText(Lang.Get("statushudcont:Heading"), CairoFont.WhiteSmallishText(), optionalConfigTextBounds)
                             .AddDropDown(StatusHudCompassElement.compassBearingOptions, StatusHudCompassElement.compassBearingOptions, optionIndex, OnOptionalConfig, optionalConfigDropdownBounds)
-                            .AddAutoSizeHoverText(Lang.Get("statushudcont:compass-heading-tooltip"), CairoFont.WhiteSmallText(), 400, optionalConfigDropdownBounds.FlatCopy())
+                            .AddAutoSizeHoverText(Lang.Get("statushudcont:compass-heading-tooltip"), CairoFont.WhiteSmallText(), tooltipLength, optionalConfigDropdownBounds.FlatCopy())
                         .EndIf()
                         .AddIf(selectedElementName == StatusHudRiftActivityElement.name)
                             .AddStaticText(Lang.Get("statushudcont:Display Time"), CairoFont.WhiteSmallText(), optionalConfigTextBounds)
                             .AddDropDown(StatusHudRiftActivityElement.riftChangeOptions, StatusHudRiftActivityElement.riftChangeOptions, optionIndex, OnOptionalConfig, optionalConfigDropdownBounds)
-                            .AddAutoSizeHoverText(Lang.Get("statushudcont:riftactivity-tooltip"), CairoFont.WhiteSmallText(), 400, optionalConfigDropdownBounds.FlatCopy())
+                            .AddAutoSizeHoverText(Lang.Get("statushudcont:riftactivity-tooltip"), CairoFont.WhiteSmallText(), tooltipLength, optionalConfigDropdownBounds.FlatCopy())
                         .EndIf()
                     .EndChildElements()
                 .EndChildElements()

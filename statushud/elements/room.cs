@@ -6,8 +6,7 @@ namespace StatusHud
 {
     public class StatusHudRoomElement : StatusHudElement
     {
-        public new const string name = "Room";
-        public new const string desc = $"The '{name}' element displays a house icon when inside a room, a cabin icon when inside a small room (cellar), or a sun icon when inside a greenhouse. Otherwise, it is hidden.";
+        public new const string name = "room";
         protected const string textKey = "shud-room";
 
         public override string ElementName => name;
