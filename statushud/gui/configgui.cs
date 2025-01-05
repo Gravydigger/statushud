@@ -49,43 +49,42 @@ public class StatusHudConfigGui : GuiDialog
         const int vertOffset = 20;
         const int horzOffset = 25;
         const int tooltipLength = 350;
+        const int textOffset = 4; // Used to help vertically center the text to the text inputs
         int optionIndex = 0;
 
         StatusHudElement element = GetElementFromName(selectedElementName);
         // TODO: Update with GUI Scale
 
         // Create Config Buttons
-        ElementBounds saveButtonBounds = ElementBounds.Fixed(0, 0, 90, 23).WithFixedPadding(10, 4);
+        ElementBounds saveButtonBounds = ElementBounds.Fixed(0, 0, 100, 23).WithFixedPadding(10, 4);
         ElementBounds defaultButtonBounds = saveButtonBounds.FlatCopy().FixedRightOf(saveButtonBounds, horzOffset);
         ElementBounds restoreButtonBounds = saveButtonBounds.FlatCopy().FixedRightOf(defaultButtonBounds, horzOffset);
 
         // Create Number Inputs
-        const int textOffset = 4; // Used to help vertically center the text to the text inputs
-
-        ElementBounds iconSizeTextBounds = ElementBounds.Fixed(0, 0, 90, 30).FixedUnder(saveButtonBounds, vertOffset * 1.5f + textOffset);
-        ElementBounds iconSizeInputBounds = ElementBounds.Fixed(0, iconSizeTextBounds.fixedY - textOffset, 245, 30).WithAlignment(EnumDialogArea.RightFixed);
-        ElementBounds fontSizeTextBounds = ElementBounds.Fixed(0, 0, 90, 30).FixedUnder(iconSizeTextBounds, vertOffset / 2 + textOffset);
-        ElementBounds fontSizeInputBounds = ElementBounds.Fixed(0, fontSizeTextBounds.fixedY - textOffset, 245, 30).WithAlignment(EnumDialogArea.RightFixed);
+        ElementBounds iconSizeTextBounds = ElementBounds.Fixed(0, 0, 150, 30).FixedUnder(saveButtonBounds, vertOffset * 1.5f + textOffset);
+        ElementBounds iconSizeInputBounds = ElementBounds.Fixed(0, iconSizeTextBounds.fixedY - textOffset, 220, 30).WithAlignment(EnumDialogArea.RightFixed);
+        ElementBounds fontSizeTextBounds = ElementBounds.Fixed(0, 0, 150, 30).FixedUnder(iconSizeTextBounds, vertOffset / 2 + textOffset);
+        ElementBounds fontSizeInputBounds = ElementBounds.Fixed(0, fontSizeTextBounds.fixedY - textOffset, 220, 30).WithAlignment(EnumDialogArea.RightFixed);
 
         // Create Show Hidden Button
-        ElementBounds showHiddenButtonBounds = ElementBounds.Fixed(0, 0, 320, 23).WithFixedPadding(10, 4).FixedUnder(fontSizeTextBounds, vertOffset);
+        ElementBounds showHiddenButtonBounds = ElementBounds.Fixed(0, 0, 350, 23).WithFixedPadding(10, 4).FixedUnder(fontSizeTextBounds, vertOffset).WithAlignment(EnumDialogArea.CenterFixed);
 
         // Create Drop Down for Selecting Elements
-        ElementBounds moveElementTextBounds = ElementBounds.Fixed(0, 0, 320, 23).WithAlignment(EnumDialogArea.CenterFixed).FixedUnder(showHiddenButtonBounds, vertOffset * 1.25f);
-        ElementBounds moveElementDropdownBounds = ElementBounds.Fixed(0, 0, 340, 25).FixedUnder(moveElementTextBounds, vertOffset * 1.25f);
+        ElementBounds moveElementTextBounds = ElementBounds.Fixed(0, 0, 350, 23).WithAlignment(EnumDialogArea.CenterFixed).FixedUnder(showHiddenButtonBounds, vertOffset * 1.25f);
+        ElementBounds moveElementDropdownBounds = ElementBounds.Fixed(0, 0, 370, 25).FixedUnder(moveElementTextBounds, vertOffset * 1.25f).WithAlignment(EnumDialogArea.CenterFixed);
 
         // Create Selected Element Buttons
-        ElementBounds enableElementButtonBounds = ElementBounds.Fixed(0, 0, 90, 23).WithFixedPadding(10, 4);
-        ElementBounds alignElementDropdownBounds = ElementBounds.Fixed(0, 0, 200, 30).FixedRightOf(enableElementButtonBounds, horzOffset);
+        ElementBounds enableElementButtonBounds = ElementBounds.Fixed(0, 0, 120, 23).WithFixedPadding(10, 4);
+        ElementBounds alignElementDropdownBounds = ElementBounds.Fixed(0, 0, 205, 30).FixedRightOf(enableElementButtonBounds, horzOffset);
         // ElementBounds editElementPosButtonBounds = enableElementButtonBounds.RightCopy(horzOffset);
 
-        ElementBounds xPosTextBounds = ElementBounds.Fixed(0, 0, 90, 30).FixedUnder(enableElementButtonBounds, vertOffset * 1.5f + textOffset);
-        ElementBounds xPosInputBounds = ElementBounds.Fixed(xPosTextBounds.fixedWidth + horzOffset, xPosTextBounds.fixedY - textOffset, 205, 30);
-        ElementBounds yPosTextBounds = ElementBounds.Fixed(0, 0, 90, 30).FixedUnder(xPosInputBounds, vertOffset / 2 + textOffset);
-        ElementBounds yPosInputBounds = ElementBounds.Fixed(yPosTextBounds.fixedWidth + horzOffset, yPosTextBounds.fixedY - textOffset, 205, 30);
+        ElementBounds xPosTextBounds = ElementBounds.Fixed(0, 0, 150, 30).FixedUnder(enableElementButtonBounds, vertOffset * 1.5f + textOffset);
+        ElementBounds xPosInputBounds = ElementBounds.Fixed(0, xPosTextBounds.fixedY - textOffset, 205, 30).WithAlignment(EnumDialogArea.RightFixed);
+        ElementBounds yPosTextBounds = ElementBounds.Fixed(0, 0, 150, 30).FixedUnder(xPosInputBounds, vertOffset / 2 + textOffset);
+        ElementBounds yPosInputBounds = ElementBounds.Fixed(0, yPosTextBounds.fixedY - textOffset, 205, 30).WithAlignment(EnumDialogArea.RightFixed);
 
-        ElementBounds optionalConfigTextBounds = ElementBounds.Fixed(0, 0, 100, 30).FixedUnder(yPosTextBounds, vertOffset / 2 + textOffset);
-        ElementBounds optionalConfigDropdownBounds = ElementBounds.Fixed(optionalConfigTextBounds.fixedWidth + horzOffset - 10, optionalConfigTextBounds.fixedY - textOffset, 205, 30);
+        ElementBounds optionalConfigTextBounds = ElementBounds.Fixed(0, 0, 150, 30).FixedUnder(yPosTextBounds, vertOffset / 2 + textOffset);
+        ElementBounds optionalConfigDropdownBounds = ElementBounds.Fixed(0, optionalConfigTextBounds.fixedY - textOffset, 205, 30).WithAlignment(EnumDialogArea.RightFixed);
 
         // Create Element Editing Group
         ElementBounds editingBounds = ElementBounds.Fill.WithFixedPadding(10);
@@ -128,7 +127,7 @@ public class StatusHudConfigGui : GuiDialog
         }
 
         // Create Element Editing Group Background
-        ElementBounds editingBgBounds = ElementBounds.Fill.FixedUnder(moveElementDropdownBounds, vertOffset);
+        ElementBounds editingBgBounds = ElementBounds.Fill.FixedUnder(moveElementDropdownBounds, vertOffset).WithAlignment(EnumDialogArea.CenterFixed);
         editingBgBounds.BothSizing = ElementSizing.FitToChildren;
         editingBgBounds.WithChildren(editingBounds);
 
