@@ -58,8 +58,7 @@ namespace StatusHud
             {
                 ItemSlot slot = inventory[slots[i]];
 
-                if (!slot.Empty
-                        && slot.Itemstack.Item is ItemWearable)
+                if (!slot.Empty && slot.Itemstack.Item is ItemWearable)
                 {
                     int max = slot.Itemstack.Collectible.GetMaxDurability(slot.Itemstack);
 
