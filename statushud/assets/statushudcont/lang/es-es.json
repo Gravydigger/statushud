@@ -42,6 +42,7 @@
     "armour-desc": "El elemento 'Armadura' muestra la durabilidad promedio de la armadura equipada(en %). Si ninguna armadura está equipada, permance oculto.",
     "bodyheat-name": "Calor Corporal",
     "bodyheat-desc": "El elemento 'Calor Corporal' muestra la caída actual del calor corporal del jugador. Si la temperatura corporal es normal (37°C / 98.6°F), este elemento permanece oculto.",
+    "compass-name": "Brújula",
     "compass-desc": "El elemento 'Brújula' muestra la dirección en la que mira el jugador (en grados) en relación al Norte.",
     "compass-opt-1": "Relativa",
     "compass-opt-2": "Absoluta",
