@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
+using Vintagestory.API.Config;
 
 namespace StatusHud
 {
@@ -124,9 +125,12 @@ namespace StatusHud
             dialog = new StatusHudConfigGui(capi, this);
             capi.Input.RegisterHotKey("statushudconfiggui", "Status Hud Menu", GlKeys.U, HotkeyType.GUIOrOtherControls);
             capi.Input.SetHotKeyHandler("statushudconfiggui", ToggleConfigGui);
+
 #if DEBUG
-            this.capi.Logger.Debug(PrintModName("Debug logging Enabled"));
+            this.capi.Logger.Debug(PrintModName("Debug flag set"));
 #endif
+
+            this.capi.Logger.Debug(PrintModName($"Current locale set to: {Lang.CurrentLocale}"));
         }
 
         public override void Dispose()
