@@ -73,8 +73,6 @@ namespace StatusHud
         protected StatusHudWindElement element;
         protected StatusHudText text;
 
-        protected const float dirAdjust = 90 * GameMath.DEG2RAD;
-
         public StatusHudWindRenderer(StatusHudSystem system, StatusHudWindElement element, StatusHudConfig config) : base(system)
         {
             this.element = element;
@@ -111,7 +109,7 @@ namespace StatusHud
                 prog.Uniform("noTexture", 0f);
                 prog.BindTexture2D("tex2d", system.textures.texturesDict["wind_dir_arrow"].TextureId, 0);
 
-                float angle = element.dirAngle - system.capi.World.Player.CameraYaw + StatusHudWindRenderer.dirAdjust;
+                float angle = element.dirAngle - system.capi.World.Player.CameraYaw + GameMath.PI;
 
                 // Use hidden matrix and mesh because this element is never hidden.
                 hiddenMatrix.Set(system.capi.Render.CurrentModelviewMatrix)
