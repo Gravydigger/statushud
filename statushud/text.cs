@@ -6,7 +6,7 @@ namespace StatusHud
 {
     public class StatusHudText : HudElement
     {
-        protected const string dialogNamePrefix = "d-";
+        private const string dialogNamePrefix = "d-";
 
         private readonly string key;
         private readonly StatusHudConfig config;
@@ -27,9 +27,6 @@ namespace StatusHud
             this.key = key;
             this.config = config;
 
-            // width = this.config.iconSize * 3;
-            // height = this.config.iconSize;
-
             dialogName = dialogNamePrefix + this.key;
             font = InitFont();
         }
@@ -38,6 +35,13 @@ namespace StatusHud
         {
             TryClose();
             base.Dispose();
+        }
+
+        // Fixed an issue where if the boundry box of the text element was overlapping with another, it would eat
+        // the mouse event (i.e. if on the crosshair, it would not allow you to interact with blocks). 
+        public override bool ShouldReceiveMouseEvents()
+        {
+            return false;
         }
 
         public void ReloadText(StatusHudPos pos)
@@ -193,7 +197,7 @@ namespace StatusHud
             const int offsetX = 0;
             int offsetY = -config.textSize;
 
-            if (SingleComposer != null) SingleComposer.Dispose();
+            SingleComposer?.Dispose();
             ElementBounds dialogBounds = ElementBounds.Fixed(area, x + offsetX, y + offsetY, width, height);
             ElementBounds textBounds = ElementBounds.Fixed(EnumDialogArea.CenterTop, 0, 0, width, height);
             SingleComposer = capi.Gui.CreateCompo(dialogName, dialogBounds)
