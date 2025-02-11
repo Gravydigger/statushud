@@ -20,8 +20,6 @@
     "compass-heading-tooltip": "Relative - Pointe vers le Nord\nAbsolue - Pointe vers le regard",
     "Display Time": "Affichage de l'heure",
     "riftactivity-tooltip": "True - Affiche le temps jusqu'au prochain changement d'activité de faille\nFalse - Montre uniquement l'activité de faille",
-    "Icon Size...": "Taille de l'icône...",
-    "Font Size...": "Taille de la police...",
     "Top Left": "Haut Gauche",
     "Top Center": "Haut Centre",
     "Top Right": "Haut Droite",

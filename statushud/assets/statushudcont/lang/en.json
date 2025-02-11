@@ -20,8 +20,6 @@
     "compass-heading-tooltip": "Relative - Points to North\nAbsolute - Points to heading",
     "Display Time": "Display Time",
     "riftactivity-tooltip": "True - Shows time till next rift activity change\nFalse - Only show rift activity",
-    "Icon Size...": "Icon Size...",
-    "Font Size...": "Font Size...",
     "Top Left": "Top Left",
     "Top Center": "Top Center",
     "Top Right": "Top Right",

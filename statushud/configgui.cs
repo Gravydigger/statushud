@@ -196,10 +196,7 @@ public class StatusHudConfigGui : GuiDialog
         ;
 
         SingleComposer.GetTextInput("shud-iconsize").SetValue(system.Config.iconSize);
-        SingleComposer.GetTextInput("shud-iconsize").SetPlaceHolderText(Lang.Get("statushudcont:Icon Size..."));
-
         SingleComposer.GetTextInput("shud-fontsize").SetValue(system.Config.textSize);
-        SingleComposer.GetTextInput("shud-fontsize").SetPlaceHolderText(Lang.Get("statushudcont:Font Size..."));
     }
 
     private void OnOptionalConfig(string code, bool selected)
