@@ -11,7 +11,6 @@ public class StatusHudConfigGui : GuiDialog
     public override string ToggleKeyCombinationCode => "statushudconfiggui";
 
     private StatusHudSystem system;
-    // private GuiDialogMoveable elementSelector;
     private string selectedElementName;
     private int selectedElementIndex;
     private readonly List<string> elementNamesTranslated = new();
@@ -76,7 +75,6 @@ public class StatusHudConfigGui : GuiDialog
         // Create Selected Element Buttons
         ElementBounds enableElementButtonBounds = ElementBounds.Fixed(0, 0, 120, 23).WithFixedPadding(10, 4);
         ElementBounds alignElementDropdownBounds = ElementBounds.Fixed(0, 0, 205, 30).FixedRightOf(enableElementButtonBounds, horzOffset);
-        // ElementBounds editElementPosButtonBounds = enableElementButtonBounds.RightCopy(horzOffset);
 
         ElementBounds xPosTextBounds = ElementBounds.Fixed(0, 0, 150, 30).FixedUnder(enableElementButtonBounds, vertOffset * 1.5f + textOffset);
         ElementBounds xPosInputBounds = ElementBounds.Fixed(0, xPosTextBounds.fixedY - textOffset, 205, 30).WithAlignment(EnumDialogArea.RightFixed);
@@ -160,7 +158,6 @@ public class StatusHudConfigGui : GuiDialog
                 .AddAutoSizeHoverText(Lang.Get($"statushudcont:{selectedElementName}-desc"), CairoFont.WhiteSmallText(), tooltipLength, moveElementDropdownBounds.FlatCopy())
                 .BeginChildElements(editingBgBounds)
                     .BeginChildElements(editingBounds)
-                        // .AddToggleButton(Lang.Get("statushudcont:Edit"), CairoFont.ButtonText(), OnEdit, editElementPosButtonBounds, "editbutton")
                         .AddToggleButton(Lang.Get("statushudcont:Enable"), CairoFont.ButtonText(), OnEnable, enableElementButtonBounds, "shud-enablebutton")
                         .AddDropDown(elementAlignmentsValue, elementAlignments, 4, OnAlignChange, alignElementDropdownBounds, "shud-align")
                         .AddStaticTextAutoFontSize(Lang.Get("statushudcont:X Position"), CairoFont.WhiteSmallishText(), xPosTextBounds)
@@ -203,10 +200,6 @@ public class StatusHudConfigGui : GuiDialog
 
         SingleComposer.GetTextInput("shud-fontsize").SetValue(system.Config.textSize);
         SingleComposer.GetTextInput("shud-fontsize").SetPlaceHolderText(Lang.Get("statushudcont:Font Size..."));
-
-        // SingleComposer.GetToggleButton("editbutton").SetValue(true);
-
-        // elementSelector = new GuiDialogMoveable(capi);
     }
 
     private void OnOptionalConfig(string code, bool selected)
@@ -469,30 +462,6 @@ public class StatusHudConfigGui : GuiDialog
 
         capi.Logger.Debug(StatusHudSystem.PrintModName($"Element {selectedElementName} set to {Lang.GetL("en", elementAlignments[int.Parse(value)])} alignment"));
     }
-
-    // private void OnEdit(bool on)
-    // {
-    //     StatusHudElement element = GetElementFromName(selectedElementName);
-
-    //     if (element == null) return;
-
-    //     if (on)
-    //     {
-    //         elementSelector.UpdateSelectedElement(element);
-    //         elementSelector.TryOpen();
-
-    //         capi.Logger.Debug(StatusHudSystem.PrintModName($"Editing Element {selectedElementName}'s position"));
-    //     }
-    //     else
-    //     {
-    //         if (elementSelector.IsOpened())
-    //         {
-    //             elementSelector.TryClose();
-    //         }
-
-    //         capi.Logger.Debug(StatusHudSystem.PrintModName($"Setting Element {selectedElementName}'s position"));
-    //     }
-    // }
 
     private void OnEnable(bool on)
     {

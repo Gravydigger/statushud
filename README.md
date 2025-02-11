@@ -39,4 +39,3 @@ As I work on maintaining this mod, there are a few goals that I wish to achieve 
 - ~~Replace chat commands with a native GUI~~ ✅ Done as of 3.0.0
 - Set native GUI to correcly scale with varying GUI scales
 - ~~Add support for multiple languages~~ ✅ Done as of 3.2.0
-- Add option to drag around elements onto the screen with the mouse

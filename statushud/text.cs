@@ -132,10 +132,6 @@ namespace StatusHud
             float frameHeight = capi.Render.FrameHeight;
             width = config.iconSize * 3;
             height = config.iconSize;
-            // While boundaryScale shouldn't need to be set to anything other than 1f,
-            // the center alignment seems to leave the screen way before it would hit the actual frame.
-            // 0.8f seems to be the right scale to fix this issue.
-            // const float boundaryScale = 0.8f;
 
             // X.
             switch (pos.halign)
@@ -149,7 +145,7 @@ namespace StatusHud
                     }
                 case StatusHudPos.halignCenter:
                     {
-                        x = (float)GameMath.Clamp(x, -(frameWidth / 2 /** boundaryScale*/) + iconHalf, (frameWidth / 2 /** boundaryScale*/) - iconHalf);
+                        x = (float)GameMath.Clamp(x, -(frameWidth / 2) + iconHalf, (frameWidth / 2) - iconHalf);
                         break;
                     }
                 case StatusHudPos.halignRight:
@@ -171,7 +167,7 @@ namespace StatusHud
                     }
                 case StatusHudPos.valignMiddle:
                     {
-                        y = GameMath.Clamp(y, -(frameHeight / 2 /** boundaryScale*/), (frameHeight / 2 /** boundaryScale*/) - iconHalf);
+                        y = GameMath.Clamp(y, -(frameHeight / 2), (frameHeight / 2) - iconHalf);
                         break;
                     }
                 case StatusHudPos.valignBottom:
