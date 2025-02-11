@@ -456,6 +456,7 @@ public class StatusHudConfigGui : GuiDialog
 
         Vec2i align = AlignmentNameToValues(value);
         element.Pos(align.X, element.pos.x, align.Y, element.pos.y);
+        element.Ping();
 
         capi.Logger.Debug(StatusHudSystem.PrintModName($"Element {selectedElementName} set to {Lang.GetL("en", elementAlignments[int.Parse(value)])} alignment"));
     }
@@ -470,6 +471,7 @@ public class StatusHudConfigGui : GuiDialog
             int y = SingleComposer.GetTextInput("shud-ypos").GetText().ToInt(0);
             Vec2i align = AlignmentNameToValues(SingleComposer.GetDropDown("shud-align").SelectedValue);
             element.Pos(align.X, x, align.Y, y);
+            element.Ping();
 
             capi.ShowChatMessage(StatusHudSystem.PrintModName(Lang.Get("statushudcont:Element {0} created", Lang.Get($"statushudcont:{selectedElementName}-name"))));
             capi.Logger.Debug(StatusHudSystem.PrintModName(string.Format("Element {0} created", selectedElementName)));
