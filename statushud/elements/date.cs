@@ -1,6 +1,7 @@
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Config;
+using Vintagestory.Common;
 
 namespace StatusHud
 {
@@ -50,7 +51,7 @@ namespace StatusHud
         public override void Tick()
         {
             // Add '+ 1' because months start on the 1st.
-            int day = (int)(system.capi.World.Calendar.DayOfYear % system.capi.World.Calendar.DaysPerMonth) + 1;
+            int day = ((GameCalendar)system.capi.World.Calendar).DayOfMonth;
 
             if (system.capi.World.Calendar.Month >= 1 && system.capi.World.Calendar.Month <= 12
                     && monthNames.Length >= system.capi.World.Calendar.Month)
