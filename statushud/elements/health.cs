@@ -90,8 +90,7 @@ namespace StatusHud
 
         protected override void Render()
         {
-            // TODO: update with proper texture
-            system.capi.Render.RenderTexture(system.textures.texturesDict["wet"].TextureId, x, y, w, h);
+            system.capi.Render.RenderTexture(system.textures.texturesDict["health"].TextureId, x, y, w, h);
         }
 
         public override void Dispose()

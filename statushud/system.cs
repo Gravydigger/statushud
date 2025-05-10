@@ -20,6 +20,8 @@ namespace StatusHud
             typeof(StatusHudCompassElement),
             typeof(StatusHudDateElement),
             typeof(StatusHudDurabilityElement),
+            typeof(StatusHudHealthElement),
+            typeof(StatusHudHungerElement),
             typeof(StatusHudLatitudeElement),
             typeof(StatusHudLightElement),
             typeof(StatusHudPingElement),
