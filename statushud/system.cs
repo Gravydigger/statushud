@@ -63,6 +63,7 @@ namespace StatusHud
                 StatusHudCompassElement.name => new StatusHudCompassElement(this, config),
                 StatusHudDateElement.name => new StatusHudDateElement(this, config),
                 StatusHudDurabilityElement.name => new StatusHudDurabilityElement(this, config),
+                StatusHudHealthElement.name => new StatusHudHealthElement(this, config),
                 StatusHudLatitudeElement.name => new StatusHudLatitudeElement(this, config),
                 StatusHudLightElement.name => new StatusHudLightElement(this, config),
                 StatusHudPingElement.name => new StatusHudPingElement(this, config),

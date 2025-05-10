@@ -19,8 +19,6 @@ namespace StatusHud
         {
             renderer = new StatusHudHealthRenderer(system, this, config);
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
-
-            healthTree = system.capi.World.Player.Entity.WatchedAttributes.GetTreeAttribute("health");
         }
 
         public override StatusHudRenderer GetRenderer()
@@ -35,7 +33,19 @@ namespace StatusHud
 
         public override void Tick()
         {
+            if (healthTree == null){
+                try
+                {
+                    healthTree = system.capi.World.Player.Entity.WatchedAttributes.GetTreeAttribute("health");
+                }
+                catch (NullReferenceException)
+                {
+                    return;
+                }
+            }
+            
             // This doesn't always update correctly when taking injuries from metal spikes for example
+            // rejoining the world will re-sync the value
             float curr = healthTree.GetFloat("currenthealth");
             float max = healthTree.GetFloat("maxhealth");
 
@@ -80,6 +90,7 @@ namespace StatusHud
 
         protected override void Render()
         {
+            // TODO: update with proper texture
             system.capi.Render.RenderTexture(system.textures.texturesDict["wet"].TextureId, x, y, w, h);
         }
 
