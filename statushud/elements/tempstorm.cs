@@ -2,6 +2,7 @@ using System;
 using System.Reflection;
 using HarmonyLib;
 using Vintagestory.API.Client;
+using Vintagestory.API.Config;
 using Vintagestory.GameContent;
 
 namespace StatusHud
@@ -27,6 +28,7 @@ namespace StatusHud
         protected Harmony harmony;
 
         protected static TemporalStormRunTimeData data;
+        private bool firstLoad;
 
         public StatusHudTempstormElement(StatusHudSystem system, StatusHudConfig config) : base(system)
         {
@@ -36,6 +38,7 @@ namespace StatusHud
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
             active = false;
+            firstLoad = true;
             textureId = this.system.textures.texturesDict["empty"].TextureId;
 
             if (stabilitySystem != null)
@@ -71,6 +74,12 @@ namespace StatusHud
 
             if (data == null)
             {
+                if (firstLoad)
+                {
+                    string langName = Lang.Get("statushudcont:tempstorm-name");
+                    system.capi.ShowChatMessage(StatusHudSystem.PrintModName(Lang.Get($"statushudcont:harmony-nodata", langName,langName.ToLower())));
+                    firstLoad = false;
+                }
                 return;
             }
 

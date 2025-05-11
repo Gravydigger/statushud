@@ -3,6 +3,7 @@ using System.Reflection;
 using HarmonyLib;
 using Vintagestory.API.Client;
 using Vintagestory.API.Util;
+using Vintagestory.API.Config;
 using Vintagestory.GameContent;
 
 namespace StatusHud
@@ -27,6 +28,7 @@ namespace StatusHud
         private Harmony harmony;
 
         private static CurrentPattern riftActivityData;
+        private bool firstLoad;
 
         public StatusHudRiftActivityElement(StatusHudSystem system, StatusHudConfig config) : base(system)
         {
@@ -42,6 +44,7 @@ namespace StatusHud
             active = this.system.capi.World.Config.GetString("temporalRifts") != "off";
 
             showRiftChange = "false";
+            firstLoad = true;
 
             // World has to be reloaded for changes to apply
             harmony = new Harmony(harmonyId);
@@ -90,6 +93,12 @@ namespace StatusHud
 
             if (riftSystem == null || riftActivityData == null)
             {
+                if (firstLoad)
+                {
+                    string langName = Lang.Get("statushudcont:riftactivity-name");
+                    system.capi.ShowChatMessage(StatusHudSystem.PrintModName(Lang.Get($"statushudcont:harmony-nodata", langName,langName.ToLower())));
+                    firstLoad = false;
+                }
                 return;
             }
 
