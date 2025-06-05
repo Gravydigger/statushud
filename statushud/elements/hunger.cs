@@ -4,20 +4,20 @@ using Vintagestory.API.Datastructures;
 
 namespace StatusHud
 {
-    public class StatusHudHealthElement : StatusHudElement
+    public class StatusHudHungerElement : StatusHudElement
     {
-        public new const string name = "health";
-        protected const string textKey = "shud-health";
+        public new const string name = "hunger";
+        protected const string textKey = "shud-hunger";
 
         public override string ElementName => name;
 
-        protected StatusHudHealthRenderer renderer;
+        protected StatusHudHungerRenderer renderer;
 
-        private ITreeAttribute healthTree;
+        private ITreeAttribute hungerTree;
 
-        public StatusHudHealthElement(StatusHudSystem system, StatusHudConfig config) : base(system)
+        public StatusHudHungerElement(StatusHudSystem system, StatusHudConfig config) : base(system)
         {
-            renderer = new StatusHudHealthRenderer(system, this, config);
+            renderer = new StatusHudHungerRenderer(system, this, config);
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
         }
 
@@ -33,23 +33,20 @@ namespace StatusHud
 
         public override void Tick()
         {
-            if (healthTree == null){
+            if (hungerTree == null){
                 try
                 {
-                    healthTree = system.capi.World.Player.Entity.WatchedAttributes.GetTreeAttribute("health");
+                    hungerTree = system.capi.World.Player.Entity.WatchedAttributes.GetTreeAttribute("hunger");
                 }
                 catch (NullReferenceException)
                 {
+                    // likely the player has yet to have been fully loaded
                     return;
                 }
             }
-            
-            // This doesn't always update correctly when taking injuries from metal spikes for example
-            // rejoining the world will re-sync the value
-            float curr = healthTree.GetFloat("currenthealth");
-            float max = healthTree.GetFloat("maxhealth");
 
-            renderer.SetText(Math.Round(curr, 1) + "/" + Math.Round(max, 1));
+            float curr = hungerTree.GetFloat("currentsaturation");
+            renderer.SetText(Math.Round(curr, 1).ToString());
         }
 
         public override void Dispose()
@@ -59,13 +56,13 @@ namespace StatusHud
         }
     }
 
-    public class StatusHudHealthRenderer : StatusHudRenderer
+    public class StatusHudHungerRenderer : StatusHudRenderer
     {
-        protected StatusHudHealthElement element;
+        protected StatusHudHungerElement element;
 
         protected StatusHudText text;
 
-        public StatusHudHealthRenderer(StatusHudSystem system, StatusHudHealthElement element, StatusHudConfig config) : base(system)
+        public StatusHudHungerRenderer(StatusHudSystem system, StatusHudHungerElement element, StatusHudConfig config) : base(system)
         {
             this.element = element;
 
@@ -90,7 +87,7 @@ namespace StatusHud
 
         protected override void Render()
         {
-            system.capi.Render.RenderTexture(system.textures.texturesDict["health"].TextureId, x, y, w, h);
+            system.capi.Render.RenderTexture(system.textures.texturesDict["hunger"].TextureId, x, y, w, h);
         }
 
         public override void Dispose()
