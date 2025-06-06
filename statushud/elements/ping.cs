@@ -13,9 +13,7 @@ namespace StatusHud
 
         public override string ElementName => name;
 
-        public bool active;
         private static readonly int maxPing = 999;
-        private bool noRenderText;
         private ClientPlayer player;
 
         protected StatusHudPingRenderer renderer;
@@ -24,12 +22,6 @@ namespace StatusHud
         {
             renderer = new StatusHudPingRenderer(system, this, config);
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
-
-#if DEBUG
-            active = true;
-#else
-            this.active = this.system.capi.IsSinglePlayer ? false : true;
-#endif
         }
 
         public override StatusHudRenderer GetRenderer()
@@ -44,14 +36,9 @@ namespace StatusHud
 
         public override void Tick()
         {
-            if (!active)
+            if (system.capi.IsSinglePlayer)
             {
-                // render text only once
-                if (!noRenderText)
-                {
-                    renderer.SetText("");
-                    noRenderText = false;
-                }
+                renderer.SetText("");
                 return;
             }
 
@@ -59,7 +46,7 @@ namespace StatusHud
             {
                 IPlayer[] players = system.capi.World.AllOnlinePlayers;
 
-                // Get the mod users player object
+                // Get the clients player object
                 player = (ClientPlayer)players.FirstOrDefault(player => player.PlayerUID == system.UUID);
                 renderer.SetText("");
 
@@ -110,16 +97,14 @@ namespace StatusHud
 
         protected override void Render()
         {
-            if (!element.active)
+            if (system.ShowHidden && system.capi.IsSinglePlayer)
             {
-                if (system.ShowHidden)
-                {
-                    RenderHidden(system.textures.texturesDict["network"].TextureId);
-                }
-                return;
+                RenderHidden(system.textures.texturesDict["network"].TextureId);
             }
-
-            system.capi.Render.RenderTexture(system.textures.texturesDict["network"].TextureId, x, y, w, h);
+            else
+            {
+                system.capi.Render.RenderTexture(system.textures.texturesDict["network"].TextureId, x, y, w, h);
+            }
         }
 
         public override void Dispose()

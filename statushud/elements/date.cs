@@ -50,7 +50,6 @@ namespace StatusHud
 
         public override void Tick()
         {
-            // Add '+ 1' because months start on the 1st.
             int day = ((GameCalendar)system.capi.World.Calendar).DayOfMonth;
 
             if (system.capi.World.Calendar.Month >= 1 && system.capi.World.Calendar.Month <= 12
