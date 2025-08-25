@@ -13,7 +13,6 @@ namespace StatusHud
         protected const int slowListenInterval = 1000;
         protected const int fastListenInterval = 100;
 
-        // Health and Hunger elements are not quite stable to release.
         public static readonly Type[] elementTypes = {
             typeof(StatusHudAltitudeElement),
             typeof(StatusHudArmourElement),
@@ -21,8 +20,6 @@ namespace StatusHud
             typeof(StatusHudCompassElement),
             typeof(StatusHudDateElement),
             typeof(StatusHudDurabilityElement),
-            // typeof(StatusHudHealthElement),
-            // typeof(StatusHudHungerElement),
             typeof(StatusHudLatitudeElement),
             typeof(StatusHudLightElement),
             typeof(StatusHudPingElement),
@@ -58,7 +55,6 @@ namespace StatusHud
         {
             StatusHudConfig config = configManager.Config;
 
-            // Health and Hunger elements are not quite stable to release.
             return name switch
             {
                 StatusHudAltitudeElement.name => new StatusHudAltitudeElement(this, config),
@@ -67,8 +63,6 @@ namespace StatusHud
                 StatusHudCompassElement.name => new StatusHudCompassElement(this, config),
                 StatusHudDateElement.name => new StatusHudDateElement(this, config),
                 StatusHudDurabilityElement.name => new StatusHudDurabilityElement(this, config),
-                // StatusHudHealthElement.name => new StatusHudHealthElement(this, config),
-                // StatusHudHungerElement.name => new StatusHudHungerElement(this, config),
                 StatusHudLatitudeElement.name => new StatusHudLatitudeElement(this, config),
                 StatusHudLightElement.name => new StatusHudLightElement(this, config),
                 StatusHudPingElement.name => new StatusHudPingElement(this, config),
