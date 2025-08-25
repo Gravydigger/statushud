@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <RunWorkingDirectory>$(MSBuildProjectDirectory)</RunWorkingDirectory>
-    <Configurations>Debug;Release;Release-NoGui</Configurations>
+    <Configurations>Debug;Release</Configurations>
   </PropertyGroup>
   
   <ItemGroup>

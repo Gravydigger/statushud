@@ -20,14 +20,16 @@
         (with dotnetCorePackages;
           combinePackages [
             sdk_8_0
+            runtime_8_0
+            aspnetcore_8_0
           ])
         # Used for running the ZZCakeBuild binary
         steam-run
+        # VSCode extensions
+        vscode-extensions.ms-dotnettools.csharp
+        vscode-extensions.ms-dotnettools.vscode-dotnet-runtime
+        vscode-extensions.ms-dotnettools.csdevkit
       ];
-      # shellHook = ''
-      #   echo "Welcome to the devShell!"
-      # '';
-      #VINTAGE_STORY = "${pkgs.vintagestory}/share/vintagestory";
     };
   };
 }

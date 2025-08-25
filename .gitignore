@@ -676,3 +676,4 @@ fabric.properties
 
 dependants/
 .vscode
+nix-package/results
