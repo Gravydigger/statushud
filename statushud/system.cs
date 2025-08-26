@@ -10,10 +10,10 @@ namespace StatusHud
     public class StatusHudSystem : ModSystem
     {
         public const string domain = "statushudcont";
-        protected const int slowListenInterval = 1000;
-        protected const int fastListenInterval = 100;
+        private const int slowListenInterval = 1000;
+        private const int fastListenInterval = 100;
 
-        public static readonly Type[] elementTypes = {
+        private static readonly Type[] elementTypes = [
             typeof(StatusHudAltitudeElement),
             typeof(StatusHudArmourElement),
             typeof(StatusHudBodyheatElement),
@@ -35,17 +35,17 @@ namespace StatusHud
             typeof(StatusHudWeatherElement),
             typeof(StatusHudWetElement),
             typeof(StatusHudWindElement)
-        };
+        ];
         public static readonly string[] elementNames = InitElementNames();
 
         private StatusHudConfigManager configManager;
         public StatusHudConfig Config => configManager.Config;
 
-        public IList<StatusHudElement> elements;
-        protected IList<StatusHudElement> slowElements;
-        protected IList<StatusHudElement> fastElements;
+        public List<StatusHudElement> elements;
+        private List<StatusHudElement> slowElements;
+        private List<StatusHudElement> fastElements;
         public StatusHudTextures textures;
-        private GuiDialog dialog;
+        private StatusHudConfigGui dialog;
 
         private string uuid = null;
         public string UUID => uuid;
@@ -68,7 +68,7 @@ namespace StatusHud
                 StatusHudPingElement.name => new StatusHudPingElement(this, config),
                 StatusHudPlayersElement.name => new StatusHudPlayersElement(this, config),
                 StatusHudRiftActivityElement.name => new StatusHudRiftActivityElement(this, config),
-                StatusHudRoomElement.name => new StatusHudRoomElement(this),
+                StatusHudRoomElement.name => new StatusHudRoomElement(this, config),
                 StatusHudSleepElement.name => new StatusHudSleepElement(this, config),
                 StatusHudSpeedElement.name => new StatusHudSpeedElement(this, config),
                 StatusHudStabilityElement.name => new StatusHudStabilityElement(this, config),
@@ -98,9 +98,9 @@ namespace StatusHud
 
             configManager = new StatusHudConfigManager(this);
 
-            elements = new List<StatusHudElement>();
-            slowElements = new List<StatusHudElement>();
-            fastElements = new List<StatusHudElement>();
+            elements = [];
+            slowElements = [];
+            fastElements = [];
             textures = new StatusHudTextures(this.capi, Config.iconSize);
 
             configManager.LoadElements(this);
@@ -125,10 +125,6 @@ namespace StatusHud
             dialog = new StatusHudConfigGui(capi, this);
             capi.Input.RegisterHotKey("statushudconfiggui", "Status Hud Menu", GlKeys.U, HotkeyType.GUIOrOtherControls);
             capi.Input.SetHotKeyHandler("statushudconfiggui", ToggleConfigGui);
-
-#if DEBUG
-            this.capi.Logger.Debug(PrintModName("Debug flag set"));
-#endif
 
             this.capi.Logger.Debug(PrintModName($"Current locale set to: {Lang.CurrentLocale}"));
         }
@@ -336,7 +332,7 @@ namespace StatusHud
 
         private static string[] InitElementNames()
         {
-            List<string> names = new();
+            List<string> names = [];
 
             foreach (var type in elementTypes)
             {

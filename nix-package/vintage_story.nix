@@ -18,13 +18,15 @@
   libpulseaudio,
   dotnet-runtime_8,
 }:
+
 stdenv.mkDerivation rec {
   pname = "vintagestory";
-  version = "1.21.0-rc.7";
+  version = "1.21.0";
+  release = "stable";
 
   src = fetchurl {
-    url = "https://cdn.vintagestory.at/gamefiles/unstable/vs_client_linux-x64_${version}.tar.gz";
-    hash = "sha256-uoQjsSzQQ/4JjhPCDp3VWV0NCQsM5lca7VKB8OnKtYA=";
+    url = "https://cdn.vintagestory.at/gamefiles/${release}/vs_client_linux-x64_${version}.tar.gz";
+    hash = "sha256-90YQOur7UhXxDBkGLSMnXQK7iQ6+Z8Mqx9PEG6FEXBs=";
   };
 
   nativeBuildInputs = [
@@ -65,7 +67,6 @@ stdenv.mkDerivation rec {
     makeWrapper ${dotnet-runtime_8}/bin/dotnet $out/vintagestory/Vintagestory \
       --prefix LD_LIBRARY_PATH : "${runtimeLibs}" \
       --prefix FONTCONFIG_FILE : "$out/font.conf" \
-      --unset WAYLAND_DISPLAY \
       --set-default mesa_glthread true \
       --add-flags $out/vintagestory/Vintagestory.dll
 
