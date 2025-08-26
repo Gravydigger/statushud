@@ -15,6 +15,7 @@ public class StatusHudConfigGui : GuiDialog
     private string selectedElementName;
     private int selectedElementIndex;
     private readonly List<string> elementNamesTranslated = [];
+    public readonly string[] elementNames = [.. StatusHudSystem.elementTypes.Keys.Cast<string>()];
 
     private readonly string[] elementAlignments = [
         Lang.Get("statushudcont:Top Left"),
@@ -32,13 +33,10 @@ public class StatusHudConfigGui : GuiDialog
     {
         this.system = system;
 
-        selectedElementName = StatusHudSystem.elementNames[0];
+        selectedElementName = elementNames[0];
         selectedElementIndex = 0;
 
-        foreach (var name in StatusHudSystem.elementNames)
-        {
-            elementNamesTranslated.Add(Lang.Get($"statushudcont:{name}-name"));
-        }
+        elementNames.Foreach(name => elementNamesTranslated.Add(Lang.Get($"statushudcont:{name}-name")));
 
         ReloadElementInputs(GetElementFromName(selectedElementName));
     }
@@ -155,7 +153,7 @@ public class StatusHudConfigGui : GuiDialog
                 .AddTextInput(fontSizeInputBounds, OnFontSize, key: "shud-fontsize")
                 .AddToggleButton(Lang.Get("statushudcont:Show Hidden Elements"), CairoFont.ButtonText(), OnHidden, showHiddenButtonBounds, "shud-hidden")
                 .AddStaticText(Lang.Get("statushudcont:Edit Element"), CairoFont.ButtonText(), EnumTextOrientation.Center, moveElementTextBounds)
-                .AddDropDown(StatusHudSystem.elementNames, elementNamesTranslated.ToArray(), selectedElementIndex, OnSelectionChange, moveElementDropdownBounds)
+                .AddDropDown(elementNames, elementNamesTranslated.ToArray(), selectedElementIndex, OnSelectionChange, moveElementDropdownBounds)
                 .AddAutoSizeHoverText(Lang.Get($"statushudcont:{selectedElementName}-desc"), CairoFont.WhiteSmallText(), tooltipLength, moveElementDropdownBounds.FlatCopy())
                 .BeginChildElements(editingBgBounds)
                     .BeginChildElements(editingBounds)
@@ -383,9 +381,9 @@ public class StatusHudConfigGui : GuiDialog
     {
         selectedElementName = name;
 
-        for (int i = 0; i < StatusHudSystem.elementNames.Length; i++)
+        for (int i = 0; i < elementNames.Length; i++)
         {
-            if (StatusHudSystem.elementNames[i] == name)
+            if (elementNames[i] == name)
             {
                 selectedElementIndex = i;
                 break;
@@ -459,7 +457,7 @@ public class StatusHudConfigGui : GuiDialog
     {
         if (on)
         {
-            StatusHudElement element = system.Set(selectedElementName);
+            StatusHudElement element = system.Set(StatusHudSystem.elementTypes[selectedElementName]);
 
             int x = SingleComposer.GetTextInput("shud-xpos").GetText().ToInt(0);
             int y = SingleComposer.GetTextInput("shud-ypos").GetText().ToInt(0);
@@ -472,7 +470,7 @@ public class StatusHudConfigGui : GuiDialog
         }
         else
         {
-            system.Unset(selectedElementName);
+            system.Unset(StatusHudSystem.elementTypes[selectedElementName]);
             capi.ShowChatMessage(StatusHudSystem.PrintModName(Lang.Get("statushudcont:Element {0} removed", Lang.Get($"statushudcont:{selectedElementName}-name"))));
             capi.Logger.Debug(StatusHudSystem.PrintModName(string.Format("Element {0} removed", selectedElementName)));
         }

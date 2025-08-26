@@ -14,9 +14,13 @@ namespace StatusHud
         private const int slowListenInterval = 1000;
         private const int fastListenInterval = 100;
 
-        public static readonly Type[] elementTypes =
-            [.. Assembly.GetExecutingAssembly().GetTypes().Where(t => t.IsSubclassOf(typeof(StatusHudElement)) && !t.IsAbstract)];
-        public static readonly string[] elementNames = InitElementNames();
+        public static readonly Dictionary<string, Type> elementTypes =
+            typeof(StatusHudElement).Assembly.GetTypes()
+            .Where(t => t.IsSubclassOf(typeof(StatusHudElement)))
+            .ToDictionary(
+                t => (string)t.GetField("name", BindingFlags.Public | BindingFlags.Static)?.GetValue(null),
+                t => t
+            );
 
         private StatusHudConfigManager configManager;
         public StatusHudConfig Config => configManager.Config;
@@ -30,14 +34,6 @@ namespace StatusHud
         private string uuid = null;
         public string UUID => uuid;
         public bool ShowHidden => configManager.Config.showHidden;
-
-        private StatusHudElement Instantiate(string name)
-        {
-            Type type = elementTypes.FirstOrDefault(t =>
-                (string)t.GetField("name", BindingFlags.Public | BindingFlags.Static)?.GetValue(null) == name);
-
-            return type != null ? (StatusHudElement)Activator.CreateInstance(type, this, Config) : null;
-        }
 
         public override bool ShouldLoad(EnumAppSide side)
         {
@@ -123,9 +119,14 @@ namespace StatusHud
             }
         }
 
-        public StatusHudElement Set(string name)
+        public StatusHudElement Set(Type type)
         {
-            StatusHudElement element = Instantiate(name);
+            if (type == null)
+            {
+                return null;
+            }
+
+            StatusHudElement element = (StatusHudElement)Activator.CreateInstance(type, this, Config);
 
             if (element == null)
             {
@@ -168,11 +169,11 @@ namespace StatusHud
             return element;
         }
 
-        public bool Unset(string name)
+        public bool Unset(Type type)
         {
             foreach (var element in elements)
             {
-                if (element.ElementName == name)
+                if (element.GetType() == type)
                 {
                     if (element.fast)
                     {
@@ -261,42 +262,30 @@ namespace StatusHud
             int bottomY = (int)Math.Round(size * 0.375f);
             int offset = (int)Math.Round(size * 1.5f);
 
-            Pos(Set(StatusHudDateElement.name), StatusHudPos.halignLeft, sideX, StatusHudPos.valignBottom, bottomY);
+            Pos(Set(typeof(StatusHudDateElement)), StatusHudPos.halignLeft, sideX, StatusHudPos.valignBottom, bottomY);
 
-            Pos(Set(StatusHudTimeElement.name), StatusHudPos.halignLeft, sideX + (int)(offset * 1.3f), StatusHudPos.valignBottom, bottomY);
+            Pos(Set(typeof(StatusHudTimeElement)), StatusHudPos.halignLeft, sideX + (int)(offset * 1.3f), StatusHudPos.valignBottom, bottomY);
 
-            Pos(Set(StatusHudWeatherElement.name), StatusHudPos.halignLeft, sideX + (int)(offset * 2.5f), StatusHudPos.valignBottom, bottomY);
+            Pos(Set(typeof(StatusHudWeatherElement)), StatusHudPos.halignLeft, sideX + (int)(offset * 2.5f), StatusHudPos.valignBottom, bottomY);
 
-            Pos(Set(StatusHudWindElement.name), StatusHudPos.halignLeft, sideX + (int)(offset * 3.5f), StatusHudPos.valignBottom, bottomY);
+            Pos(Set(typeof(StatusHudWindElement)), StatusHudPos.halignLeft, sideX + (int)(offset * 3.5f), StatusHudPos.valignBottom, bottomY);
 
-            Pos(Set(StatusHudArmourElement.name), StatusHudPos.halignCenter, sideX + (int)(offset * 9f), StatusHudPos.valignBottom, bottomY);
+            Pos(Set(typeof(StatusHudArmourElement)), StatusHudPos.halignCenter, sideX + (int)(offset * 9f), StatusHudPos.valignBottom, bottomY);
 
-            Pos(Set(StatusHudStabilityElement.name), StatusHudPos.halignCenter, sideX + (int)(offset * 10f), StatusHudPos.valignBottom, bottomY);
+            Pos(Set(typeof(StatusHudStabilityElement)), StatusHudPos.halignCenter, sideX + (int)(offset * 10f), StatusHudPos.valignBottom, bottomY);
 
-            Pos(Set(StatusHudRoomElement.name), StatusHudPos.halignCenter, -1 * (sideX + (int)(offset * 9f)), StatusHudPos.valignBottom, bottomY);
+            Pos(Set(typeof(StatusHudRoomElement)), StatusHudPos.halignCenter, -1 * (sideX + (int)(offset * 9f)), StatusHudPos.valignBottom, bottomY);
 
-            Pos(Set(StatusHudSleepElement.name), StatusHudPos.halignRight, sideMinimapX + offset, StatusHudPos.valignTop, topY);
+            Pos(Set(typeof(StatusHudSleepElement)), StatusHudPos.halignRight, sideMinimapX + offset, StatusHudPos.valignTop, topY);
 
-            Pos(Set(StatusHudWetElement.name), StatusHudPos.halignRight, sideMinimapX, StatusHudPos.valignTop, topY);
+            Pos(Set(typeof(StatusHudWetElement)), StatusHudPos.halignRight, sideMinimapX, StatusHudPos.valignTop, topY);
 
-            Pos(Set(StatusHudTimeLocalElement.name), StatusHudPos.halignRight, sideX, StatusHudPos.valignBottom, bottomY);
+            Pos(Set(typeof(StatusHudTimeLocalElement)), StatusHudPos.halignRight, sideX, StatusHudPos.valignBottom, bottomY);
         }
 
         public void SaveConfig()
         {
             configManager.Save();
-        }
-
-        private static string[] InitElementNames()
-        {
-            List<string> names = [];
-
-            foreach (var type in elementTypes)
-            {
-                names.Add((string)type.GetField("name").GetValue(null));
-            }
-
-            return [.. names.OrderBy(name => name)];
         }
     }
 }

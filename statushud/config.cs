@@ -25,7 +25,7 @@ namespace StatusHud
     public class StatusHudConfigManager
     {
         private const string filename = "statushud.json";
-        public const int version = 3;
+        public const int version = 4;
 
         private StatusHudConfig config;
         private readonly StatusHudSystem system;
@@ -35,6 +35,7 @@ namespace StatusHud
         public StatusHudConfigManager(StatusHudSystem system)
         {
             this.system = system;
+
             Load();
 
             if (config == null)
@@ -48,6 +49,11 @@ namespace StatusHud
             if (config.version == 2)
             {
                 ConfigToV3();
+            }
+
+            if (config.version == 3)
+            {
+                ConfigToV4();
             }
         }
 
@@ -67,7 +73,7 @@ namespace StatusHud
         {
             foreach (var configElement in config.elements)
             {
-                StatusHudElement element = system.Set(configElement.name);
+                StatusHudElement element = system.Set(Type.GetType(configElement.name));
 
                 if (element != null)
                 {
@@ -83,7 +89,8 @@ namespace StatusHud
 
             foreach (var element in system.elements)
             {
-                config.elements.Add(new StatusHudConfigElement((string)element.GetType().GetField("name").GetValue(null),
+                config.elements.Add(new StatusHudConfigElement(
+                    element.GetType().ToString(),
                     element.pos.x,
                     element.pos.y,
                     element.pos.halign,
@@ -183,6 +190,13 @@ namespace StatusHud
                     default:
                         break;
                 }
+            }
+        }
+        private void ConfigToV4()
+        {
+            foreach (var configElement in config.elements)
+            {
+                configElement.name = StatusHudSystem.elementTypes.TryGetValue(configElement.name, out Type value) ? value.ToString() : "invalid";
             }
         }
     }
