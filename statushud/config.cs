@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Vintagestory.API.Util;
 
 namespace StatusHud
 {
@@ -10,27 +9,17 @@ namespace StatusHud
         public int iconSize = 32;
         public int textSize = 16;
         public bool showHidden = false;
-        public IList<StatusHudConfigElement> elements = new List<StatusHudConfigElement>();
+        public IList<StatusHudConfigElement> elements = [];
     }
 
-    public class StatusHudConfigElement
+    public class StatusHudConfigElement(string name, int x, int y, int halign, int valign, string elementOptions)
     {
-        public string name;
-        public int x;
-        public int y;
-        public int halign;
-        public int valign;
-        public string options;
-
-        public StatusHudConfigElement(string name, int x, int y, int halign, int valign, string elementOptions)
-        {
-            this.name = name;
-            this.x = x;
-            this.halign = halign;
-            this.y = y;
-            this.valign = valign;
-            this.options = elementOptions;
-        }
+        public string name = name;
+        public int x = x;
+        public int y = y;
+        public int halign = halign;
+        public int valign = valign;
+        public string options = elementOptions;
     }
 
     public class StatusHudConfigManager
@@ -53,8 +42,10 @@ namespace StatusHud
                 config = new StatusHudConfig();
                 system.capi.Logger.Debug(StatusHudSystem.PrintModName($"Generated new config file {filename}"));
                 this.system.capi.StoreModConfig(config, filename);
+                return;
             }
-            else if (config.version == 2)
+
+            if (config.version == 2)
             {
                 ConfigToV3();
             }

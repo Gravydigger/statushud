@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using StatusHud;
 using Vintagestory.API.Client;
 using Vintagestory.API.Config;
@@ -10,12 +11,12 @@ public class StatusHudConfigGui : GuiDialog
 {
     public override string ToggleKeyCombinationCode => "statushudconfiggui";
 
-    private StatusHudSystem system;
+    private readonly StatusHudSystem system;
     private string selectedElementName;
     private int selectedElementIndex;
-    private readonly List<string> elementNamesTranslated = new();
+    private readonly List<string> elementNamesTranslated = [];
 
-    private readonly string[] elementAlignments = {
+    private readonly string[] elementAlignments = [
         Lang.Get("statushudcont:Top Left"),
         Lang.Get("statushudcont:Top Center"),
         Lang.Get("statushudcont:Top Right"),
@@ -24,8 +25,8 @@ public class StatusHudConfigGui : GuiDialog
         Lang.Get("statushudcont:Center Right"),
         Lang.Get("statushudcont:Bottom Left"),
         Lang.Get("statushudcont:Bottom Center"),
-        Lang.Get("statushudcont:Bottom Right")};
-    private readonly string[] elementAlignmentsValue = { "0", "1", "2", "3", "4", "5", "6", "7", "8" };
+        Lang.Get("statushudcont:Bottom Right")];
+    private readonly string[] elementAlignmentsValue = ["0", "1", "2", "3", "4", "5", "6", "7", "8"];
 
     public StatusHudConfigGui(ICoreClientAPI capi, StatusHudSystem system) : base(capi)
     {
@@ -96,7 +97,7 @@ public class StatusHudConfigGui : GuiDialog
         {
             editingBounds.WithChildren(enableElementButtonBounds, alignElementDropdownBounds, xPosInputBounds, xPosInputBounds, yPosTextBounds, yPosInputBounds, optionalConfigTextBounds, optionalConfigDropdownBounds);
 
-            string[] options = Array.Empty<string>();
+            string[] options = [];
 
             switch (element.ElementName)
             {
@@ -209,14 +210,7 @@ public class StatusHudConfigGui : GuiDialog
 
     private StatusHudElement GetElementFromName(string name)
     {
-        foreach (var element in system.elements)
-        {
-            if (element.ElementName == name)
-            {
-                return element;
-            }
-        }
-        return null;
+        return system.elements.FirstOrDefault(e => e.ElementName == name);
     }
 
     private void ReloadElementInputs(StatusHudElement element)

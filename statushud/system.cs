@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Config;
@@ -13,29 +14,8 @@ namespace StatusHud
         private const int slowListenInterval = 1000;
         private const int fastListenInterval = 100;
 
-        private static readonly Type[] elementTypes = [
-            typeof(StatusHudAltitudeElement),
-            typeof(StatusHudArmourElement),
-            typeof(StatusHudBodyheatElement),
-            typeof(StatusHudCompassElement),
-            typeof(StatusHudDateElement),
-            typeof(StatusHudDurabilityElement),
-            typeof(StatusHudLatitudeElement),
-            typeof(StatusHudLightElement),
-            typeof(StatusHudPingElement),
-            typeof(StatusHudPlayersElement),
-            typeof(StatusHudRiftActivityElement),
-            typeof(StatusHudRoomElement),
-            typeof(StatusHudSleepElement),
-            typeof(StatusHudSpeedElement),
-            typeof(StatusHudStabilityElement),
-            typeof(StatusHudTempstormElement),
-            typeof(StatusHudTimeElement),
-            typeof(StatusHudTimeLocalElement),
-            typeof(StatusHudWeatherElement),
-            typeof(StatusHudWetElement),
-            typeof(StatusHudWindElement)
-        ];
+        public static readonly Type[] elementTypes =
+            [.. Assembly.GetExecutingAssembly().GetTypes().Where(t => t.IsSubclassOf(typeof(StatusHudElement)) && !t.IsAbstract)];
         public static readonly string[] elementNames = InitElementNames();
 
         private StatusHudConfigManager configManager;
@@ -53,33 +33,10 @@ namespace StatusHud
 
         private StatusHudElement Instantiate(string name)
         {
-            StatusHudConfig config = configManager.Config;
+            Type type = elementTypes.FirstOrDefault(t =>
+                (string)t.GetField("name", BindingFlags.Public | BindingFlags.Static)?.GetValue(null) == name);
 
-            return name switch
-            {
-                StatusHudAltitudeElement.name => new StatusHudAltitudeElement(this, config),
-                StatusHudArmourElement.name => new StatusHudArmourElement(this, config),
-                StatusHudBodyheatElement.name => new StatusHudBodyheatElement(this, config),
-                StatusHudCompassElement.name => new StatusHudCompassElement(this, config),
-                StatusHudDateElement.name => new StatusHudDateElement(this, config),
-                StatusHudDurabilityElement.name => new StatusHudDurabilityElement(this, config),
-                StatusHudLatitudeElement.name => new StatusHudLatitudeElement(this, config),
-                StatusHudLightElement.name => new StatusHudLightElement(this, config),
-                StatusHudPingElement.name => new StatusHudPingElement(this, config),
-                StatusHudPlayersElement.name => new StatusHudPlayersElement(this, config),
-                StatusHudRiftActivityElement.name => new StatusHudRiftActivityElement(this, config),
-                StatusHudRoomElement.name => new StatusHudRoomElement(this, config),
-                StatusHudSleepElement.name => new StatusHudSleepElement(this, config),
-                StatusHudSpeedElement.name => new StatusHudSpeedElement(this, config),
-                StatusHudStabilityElement.name => new StatusHudStabilityElement(this, config),
-                StatusHudTempstormElement.name => new StatusHudTempstormElement(this, config),
-                StatusHudTimeElement.name => new StatusHudTimeElement(this, config),
-                StatusHudTimeLocalElement.name => new StatusHudTimeLocalElement(this, config),
-                StatusHudWeatherElement.name => new StatusHudWeatherElement(this, config),
-                StatusHudWetElement.name => new StatusHudWetElement(this, config),
-                StatusHudWindElement.name => new StatusHudWindElement(this, config),
-                _ => null,
-            };
+            return type != null ? (StatusHudElement)Activator.CreateInstance(type, this, Config) : null;
         }
 
         public override bool ShouldLoad(EnumAppSide side)
@@ -339,7 +296,7 @@ namespace StatusHud
                 names.Add((string)type.GetField("name").GetValue(null));
             }
 
-            return names.OrderBy(name => name).ToArray();
+            return [.. names.OrderBy(name => name)];
         }
     }
 }
