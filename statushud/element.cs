@@ -9,7 +9,7 @@ namespace StatusHud
 
         public const string name = "element";
         public const string desc = "No description available.";
-        
+
         public bool fast;
 
         public virtual string ElementName => name;
@@ -26,9 +26,9 @@ namespace StatusHud
             pos = new StatusHudPos();
         }
 
-        public void Pos(int halign, int x, int valign, int y)
+        public void Pos(StatusHudPos.HorzAlign horzAlign, int x, StatusHudPos.VertAlign vertAlign, int y)
         {
-            pos.Set(halign, x, valign, y);
+            pos.Set(horzAlign, x, vertAlign, y);
             Pos();
         }
 
@@ -39,31 +39,31 @@ namespace StatusHud
             int frameWidthMin = 0;
             int frameHeightMin = 0;
 
-            switch (pos.halign)
+            switch (pos.horzAlign)
             {
-                case -1: // Left
+                case StatusHudPos.HorzAlign.Left:
                     frameWidthMax /= 2;
                     break;
-                case 0: // Centre
+                case StatusHudPos.HorzAlign.Center:
                     frameWidthMax /= 2;
                     frameWidthMin = -1 * frameWidthMax;
                     break;
-                case 1: // Right
+                case StatusHudPos.HorzAlign.Right:
                     break;
                 default:
                     break;
             }
 
-            switch (pos.valign)
+            switch (pos.vertAlign)
             {
-                case -1: // Top
+                case StatusHudPos.VertAlign.Top:
                     frameHeightMax /= 2;
                     break;
-                case 0: // Centre
+                case StatusHudPos.VertAlign.Middle:
                     frameHeightMax /= 2;
                     frameHeightMin = -1 * frameHeightMax;
                     break;
-                case 1: // Bottom
+                case StatusHudPos.VertAlign.Bottom:
                     break;
                 default:
                     break;

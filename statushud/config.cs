@@ -78,7 +78,7 @@ namespace StatusHud
                 if (element != null)
                 {
                     element.ConfigOptions(configElement.options);
-                    StatusHudSystem.Pos(element, configElement.halign, configElement.x, configElement.valign, configElement.y);
+                    StatusHudSystem.Pos(element, (StatusHudPos.HorzAlign)configElement.halign, configElement.x, (StatusHudPos.VertAlign)configElement.valign, configElement.y);
                 }
             }
         }
@@ -93,8 +93,8 @@ namespace StatusHud
                     element.GetType().ToString(),
                     element.pos.x,
                     element.pos.y,
-                    element.pos.halign,
-                    element.pos.valign,
+                    (int)element.pos.horzAlign,
+                    (int)element.pos.vertAlign,
                     element.ElementOption)
                 );
             }

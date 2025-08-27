@@ -57,23 +57,23 @@ namespace StatusHud
             float y = pos.y;
 
             // Area.
-            switch (pos.halign)
+            switch (pos.horzAlign)
             {
-                case StatusHudPos.halignLeft:
+                case StatusHudPos.HorzAlign.Left:
                     {
-                        switch (pos.valign)
+                        switch (pos.vertAlign)
                         {
-                            case StatusHudPos.valignTop:
+                            case StatusHudPos.VertAlign.Top:
                                 {
                                     area = EnumDialogArea.LeftTop;
                                     break;
                                 }
-                            case StatusHudPos.valignMiddle:
+                            case StatusHudPos.VertAlign.Middle:
                                 {
                                     area = EnumDialogArea.LeftMiddle;
                                     break;
                                 }
-                            case StatusHudPos.valignBottom:
+                            case StatusHudPos.VertAlign.Bottom:
                                 {
                                     area = EnumDialogArea.LeftBottom;
                                     break;
@@ -81,21 +81,21 @@ namespace StatusHud
                         }
                         break;
                     }
-                case StatusHudPos.halignCenter:
+                case StatusHudPos.HorzAlign.Center:
                     {
-                        switch (pos.valign)
+                        switch (pos.vertAlign)
                         {
-                            case StatusHudPos.valignTop:
+                            case StatusHudPos.VertAlign.Top:
                                 {
                                     area = EnumDialogArea.CenterTop;
                                     break;
                                 }
-                            case StatusHudPos.valignMiddle:
+                            case StatusHudPos.VertAlign.Middle:
                                 {
                                     area = EnumDialogArea.CenterMiddle;
                                     break;
                                 }
-                            case StatusHudPos.valignBottom:
+                            case StatusHudPos.VertAlign.Bottom:
                                 {
                                     area = EnumDialogArea.CenterBottom;
                                     break;
@@ -103,21 +103,21 @@ namespace StatusHud
                         }
                         break;
                     }
-                case StatusHudPos.halignRight:
+                case StatusHudPos.HorzAlign.Right:
                     {
-                        switch (pos.valign)
+                        switch (pos.vertAlign)
                         {
-                            case StatusHudPos.valignTop:
+                            case StatusHudPos.VertAlign.Top:
                                 {
                                     area = EnumDialogArea.RightTop;
                                     break;
                                 }
-                            case StatusHudPos.valignMiddle:
+                            case StatusHudPos.VertAlign.Middle:
                                 {
                                     area = EnumDialogArea.RightMiddle;
                                     break;
                                 }
-                            case StatusHudPos.valignBottom:
+                            case StatusHudPos.VertAlign.Bottom:
                                 {
                                     area = EnumDialogArea.RightBottom;
                                     break;
@@ -134,21 +134,21 @@ namespace StatusHud
             height = config.iconSize;
 
             // X.
-            switch (pos.halign)
+            switch (pos.horzAlign)
             {
-                case StatusHudPos.halignLeft:
+                case StatusHudPos.HorzAlign.Left:
                     {
                         x = GameMath.Clamp(x, 0, frameWidth - config.iconSize);
 
                         x -= (float)Math.Round((width - config.iconSize) / 2f);
                         break;
                     }
-                case StatusHudPos.halignCenter:
+                case StatusHudPos.HorzAlign.Center:
                     {
                         x = (float)GameMath.Clamp(x, -(frameWidth / 2) + iconHalf, (frameWidth / 2) - iconHalf);
                         break;
                     }
-                case StatusHudPos.halignRight:
+                case StatusHudPos.HorzAlign.Right:
                     {
                         x = GameMath.Clamp(x, 0, frameWidth - config.iconSize);
 
@@ -158,19 +158,19 @@ namespace StatusHud
             }
 
             // Y.
-            switch (pos.valign)
+            switch (pos.vertAlign)
             {
-                case StatusHudPos.valignTop:
+                case StatusHudPos.VertAlign.Top:
                     {
                         y = GameMath.Clamp(y, 0, frameHeight - config.iconSize);
                         break;
                     }
-                case StatusHudPos.valignMiddle:
+                case StatusHudPos.VertAlign.Middle:
                     {
                         y = GameMath.Clamp(y, -(frameHeight / 2), (frameHeight / 2) - iconHalf);
                         break;
                     }
-                case StatusHudPos.valignBottom:
+                case StatusHudPos.VertAlign.Bottom:
                     {
                         y = GameMath.Clamp(y, 0, frameHeight);
 

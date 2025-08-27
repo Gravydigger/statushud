@@ -103,38 +103,17 @@ namespace StatusHud
             return $"[Status HUD] {text}";
         }
 
-        public void SlowTick(float dt)
-        {
-            foreach (StatusHudElement element in slowElements)
-            {
-                element.Tick();
-            }
-        }
+        public void SlowTick(float dt) => slowElements.ForEach(e => e.Tick());
 
-        public void FastTick(float dt)
-        {
-            foreach (StatusHudElement element in fastElements)
-            {
-                element.Tick();
-            }
-        }
+        public void FastTick(float dt) => fastElements.ForEach(e => e.Tick());
 
         public StatusHudElement Set(Type type)
         {
-            if (type == null)
-            {
-                return null;
-            }
+            if (type == null) return null;
 
             StatusHudElement element = (StatusHudElement)Activator.CreateInstance(type, this, Config);
 
-            if (element == null)
-            {
-                // Invalid element.
-                return null;
-            }
-
-            StatusHudPos pos = null;
+            if (element == null) return null;
 
             // Remove any other element of the same type.
             foreach (StatusHudElement elementVal in elements)
@@ -146,17 +125,8 @@ namespace StatusHud
             }
 
             elements.Add(element);
-            int index = elements.IndexOf(element);
 
-            if (pos != null)
-            {
-                // Retain previous position.
-                elements[index].Pos(pos.halign, pos.x, pos.valign, pos.y);
-            }
-            else
-            {
-                elements[index].Repos();
-            }
+            elements[elements.IndexOf(element)].Repos();
 
             if (element.fast)
             {
@@ -171,24 +141,12 @@ namespace StatusHud
 
         public bool Unset(Type type)
         {
-            foreach (var element in elements)
-            {
-                if (element.GetType() == type)
-                {
-                    if (element.fast)
-                    {
-                        fastElements.Remove(element);
-                    }
-                    else
-                    {
-                        slowElements.Remove(element);
-                    }
+            StatusHudElement element = elements.FirstOrDefault(e => e.GetType() == type);
+            if (element == null) return false;
 
-                    element.Dispose();
-                    elements.Remove(element);
-                    return true;
-                }
-            }
+            (element.fast ? fastElements : slowElements).Remove(element);
+            element.Dispose();
+            elements.Remove(element);
 
             return false;
         }
@@ -218,9 +176,9 @@ namespace StatusHud
             }
         }
 
-        public static void Pos(StatusHudElement element, int halign, int x, int valign, int y)
+        public static void Pos(StatusHudElement element, StatusHudPos.HorzAlign horzAlign, int x, StatusHudPos.VertAlign vertAlign, int y)
         {
-            element.Pos(halign, x, valign, y);
+            element.Pos(horzAlign, x, vertAlign, y);
         }
 
         protected void Clear()
@@ -262,25 +220,25 @@ namespace StatusHud
             int bottomY = (int)Math.Round(size * 0.375f);
             int offset = (int)Math.Round(size * 1.5f);
 
-            Pos(Set(typeof(StatusHudDateElement)), StatusHudPos.halignLeft, sideX, StatusHudPos.valignBottom, bottomY);
+            Pos(Set(typeof(StatusHudDateElement)), StatusHudPos.HorzAlign.Left, sideX, StatusHudPos.VertAlign.Bottom, bottomY);
 
-            Pos(Set(typeof(StatusHudTimeElement)), StatusHudPos.halignLeft, sideX + (int)(offset * 1.3f), StatusHudPos.valignBottom, bottomY);
+            Pos(Set(typeof(StatusHudTimeElement)), StatusHudPos.HorzAlign.Left, sideX + (int)(offset * 1.3f), StatusHudPos.VertAlign.Bottom, bottomY);
 
-            Pos(Set(typeof(StatusHudWeatherElement)), StatusHudPos.halignLeft, sideX + (int)(offset * 2.5f), StatusHudPos.valignBottom, bottomY);
+            Pos(Set(typeof(StatusHudWeatherElement)), StatusHudPos.HorzAlign.Left, sideX + (int)(offset * 2.5f), StatusHudPos.VertAlign.Bottom, bottomY);
 
-            Pos(Set(typeof(StatusHudWindElement)), StatusHudPos.halignLeft, sideX + (int)(offset * 3.5f), StatusHudPos.valignBottom, bottomY);
+            Pos(Set(typeof(StatusHudWindElement)), StatusHudPos.HorzAlign.Left, sideX + (int)(offset * 3.5f), StatusHudPos.VertAlign.Bottom, bottomY);
 
-            Pos(Set(typeof(StatusHudArmourElement)), StatusHudPos.halignCenter, sideX + (int)(offset * 9f), StatusHudPos.valignBottom, bottomY);
+            Pos(Set(typeof(StatusHudArmourElement)), StatusHudPos.HorzAlign.Right, sideX + (int)(offset * 9f), StatusHudPos.VertAlign.Bottom, bottomY);
 
-            Pos(Set(typeof(StatusHudStabilityElement)), StatusHudPos.halignCenter, sideX + (int)(offset * 10f), StatusHudPos.valignBottom, bottomY);
+            Pos(Set(typeof(StatusHudStabilityElement)), StatusHudPos.HorzAlign.Right, sideX + (int)(offset * 10f), StatusHudPos.VertAlign.Bottom, bottomY);
 
-            Pos(Set(typeof(StatusHudRoomElement)), StatusHudPos.halignCenter, -1 * (sideX + (int)(offset * 9f)), StatusHudPos.valignBottom, bottomY);
+            Pos(Set(typeof(StatusHudRoomElement)), StatusHudPos.HorzAlign.Right, -1 * (sideX + (int)(offset * 9f)), StatusHudPos.VertAlign.Bottom, bottomY);
 
-            Pos(Set(typeof(StatusHudSleepElement)), StatusHudPos.halignRight, sideMinimapX + offset, StatusHudPos.valignTop, topY);
+            Pos(Set(typeof(StatusHudSleepElement)), StatusHudPos.HorzAlign.Right, sideMinimapX + offset, StatusHudPos.VertAlign.Top, topY);
 
-            Pos(Set(typeof(StatusHudWetElement)), StatusHudPos.halignRight, sideMinimapX, StatusHudPos.valignTop, topY);
+            Pos(Set(typeof(StatusHudWetElement)), StatusHudPos.HorzAlign.Right, sideMinimapX, StatusHudPos.VertAlign.Top, topY);
 
-            Pos(Set(typeof(StatusHudTimeLocalElement)), StatusHudPos.halignRight, sideX, StatusHudPos.valignBottom, bottomY);
+            Pos(Set(typeof(StatusHudTimeLocalElement)), StatusHudPos.HorzAlign.Right, sideX, StatusHudPos.VertAlign.Bottom, bottomY);
         }
 
         public void SaveConfig()

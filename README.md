@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="60%" src="statushudlogo.png">
+  <img width="60%" src="statushudlogo.png"/>
 </p>
 
 # A continuation of Rangelost's original Status HUD
@@ -14,7 +14,7 @@ _Status HUD Continued_ offers a collection of various elements to display on the
 
 - **`Altitude`**: displays the player's current height (in meters) in relation to sea level;
 - **`Armour`**: displays the equipped armour's average durability (in %). If no armour is equipped, it is hidden;
-- **`Body heat`**: displays the player's current drop in body heat. If it is at normal body head (37°C), this element is hidden;
+- **`Body heat`**: displays the player's current deviation in body heat. If it is at normal body temperature (37°C), this element is hidden;
 - **`Compass`**: element displays the player's facing direction (in degrees) in relation to North;
 - **`Date`**: displays the current date (e.g. `1 Jul`) and an icon for the current season (sprout for spring, sun for summer, leaf for autumn, and snowflake for winter);
 - **`Durability`**: element displays the selected item's remaining durability. If the item does not have durability, it is hidden;
@@ -37,5 +37,7 @@ _Status HUD Continued_ offers a collection of various elements to display on the
 ## Goals
 As I work on maintaining this mod, there are a few goals that I wish to achieve to improve this mod further. These aren't guarantees, but ideally features I'd like to have within the mod:
 - ~~Replace chat commands with a native GUI~~ ✅ Done as of 3.0.0
-- Set native GUI to correcly scale with varying GUI scales
 - ~~Add support for multiple languages~~ ✅ Done as of 3.2.0
+- Set native GUI to correcly scale with varying GUI scales
+- Allow running elements from other mods
+- Change element text orientation in relation to icon

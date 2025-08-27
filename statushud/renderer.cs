@@ -176,13 +176,13 @@ namespace StatusHud
 
         protected float SolveX(float w)
         {
-            switch (pos.halign)
+            switch (pos.horzAlign)
             {
-                case StatusHudPos.halignLeft:
+                case StatusHudPos.HorzAlign.Left:
                     return (float)GuiElement.scaled(pos.x);
-                case StatusHudPos.halignCenter:
+                case StatusHudPos.HorzAlign.Center:
                     return (float)((system.capi.Render.FrameWidth / 2f) - (w / 2f) + GuiElement.scaled(pos.x));
-                case StatusHudPos.halignRight:
+                case StatusHudPos.HorzAlign.Right:
                     return (float)(system.capi.Render.FrameWidth - w - GuiElement.scaled(pos.x));
             }
             return 0;
@@ -190,13 +190,13 @@ namespace StatusHud
 
         protected float SolveY(float h)
         {
-            switch (pos.valign)
+            switch (pos.vertAlign)
             {
-                case StatusHudPos.valignTop:
+                case StatusHudPos.VertAlign.Top:
                     return (float)GuiElement.scaled(pos.y);
-                case StatusHudPos.valignMiddle:
+                case StatusHudPos.VertAlign.Middle:
                     return (float)((system.capi.Render.FrameHeight / 2f) - (h / 2f) + GuiElement.scaled(pos.y));
-                case StatusHudPos.valignBottom:
+                case StatusHudPos.VertAlign.Bottom:
                     return (float)(system.capi.Render.FrameHeight - h - GuiElement.scaled(pos.y));
             }
             return 0;

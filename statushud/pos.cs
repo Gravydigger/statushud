@@ -2,29 +2,36 @@ namespace StatusHud
 {
     public class StatusHudPos
     {
-        public const int halignLeft = -1;
-        public const int halignCenter = 0;
-        public const int halignRight = 1;
-        public const int valignTop = -1;
-        public const int valignMiddle = 0;
-        public const int valignBottom = 1;
+        public enum HorzAlign
+        {
+            Left = -1,
+            Center,
+            Right,
+        }
 
-        public int halign;
+        public enum VertAlign
+        {
+            Top = -1,
+            Middle,
+            Bottom
+        }
+
+        public HorzAlign horzAlign;
         public int x;
-        public int valign;
+        public VertAlign vertAlign;
         public int y;
 
-        public void Set(int halign, int x, int valign, int y)
+        public void Set(HorzAlign horzAlign, int x, VertAlign vertAlign, int y)
         {
-            this.halign = halign;
+            this.horzAlign = horzAlign;
             this.x = x;
-            this.valign = valign;
+            this.vertAlign = vertAlign;
             this.y = y;
         }
 
         public void Set(StatusHudPos pos)
         {
-            Set(pos.halign, pos.x, pos.valign, pos.y);
+            Set(pos.horzAlign, pos.x, pos.vertAlign, pos.y);
         }
     }
 }
