@@ -10,6 +10,7 @@ using Vintagestory.API.Util;
 public class StatusHudConfigGui : GuiDialog
 {
     public override string ToggleKeyCombinationCode => "statushudconfiggui";
+    private float scaled;
 
     private readonly StatusHudSystem system;
     private string selectedElementName;
@@ -44,6 +45,7 @@ public class StatusHudConfigGui : GuiDialog
     public StatusHudConfigGui(ICoreClientAPI capi, StatusHudSystem system) : base(capi)
     {
         this.system = system;
+        scaled = RuntimeEnv.GUIScale;
 
         selectedElementName = elementNames[0];
         selectedElementIndex = 0;
@@ -51,6 +53,17 @@ public class StatusHudConfigGui : GuiDialog
         elementNames.Foreach(name => elementNamesTranslated.Add(Lang.Get($"statushudcont:{name}-name")));
 
         ReloadElementInputs(GetElementFromName(selectedElementName));
+    }
+
+    public override void OnGuiOpened()
+    {
+        base.OnGuiOpened();
+
+        if (scaled != RuntimeEnv.GUIScale)
+        {
+            scaled = RuntimeEnv.GUIScale;
+            ReloadElementInputs(GetElementFromName(selectedElementName));
+        }
     }
 
     private void ComposeDialog()

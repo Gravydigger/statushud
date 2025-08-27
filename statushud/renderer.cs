@@ -29,7 +29,7 @@ namespace StatusHud
         protected float w;
         protected float h;
 
-        private readonly float scale;
+        private float scale;
         private float frameWidth;
         private float frameHeight;
 
@@ -48,7 +48,6 @@ namespace StatusHud
         public StatusHudRenderer(StatusHudSystem system)
         {
             this.system = system;
-            scale = RuntimeEnv.GUIScale;
 
             pos = new StatusHudPos();
             text = new StatusHudText(system.capi, "", system.Config);
@@ -151,6 +150,7 @@ namespace StatusHud
             x = SolveX(w);
             y = SolveY(h);
 
+            scale = RuntimeEnv.GUIScale;
             frameWidth = system.capi.Render.FrameWidth;
             frameHeight = system.capi.Render.FrameHeight;
 
