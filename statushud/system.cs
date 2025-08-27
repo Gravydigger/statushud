@@ -228,11 +228,11 @@ namespace StatusHud
 
             Pos(Set(typeof(StatusHudWindElement)), StatusHudPos.HorzAlign.Left, sideX + (int)(offset * 3.5f), StatusHudPos.VertAlign.Bottom, bottomY);
 
-            Pos(Set(typeof(StatusHudArmourElement)), StatusHudPos.HorzAlign.Right, sideX + (int)(offset * 9f), StatusHudPos.VertAlign.Bottom, bottomY);
+            Pos(Set(typeof(StatusHudArmourElement)), StatusHudPos.HorzAlign.Center, sideX + (int)(offset * 9f), StatusHudPos.VertAlign.Bottom, bottomY);
 
-            Pos(Set(typeof(StatusHudStabilityElement)), StatusHudPos.HorzAlign.Right, sideX + (int)(offset * 10f), StatusHudPos.VertAlign.Bottom, bottomY);
+            Pos(Set(typeof(StatusHudStabilityElement)), StatusHudPos.HorzAlign.Center, sideX + (int)(offset * 10f), StatusHudPos.VertAlign.Bottom, bottomY);
 
-            Pos(Set(typeof(StatusHudRoomElement)), StatusHudPos.HorzAlign.Right, -1 * (sideX + (int)(offset * 9f)), StatusHudPos.VertAlign.Bottom, bottomY);
+            Pos(Set(typeof(StatusHudRoomElement)), StatusHudPos.HorzAlign.Center, -1 * (sideX + (int)(offset * 9f)), StatusHudPos.VertAlign.Bottom, bottomY);
 
             Pos(Set(typeof(StatusHudSleepElement)), StatusHudPos.HorzAlign.Right, sideMinimapX + offset, StatusHudPos.VertAlign.Top, topY);
 
