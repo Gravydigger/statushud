@@ -21,16 +21,13 @@ namespace StatusHud
         public int textureId;
 
         protected StatusHudBodyheatRenderer renderer;
-        protected StatusHudConfig config;
 
-
-        public StatusHudBodyheatElement(StatusHudSystem system, StatusHudConfig config) : base(system)
+        public StatusHudBodyheatElement(StatusHudSystem system) : base(system)
         {
-            renderer = new StatusHudBodyheatRenderer(this.system, this, config);
+            renderer = new StatusHudBodyheatRenderer(this.system, this);
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
             textureId = this.system.textures.texturesDict["empty"].TextureId;
-            this.config = config;
 
             tempScale = "C";
             active = false;
@@ -117,13 +114,10 @@ namespace StatusHud
     {
         protected StatusHudBodyheatElement element;
 
-        protected StatusHudText text;
-
-        public StatusHudBodyheatRenderer(StatusHudSystem system, StatusHudBodyheatElement element, StatusHudConfig config) : base(system)
+        public StatusHudBodyheatRenderer(StatusHudSystem system, StatusHudBodyheatElement element) : base(system)
         {
             this.element = element;
-
-            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), config);
+            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), system.Config);
         }
 
         public override void Reload()

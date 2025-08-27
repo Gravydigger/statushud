@@ -14,9 +14,9 @@ namespace StatusHud
 
         protected StatusHudLightRenderer renderer;
 
-        public StatusHudLightElement(StatusHudSystem system, StatusHudConfig config) : base(system, true)
+        public StatusHudLightElement(StatusHudSystem system) : base(system, true)
         {
-            renderer = new StatusHudLightRenderer(system, this, config);
+            renderer = new StatusHudLightRenderer(system, this);
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
         }
 
@@ -58,13 +58,10 @@ namespace StatusHud
     {
         protected StatusHudLightElement element;
 
-        protected StatusHudText text;
-
-        public StatusHudLightRenderer(StatusHudSystem system, StatusHudLightElement element, StatusHudConfig config) : base(system)
+        public StatusHudLightRenderer(StatusHudSystem system, StatusHudLightElement element) : base(system)
         {
             this.element = element;
-
-            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), config);
+            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), system.Config);
         }
 
         public override void Reload()

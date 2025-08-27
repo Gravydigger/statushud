@@ -19,11 +19,11 @@ namespace StatusHud
         public bool directional;
         public float dirAngle;
 
-        public StatusHudWindElement(StatusHudSystem system, StatusHudConfig config) : base(system)
+        public StatusHudWindElement(StatusHudSystem system) : base(system)
         {
             weatherSystem = this.system.capi.ModLoader.GetModSystem<WeatherSystemBase>();
 
-            renderer = new StatusHudWindRenderer(system, this, config);
+            renderer = new StatusHudWindRenderer(system, this);
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
             directional = false;
@@ -71,13 +71,11 @@ namespace StatusHud
     public class StatusHudWindRenderer : StatusHudRenderer
     {
         protected StatusHudWindElement element;
-        protected StatusHudText text;
 
-        public StatusHudWindRenderer(StatusHudSystem system, StatusHudWindElement element, StatusHudConfig config) : base(system)
+        public StatusHudWindRenderer(StatusHudSystem system, StatusHudWindElement element) : base(system)
         {
             this.element = element;
-
-            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), config);
+            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), system.Config);
         }
 
         public override void Reload()

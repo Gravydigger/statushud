@@ -30,11 +30,11 @@ namespace StatusHud
         private static CurrentPattern riftActivityData;
         private bool firstLoad;
 
-        public StatusHudRiftActivityElement(StatusHudSystem system, StatusHudConfig config) : base(system)
+        public StatusHudRiftActivityElement(StatusHudSystem system) : base(system)
         {
             riftSystem = this.system.capi.ModLoader.GetModSystem<ModSystemRiftWeather>();
 
-            renderer = new StatusHudRiftActivityRenderer(system, this, config);
+            renderer = new StatusHudRiftActivityRenderer(system, this);
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
             // When a player first activates this element when already in a world, the element hasn't gotten the rift data yet.
@@ -96,7 +96,7 @@ namespace StatusHud
                 if (firstLoad)
                 {
                     string langName = Lang.Get("statushudcont:riftactivity-name");
-                    system.capi.ShowChatMessage(StatusHudSystem.PrintModName(Lang.Get($"statushudcont:harmony-nodata", langName,langName.ToLower())));
+                    system.capi.ShowChatMessage(StatusHudSystem.PrintModName(Lang.Get($"statushudcont:harmony-nodata", langName, langName.ToLower())));
                     firstLoad = false;
                 }
                 return;
@@ -146,13 +146,10 @@ namespace StatusHud
     {
         protected StatusHudRiftActivityElement element;
 
-        protected StatusHudText text;
-
-        public StatusHudRiftActivityRenderer(StatusHudSystem system, StatusHudRiftActivityElement element, StatusHudConfig config) : base(system)
+        public StatusHudRiftActivityRenderer(StatusHudSystem system, StatusHudRiftActivityElement element) : base(system)
         {
             this.element = element;
-
-            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), config);
+            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), system.Config);
         }
 
         public override void Reload()

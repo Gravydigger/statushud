@@ -17,7 +17,7 @@ namespace StatusHud
 
         protected StatusHudRoomRenderer renderer;
 
-        public StatusHudRoomElement(StatusHudSystem system, StatusHudConfig config) : base(system)
+        public StatusHudRoomElement(StatusHudSystem system) : base(system)
         {
             renderer = new StatusHudRoomRenderer(system, this);
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);

@@ -111,7 +111,7 @@ namespace StatusHud
         {
             if (type == null) return null;
 
-            StatusHudElement element = (StatusHudElement)Activator.CreateInstance(type, this, Config);
+            StatusHudElement element = (StatusHudElement)Activator.CreateInstance(type, this);
 
             if (element == null) return null;
 

@@ -19,11 +19,11 @@ namespace StatusHud
         protected WeatherSystemBase weatherSystem;
         protected StatusHudCompassRenderer renderer;
 
-        public StatusHudCompassElement(StatusHudSystem system, StatusHudConfig config) : base(system)
+        public StatusHudCompassElement(StatusHudSystem system) : base(system)
         {
             weatherSystem = this.system.capi.ModLoader.GetModSystem<WeatherSystemBase>();
 
-            renderer = new StatusHudCompassRenderer(this.system, this, config);
+            renderer = new StatusHudCompassRenderer(this.system, this);
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
             compassBearing = "relative";
@@ -62,12 +62,11 @@ namespace StatusHud
     public class StatusHudCompassRenderer : StatusHudRenderer
     {
         protected StatusHudCompassElement element;
-        protected StatusHudText text;
 
-        public StatusHudCompassRenderer(StatusHudSystem system, StatusHudCompassElement element, StatusHudConfig config) : base(system)
+        public StatusHudCompassRenderer(StatusHudSystem system, StatusHudCompassElement element) : base(system)
         {
             this.element = element;
-            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), config);
+            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), system.Config);
         }
 
         public override void Reload()

@@ -30,11 +30,11 @@ namespace StatusHud
         protected static TemporalStormRunTimeData data;
         private bool firstLoad;
 
-        public StatusHudTempstormElement(StatusHudSystem system, StatusHudConfig config) : base(system)
+        public StatusHudTempstormElement(StatusHudSystem system) : base(system)
         {
             stabilitySystem = this.system.capi.ModLoader.GetModSystem<SystemTemporalStability>();
 
-            renderer = new StatusHudTempstormRenderer(system, this, config);
+            renderer = new StatusHudTempstormRenderer(system, this);
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
             active = false;
@@ -77,7 +77,7 @@ namespace StatusHud
                 if (firstLoad)
                 {
                     string langName = Lang.Get("statushudcont:tempstorm-name");
-                    system.capi.ShowChatMessage(StatusHudSystem.PrintModName(Lang.Get($"statushudcont:harmony-nodata", langName,langName.ToLower())));
+                    system.capi.ShowChatMessage(StatusHudSystem.PrintModName(Lang.Get($"statushudcont:harmony-nodata", langName, langName.ToLower())));
                     firstLoad = false;
                 }
                 return;
@@ -135,13 +135,10 @@ namespace StatusHud
     {
         protected StatusHudTempstormElement element;
 
-        protected StatusHudText text;
-
-        public StatusHudTempstormRenderer(StatusHudSystem system, StatusHudTempstormElement element, StatusHudConfig config) : base(system)
+        public StatusHudTempstormRenderer(StatusHudSystem system, StatusHudTempstormElement element) : base(system)
         {
             this.element = element;
-
-            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), config);
+            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), system.Config);
         }
 
         public override void Reload()

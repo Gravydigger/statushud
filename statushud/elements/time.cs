@@ -18,14 +18,11 @@ namespace StatusHud
         public override string ElementOption => timeFormat;
 
         protected StatusHudTimeRenderer renderer;
-        protected StatusHudConfig config;
 
-        public StatusHudTimeElement(StatusHudSystem system, StatusHudConfig config) : base(system)
+        public StatusHudTimeElement(StatusHudSystem system) : base(system)
         {
-            renderer = new StatusHudTimeRenderer(system, this, config);
+            renderer = new StatusHudTimeRenderer(system, this);
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
-
-            this.config = config;
 
             textureId = this.system.textures.texturesDict["empty"].TextureId;
             timeFormat = "24hr";
@@ -114,13 +111,11 @@ namespace StatusHud
     public class StatusHudTimeRenderer : StatusHudRenderer
     {
         protected StatusHudTimeElement element;
-        protected StatusHudText text;
 
-        public StatusHudTimeRenderer(StatusHudSystem system, StatusHudTimeElement element, StatusHudConfig config) : base(system)
+        public StatusHudTimeRenderer(StatusHudSystem system, StatusHudTimeElement element) : base(system)
         {
             this.element = element;
-
-            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), config);
+            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), system.Config);
         }
 
         public override void Reload()

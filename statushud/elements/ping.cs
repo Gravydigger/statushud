@@ -18,9 +18,9 @@ namespace StatusHud
 
         protected StatusHudPingRenderer renderer;
 
-        public StatusHudPingElement(StatusHudSystem system, StatusHudConfig config) : base(system, true)
+        public StatusHudPingElement(StatusHudSystem system) : base(system, true)
         {
-            renderer = new StatusHudPingRenderer(system, this, config);
+            renderer = new StatusHudPingRenderer(system, this);
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
         }
 
@@ -69,14 +69,10 @@ namespace StatusHud
     public class StatusHudPingRenderer : StatusHudRenderer
     {
         protected StatusHudPingElement element;
-
-        protected StatusHudText text;
-
-        public StatusHudPingRenderer(StatusHudSystem system, StatusHudPingElement element, StatusHudConfig config) : base(system)
+        public StatusHudPingRenderer(StatusHudSystem system, StatusHudPingElement element) : base(system)
         {
             this.element = element;
-
-            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), config);
+            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), system.Config);
         }
 
         public override void Reload()

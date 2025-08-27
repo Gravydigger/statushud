@@ -209,12 +209,12 @@ namespace StatusHud
             const EnumTextOrientation align = EnumTextOrientation.Center;
 
             return new CairoFont()
-                .WithColor(new double[] { colour.R, colour.G, colour.B, colour.A })
+                .WithColor([colour.R, colour.G, colour.B, colour.A])
                 .WithFont(GuiStyle.StandardFontName)
                 .WithFontSize(config.textSize)
                 .WithWeight(bold ? Cairo.FontWeight.Bold : Cairo.FontWeight.Normal)
                 .WithOrientation(align)
-                .WithStroke(new double[] { 0, 0, 0, 0.5 }, 2);
+                .WithStroke([0, 0, 0, 0.5], 2);
         }
     }
 }

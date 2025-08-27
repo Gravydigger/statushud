@@ -7,9 +7,9 @@ namespace StatusHud
 {
     public abstract class StatusHudRenderer : IRenderer
     {
-        protected const float pingScaleInit = 8;
-        protected const int pingTimeInit = 30;
-        protected const int pingTimeHalf = (int)(pingTimeInit / 2f);
+        private const float pingScaleInit = 8;
+        private const int pingTimeInit = 30;
+        private const int pingTimeHalf = (int)(pingTimeInit / 2f);
 
         protected static readonly Vec4f hiddenRgba = new(1, 1, 1, 0.25f);
 
@@ -20,6 +20,8 @@ namespace StatusHud
 
         // Position values.
         protected StatusHudPos pos;
+        // Text Element
+        protected StatusHudText text;
 
         // Render values.
         protected float x;
@@ -27,20 +29,17 @@ namespace StatusHud
         protected float w;
         protected float h;
 
-        public float X => x;
-        public float Y => y;
-
-        protected float scale;
-        protected float frameWidth;
-        protected float frameHeight;
+        private readonly float scale;
+        private float frameWidth;
+        private float frameHeight;
 
         // Ping.
-        protected bool ping;
-        protected MeshRef pingMesh;
-        protected Matrixf pingMatrix;
-        protected Vec4f pingRgba;
-        protected int pingTime;
-        protected float pingScale;
+        private bool ping;
+        private readonly MeshRef pingMesh;
+        private readonly Matrixf pingMatrix;
+        private readonly Vec4f pingRgba;
+        private int pingTime;
+        private float pingScale;
 
         // Hidden.
         protected MeshRef hiddenMesh;
@@ -49,8 +48,10 @@ namespace StatusHud
         public StatusHudRenderer(StatusHudSystem system)
         {
             this.system = system;
+            scale = RuntimeEnv.GUIScale;
 
             pos = new StatusHudPos();
+            text = new StatusHudText(system.capi, "", system.Config);
 
             MeshData quadMesh = QuadMeshUtil.GetQuad();
 
@@ -150,7 +151,6 @@ namespace StatusHud
             x = SolveX(w);
             y = SolveY(h);
 
-            scale = RuntimeEnv.GUIScale;
             frameWidth = system.capi.Render.FrameWidth;
             frameHeight = system.capi.Render.FrameHeight;
 
@@ -176,30 +176,24 @@ namespace StatusHud
 
         protected float SolveX(float w)
         {
-            switch (pos.horzAlign)
+            return pos.horzAlign switch
             {
-                case StatusHudPos.HorzAlign.Left:
-                    return (float)GuiElement.scaled(pos.x);
-                case StatusHudPos.HorzAlign.Center:
-                    return (float)((system.capi.Render.FrameWidth / 2f) - (w / 2f) + GuiElement.scaled(pos.x));
-                case StatusHudPos.HorzAlign.Right:
-                    return (float)(system.capi.Render.FrameWidth - w - GuiElement.scaled(pos.x));
-            }
-            return 0;
+                StatusHudPos.HorzAlign.Left => (float)GuiElement.scaled(pos.x),
+                StatusHudPos.HorzAlign.Center => (float)((system.capi.Render.FrameWidth / 2f) - (w / 2f) + GuiElement.scaled(pos.x)),
+                StatusHudPos.HorzAlign.Right => (float)(system.capi.Render.FrameWidth - w - GuiElement.scaled(pos.x)),
+                _ => 0,
+            };
         }
 
         protected float SolveY(float h)
         {
-            switch (pos.vertAlign)
+            return pos.vertAlign switch
             {
-                case StatusHudPos.VertAlign.Top:
-                    return (float)GuiElement.scaled(pos.y);
-                case StatusHudPos.VertAlign.Middle:
-                    return (float)((system.capi.Render.FrameHeight / 2f) - (h / 2f) + GuiElement.scaled(pos.y));
-                case StatusHudPos.VertAlign.Bottom:
-                    return (float)(system.capi.Render.FrameHeight - h - GuiElement.scaled(pos.y));
-            }
-            return 0;
+                StatusHudPos.VertAlign.Top => (float)GuiElement.scaled(pos.y),
+                StatusHudPos.VertAlign.Middle => (float)((system.capi.Render.FrameHeight / 2f) - (h / 2f) + GuiElement.scaled(pos.y)),
+                StatusHudPos.VertAlign.Bottom => (float)(system.capi.Render.FrameHeight - h - GuiElement.scaled(pos.y)),
+                _ => 0,
+            };
         }
 
         protected float SolveW()
@@ -215,7 +209,7 @@ namespace StatusHud
         protected void RenderHidden(int textureId)
         {
             IShaderProgram prog = system.capi.Render.GetEngineShader(EnumShaderProgram.Gui);
-            prog.Uniform("rgbaIn", StatusHudRenderer.hiddenRgba);
+            prog.Uniform("rgbaIn", hiddenRgba);
             prog.Uniform("extraGlow", 0);
             prog.Uniform("applyColor", 0);
             prog.Uniform("noTexture", 0f);

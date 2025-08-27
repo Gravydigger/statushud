@@ -11,9 +11,9 @@ namespace StatusHud
 
         protected StatusHudPlayersRenderer renderer;
 
-        public StatusHudPlayersElement(StatusHudSystem system, StatusHudConfig config) : base(system)
+        public StatusHudPlayersElement(StatusHudSystem system) : base(system)
         {
-            renderer = new StatusHudPlayersRenderer(system, this, config);
+            renderer = new StatusHudPlayersRenderer(system, this);
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
         }
 
@@ -43,13 +43,10 @@ namespace StatusHud
     {
         protected StatusHudPlayersElement element;
 
-        protected StatusHudText text;
-
-        public StatusHudPlayersRenderer(StatusHudSystem system, StatusHudPlayersElement element, StatusHudConfig config) : base(system)
+        public StatusHudPlayersRenderer(StatusHudSystem system, StatusHudPlayersElement element) : base(system)
         {
             this.element = element;
-
-            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), config);
+            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), system.Config);
         }
 
         public override void Reload()

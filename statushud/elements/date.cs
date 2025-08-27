@@ -29,9 +29,9 @@ namespace StatusHud
             Lang.Get("statushudcont:short-month-november"),
             Lang.Get("statushudcont:short-month-december")};
 
-        public StatusHudDateElement(StatusHudSystem system, StatusHudConfig config) : base(system)
+        public StatusHudDateElement(StatusHudSystem system) : base(system)
         {
-            renderer = new StatusHudDateRenderer(this.system, this, config);
+            renderer = new StatusHudDateRenderer(this.system, this);
 
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
@@ -100,13 +100,10 @@ namespace StatusHud
     {
         protected StatusHudDateElement element;
 
-        protected StatusHudText text;
-
-        public StatusHudDateRenderer(StatusHudSystem system, StatusHudDateElement element, StatusHudConfig config) : base(system)
+        public StatusHudDateRenderer(StatusHudSystem system, StatusHudDateElement element) : base(system)
         {
             this.element = element;
-
-            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), config);
+            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), system.Config);
         }
 
         public override void Reload()

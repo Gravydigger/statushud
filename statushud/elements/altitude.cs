@@ -17,11 +17,11 @@ namespace StatusHud
 
         public float needleOffset;
 
-        public StatusHudAltitudeElement(StatusHudSystem system, StatusHudConfig config) : base(system)
+        public StatusHudAltitudeElement(StatusHudSystem system) : base(system)
         {
             weatherSystem = this.system.capi.ModLoader.GetModSystem<WeatherSystemBase>();
 
-            renderer = new StatusHudAltitudeRenderer(this.system, this, config);
+            renderer = new StatusHudAltitudeRenderer(this.system, this);
             this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
             needleOffset = 0;
@@ -56,13 +56,10 @@ namespace StatusHud
     public class StatusHudAltitudeRenderer : StatusHudRenderer
     {
         protected StatusHudAltitudeElement element;
-        protected StatusHudText text;
-
-        public StatusHudAltitudeRenderer(StatusHudSystem system, StatusHudAltitudeElement element, StatusHudConfig config) : base(system)
+        public StatusHudAltitudeRenderer(StatusHudSystem system, StatusHudAltitudeElement element) : base(system)
         {
             this.element = element;
-
-            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), config);
+            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), system.Config);
         }
 
         public override void Reload()
