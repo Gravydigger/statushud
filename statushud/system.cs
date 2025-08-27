@@ -61,9 +61,16 @@ namespace StatusHud
             slowListenerId = this.capi.Event.RegisterGameTickListener(SlowTick, slowListenInterval);
             fastListenerId = this.capi.Event.RegisterGameTickListener(FastTick, fastListenInterval);
 
-            if (Config.version < StatusHudConfigManager.version)
+            if (Config.version != StatusHudConfigManager.version)
             {
-                if (Config.elements.Count == 0)
+                if (Config.version > StatusHudConfigManager.version)
+                {
+                    capi.Logger.Error(PrintModName($"Expected mod config version is {StatusHudConfigManager.version}, got {Config.version}."
+                    + "\nOverwriting config with default config."));
+                    InstallDefault();
+                }
+
+                else if (Config.version < StatusHudConfigManager.version && Config.elements.Count == 0)
                 {
                     // Install default layout
                     InstallDefault();
