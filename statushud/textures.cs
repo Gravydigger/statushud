@@ -11,10 +11,10 @@ namespace StatusHud
         protected ICoreClientAPI capi;
         public Dictionary<string, LoadedTexture> texturesDict;
 
-        public StatusHudTextures(ICoreClientAPI capi, int size)
+        public StatusHudTextures(ICoreClientAPI capi, float size)
         {
             this.capi = capi;
-            this.size = size;
+            this.size = (int)size;
 
             texturesDict = new Dictionary<string, LoadedTexture>();
 
@@ -27,7 +27,7 @@ namespace StatusHud
 
             this.capi.Gui.LoadOrUpdateCairoTexture(surface, true, ref empty);
             surface.Dispose();
-            
+
             texturesDict.Add("empty", empty);
 
             // Generate ping texture.

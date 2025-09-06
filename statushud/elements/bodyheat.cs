@@ -117,43 +117,43 @@ namespace StatusHud
         public StatusHudBodyheatRenderer(StatusHudSystem system, StatusHudBodyheatElement element) : base(system)
         {
             this.element = element;
-            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), system.Config);
+            Text = new StatusHudText(this.System.capi, this.element.GetTextKey(), system.Config);
         }
 
         public override void Reload()
         {
-            text.ReloadText(pos);
+            Text.ReloadText(pos);
         }
 
         public void SetText(string value)
         {
-            text.Set(value);
+            Text.Set(value);
         }
 
         protected override void Update()
         {
             base.Update();
-            text.Pos(pos);
+            Text.Pos(pos);
         }
 
         protected override void Render()
         {
             if (!element.active)
             {
-                if (system.ShowHidden)
+                if (System.ShowHidden)
                 {
-                    RenderHidden(system.textures.texturesDict["bodyheat"].TextureId);
+                    RenderHidden(System.textures.texturesDict["bodyheat"].TextureId);
                 }
                 return;
             }
 
-            system.capi.Render.RenderTexture(element.textureId, x, y, w, h);
+            System.capi.Render.RenderTexture(element.textureId, x, y, w, h);
         }
 
         public override void Dispose()
         {
             base.Dispose();
-            text.Dispose();
+            Text.Dispose();
         }
     }
 }

@@ -149,41 +149,41 @@ namespace StatusHud
         public StatusHudRiftActivityRenderer(StatusHudSystem system, StatusHudRiftActivityElement element) : base(system)
         {
             this.element = element;
-            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), system.Config);
+            Text = new StatusHudText(this.System.capi, this.element.GetTextKey(), system.Config);
         }
 
         public override void Reload()
         {
-            text.ReloadText(pos);
+            Text.ReloadText(pos);
         }
 
         public void SetText(string value)
         {
-            text.Set(value);
+            Text.Set(value);
         }
 
         protected override void Update()
         {
             base.Update();
-            text.Pos(pos);
+            Text.Pos(pos);
         }
 
         protected override void Render()
         {
             if (element.active)
             {
-                system.capi.Render.RenderTexture(element.textureId, x, y, w, h);
+                System.capi.Render.RenderTexture(element.textureId, x, y, w, h);
             }
-            else if (system.ShowHidden)
+            else if (System.ShowHidden)
             {
-                RenderHidden(system.textures.texturesDict["rift_calm"].TextureId);
+                RenderHidden(System.textures.texturesDict["rift_calm"].TextureId);
             }
         }
 
         public override void Dispose()
         {
             base.Dispose();
-            text.Dispose();
+            Text.Dispose();
         }
     }
 }

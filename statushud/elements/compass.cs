@@ -66,40 +66,40 @@ namespace StatusHud
         public StatusHudCompassRenderer(StatusHudSystem system, StatusHudCompassElement element) : base(system)
         {
             this.element = element;
-            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), system.Config);
+            Text = new StatusHudText(this.System.capi, this.element.GetTextKey(), system.Config);
         }
 
         public override void Reload()
         {
-            text.ReloadText(pos);
+            Text.ReloadText(pos);
         }
 
         public void SetText(string value)
         {
-            text.Set(value);
+            Text.Set(value);
         }
 
         protected override void Update()
         {
             base.Update();
-            text.Pos(pos);
+            Text.Pos(pos);
         }
 
         protected override void Render()
         {
-            int direction = (Modulo((int)Math.Round(-system.capi.World.Player.CameraYaw * GameMath.RAD2DEG), 360) + 180) % 360;
-            text.Set(direction + "°");
+            int direction = (Modulo((int)Math.Round(-System.capi.World.Player.CameraYaw * GameMath.RAD2DEG), 360) + 180) % 360;
+            Text.Set(direction + "°");
 
-            system.capi.Render.RenderTexture(system.textures.texturesDict["compass"].TextureId, x, y, w, h);
+            System.capi.Render.RenderTexture(System.textures.texturesDict["compass"].TextureId, x, y, w, h);
 
-            IShaderProgram prog = system.capi.Render.GetEngineShader(EnumShaderProgram.Gui);
+            IShaderProgram prog = System.capi.Render.GetEngineShader(EnumShaderProgram.Gui);
             prog.Uniform("rgbaIn", ColorUtil.WhiteArgbVec);
             prog.Uniform("extraGlow", 0);
             prog.Uniform("applyColor", 0);
             prog.Uniform("noTexture", 0f);
-            prog.BindTexture2D("tex2d", system.textures.texturesDict["compass_needle"].TextureId, 0);
+            prog.BindTexture2D("tex2d", System.textures.texturesDict["compass_needle"].TextureId, 0);
 
-            float angle = system.capi.World.Player.CameraYaw;
+            float angle = System.capi.World.Player.CameraYaw;
 
             if (element.ElementOption == "absolute")
             {
@@ -112,16 +112,16 @@ namespace StatusHud
             }
 
             // Use hidden matrix and mesh because this element is never hidden.
-            hiddenMatrix.Set(system.capi.Render.CurrentModelviewMatrix)
+            hiddenMatrix.Set(System.capi.Render.CurrentModelviewMatrix)
                     .Translate(x + (w / 2f), y + (h / 2f), 50)
                     .Scale(w, h, 0)
                     .Scale(0.5f, 0.5f, 0)
                     .RotateZ(angle);
 
-            prog.UniformMatrix("projectionMatrix", system.capi.Render.CurrentProjectionMatrix);
+            prog.UniformMatrix("projectionMatrix", System.capi.Render.CurrentProjectionMatrix);
             prog.UniformMatrix("modelViewMatrix", hiddenMatrix.Values);
 
-            system.capi.Render.RenderMesh(hiddenMesh);
+            System.capi.Render.RenderMesh(hiddenMesh);
         }
 
         private static int Modulo(int n, int m)
@@ -132,7 +132,7 @@ namespace StatusHud
         public override void Dispose()
         {
             base.Dispose();
-            text.Dispose();
+            Text.Dispose();
         }
     }
 }

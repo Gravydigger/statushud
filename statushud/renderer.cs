@@ -11,17 +11,17 @@ namespace StatusHud
         private const int pingTimeInit = 30;
         private const int pingTimeHalf = (int)(pingTimeInit / 2f);
 
-        protected static readonly Vec4f hiddenRgba = new(1, 1, 1, 0.25f);
+        private static readonly Vec4f HiddenRgba = new(1, 1, 1, 0.25f);
 
         public double RenderOrder => 1;
         public int RenderRange => 0;
 
-        protected StatusHudSystem system;
+        protected readonly StatusHudSystem System;
 
         // Position values.
-        protected StatusHudPos pos;
+        protected readonly StatusHudPos pos;
         // Text Element
-        protected StatusHudText text;
+        protected StatusHudText Text;
 
         // Render values.
         protected float x;
@@ -47,10 +47,10 @@ namespace StatusHud
 
         public StatusHudRenderer(StatusHudSystem system)
         {
-            this.system = system;
+            this.System = system;
 
             pos = new StatusHudPos();
-            text = new StatusHudText(system.capi, "", system.Config);
+            Text = new StatusHudText(system.capi, "", system.Config);
 
             MeshData quadMesh = QuadMeshUtil.GetQuad();
 
@@ -90,8 +90,8 @@ namespace StatusHud
                 Update();
             }
 
-            if (frameWidth != system.capi.Render.FrameWidth
-                    || frameHeight != system.capi.Render.FrameHeight)
+            if (frameWidth != System.capi.Render.FrameWidth
+                    || frameHeight != System.capi.Render.FrameHeight)
             {
                 // Resolution changed.
                 Update();
@@ -102,25 +102,25 @@ namespace StatusHud
                 pingScale = Math.Max(1 + ((pingTime - pingTimeHalf) / (float)pingTimeHalf * pingScaleInit), 1);
                 pingRgba.A = (float)Math.Sin((pingTimeInit - pingTime) / (float)pingTimeInit * Math.PI);
 
-                IShaderProgram prog = system.capi.Render.GetEngineShader(EnumShaderProgram.Gui);
+                IShaderProgram prog = System.capi.Render.GetEngineShader(EnumShaderProgram.Gui);
                 prog.Uniform("rgbaIn", pingRgba);
                 prog.Uniform("extraGlow", 0);
                 prog.Uniform("applyColor", 0);
                 prog.Uniform("noTexture", 0f);
-                prog.BindTexture2D("tex2d", system.textures.texturesDict["ping"].TextureId, 0);
+                prog.BindTexture2D("tex2d", System.textures.texturesDict["ping"].TextureId, 0);
 
-                float w = (float)GuiElement.scaled(system.textures.texturesDict["ping"].Width) * pingScale;
-                float h = (float)GuiElement.scaled(system.textures.texturesDict["ping"].Height) * pingScale;
+                float w = (float)GuiElement.scaled(System.textures.texturesDict["ping"].Width) * pingScale;
+                float h = (float)GuiElement.scaled(System.textures.texturesDict["ping"].Height) * pingScale;
 
-                pingMatrix.Set(system.capi.Render.CurrentModelviewMatrix)
+                pingMatrix.Set(System.capi.Render.CurrentModelviewMatrix)
                         .Translate(x + (this.w / 2f), y + (this.h / 2f), 50)
                         .Scale(w, h, 0)
                         .Scale(0.75f, 0.75f, 0);
 
-                prog.UniformMatrix("projectionMatrix", system.capi.Render.CurrentProjectionMatrix);
+                prog.UniformMatrix("projectionMatrix", System.capi.Render.CurrentProjectionMatrix);
                 prog.UniformMatrix("modelViewMatrix", pingMatrix.Values);
 
-                system.capi.Render.RenderMesh(pingMesh);
+                System.capi.Render.RenderMesh(pingMesh);
 
                 pingTime--;
                 if (pingTime <= 0)
@@ -151,8 +151,8 @@ namespace StatusHud
             y = SolveY(h);
 
             scale = RuntimeEnv.GUIScale;
-            frameWidth = system.capi.Render.FrameWidth;
-            frameHeight = system.capi.Render.FrameHeight;
+            frameWidth = System.capi.Render.FrameWidth;
+            frameHeight = System.capi.Render.FrameHeight;
 
             // Keep inside frame.
             if (x < 0)
@@ -179,8 +179,8 @@ namespace StatusHud
             return pos.horzAlign switch
             {
                 StatusHudPos.HorzAlign.Left => (float)GuiElement.scaled(pos.x),
-                StatusHudPos.HorzAlign.Center => (float)((system.capi.Render.FrameWidth / 2f) - (w / 2f) + GuiElement.scaled(pos.x)),
-                StatusHudPos.HorzAlign.Right => (float)(system.capi.Render.FrameWidth - w - GuiElement.scaled(pos.x)),
+                StatusHudPos.HorzAlign.Center => (float)((System.capi.Render.FrameWidth / 2f) - (w / 2f) + GuiElement.scaled(pos.x)),
+                StatusHudPos.HorzAlign.Right => (float)(System.capi.Render.FrameWidth - w - GuiElement.scaled(pos.x)),
                 _ => 0,
             };
         }
@@ -190,40 +190,40 @@ namespace StatusHud
             return pos.vertAlign switch
             {
                 StatusHudPos.VertAlign.Top => (float)GuiElement.scaled(pos.y),
-                StatusHudPos.VertAlign.Middle => (float)((system.capi.Render.FrameHeight / 2f) - (h / 2f) + GuiElement.scaled(pos.y)),
-                StatusHudPos.VertAlign.Bottom => (float)(system.capi.Render.FrameHeight - h - GuiElement.scaled(pos.y)),
+                StatusHudPos.VertAlign.Middle => (float)((System.capi.Render.FrameHeight / 2f) - (h / 2f) + GuiElement.scaled(pos.y)),
+                StatusHudPos.VertAlign.Bottom => (float)(System.capi.Render.FrameHeight - h - GuiElement.scaled(pos.y)),
                 _ => 0,
             };
         }
 
         protected float SolveW()
         {
-            return (float)GuiElement.scaled(system.Config.iconSize);
+            return (float)GuiElement.scaled(StatusHudSystem.iconSize * System.Config.elementScale);
         }
 
         protected float SolveH()
         {
-            return (float)GuiElement.scaled(system.Config.iconSize);
+            return (float)GuiElement.scaled(StatusHudSystem.iconSize * System.Config.elementScale);
         }
 
         protected void RenderHidden(int textureId)
         {
-            IShaderProgram prog = system.capi.Render.GetEngineShader(EnumShaderProgram.Gui);
-            prog.Uniform("rgbaIn", hiddenRgba);
+            IShaderProgram prog = System.capi.Render.GetEngineShader(EnumShaderProgram.Gui);
+            prog.Uniform("rgbaIn", HiddenRgba);
             prog.Uniform("extraGlow", 0);
             prog.Uniform("applyColor", 0);
             prog.Uniform("noTexture", 0f);
             prog.BindTexture2D("tex2d", textureId, 0);
 
-            hiddenMatrix.Set(system.capi.Render.CurrentModelviewMatrix)
+            hiddenMatrix.Set(System.capi.Render.CurrentModelviewMatrix)
                     .Translate(x + (w / 2f), y + (h / 2f), 50)
                     .Scale(w, h, 0)
                     .Scale(0.5f, 0.5f, 0);
 
-            prog.UniformMatrix("projectionMatrix", system.capi.Render.CurrentProjectionMatrix);
+            prog.UniformMatrix("projectionMatrix", System.capi.Render.CurrentProjectionMatrix);
             prog.UniformMatrix("modelViewMatrix", hiddenMatrix.Values);
 
-            system.capi.Render.RenderMesh(hiddenMesh);
+            System.capi.Render.RenderMesh(hiddenMesh);
         }
     }
 }

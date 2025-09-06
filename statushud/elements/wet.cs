@@ -67,43 +67,43 @@ namespace StatusHud
         public StatusHudWetRenderer(StatusHudSystem system, StatusHudWetElement element) : base(system)
         {
             this.element = element;
-            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), system.Config);
+            Text = new StatusHudText(this.System.capi, this.element.GetTextKey(), system.Config);
         }
 
         public override void Reload()
         {
-            text.ReloadText(pos);
+            Text.ReloadText(pos);
         }
 
         public void SetText(string value)
         {
-            text.Set(value);
+            Text.Set(value);
         }
 
         protected override void Update()
         {
             base.Update();
-            text.Pos(pos);
+            Text.Pos(pos);
         }
 
         protected override void Render()
         {
             if (!element.active)
             {
-                if (system.ShowHidden)
+                if (System.ShowHidden)
                 {
-                    this.RenderHidden(system.textures.texturesDict["wet"].TextureId);
+                    this.RenderHidden(System.textures.texturesDict["wet"].TextureId);
                 }
                 return;
             }
 
-            system.capi.Render.RenderTexture(system.textures.texturesDict["wet"].TextureId, x, y, w, h);
+            System.capi.Render.RenderTexture(System.textures.texturesDict["wet"].TextureId, x, y, w, h);
         }
 
         public override void Dispose()
         {
             base.Dispose();
-            text.Dispose();
+            Text.Dispose();
         }
     }
 }

@@ -1,18 +1,23 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
+using Vintagestory.API.Config;
 
 namespace StatusHud
 {
-    public class StatusHudConfig
+    // For config versions 3 or lower
+    public class StatusHudConfigOld
     {
         public int version = 0;
         public int iconSize = 32;
         public int textSize = 16;
         public bool showHidden = false;
-        public IList<StatusHudConfigElement> elements = [];
+        public IList<StatusHudConfigElementOld> elements = [];
     }
 
-    public class StatusHudConfigElement(string name, int x, int y, int halign, int valign, string elementOptions)
+    // For config versions 3 or lower
+    public class StatusHudConfigElementOld(string name, int x, int y, int halign, int valign, string elementOptions)
     {
         public string name = name;
         public int x = x;
@@ -22,10 +27,38 @@ namespace StatusHud
         public string options = elementOptions;
     }
 
+    public enum Orientation
+    {
+        Up,
+        Left,
+        Right,
+        Down
+    }
+
+    public class StatusHudConfig
+    {
+        public int version = 0;
+        public float elementScale = 1;
+        public bool showHidden = false;
+        public IList<StatusHudConfigElement> elements = [];
+    }
+
+    public class StatusHudConfigElement(string name, int x, int y, int horzAlign, int vertAlign, Orientation orientation, int orientationOffset, string elementOptions)
+    {
+        public string name = name;
+        public int x = x;
+        public int y = y;
+        public int horzAlign = horzAlign;
+        public int vertAlign = vertAlign;
+        public Orientation orientation = orientation;
+        public int offset = orientationOffset;
+        public string options = elementOptions;
+    }
+
     public class StatusHudConfigManager
     {
         private const string filename = "statushud.json";
-        public const int version = 4;
+        private const int version = 4;
 
         private StatusHudConfig config;
         private readonly StatusHudSystem system;
@@ -42,30 +75,65 @@ namespace StatusHud
             {
                 config = new StatusHudConfig();
                 system.capi.Logger.Debug(StatusHudSystem.PrintModName($"Generated new config file {filename}"));
-                this.system.capi.StoreModConfig(config, filename);
-                return;
             }
 
-            if (config.version == 2)
+            // Someone is loading a new config version for an old mod version
+            if (Config.version > version)
             {
-                ConfigToV3();
+                system.capi.Logger.Error(StatusHudSystem.PrintModName($"Expected mod config version is {version}, got {Config.version}."
+                + "\nOverwriting config with default config."));
+                system.InstallDefault();
             }
 
-            if (config.version == 3)
+            else if (config.version <= 1 || Config.elements.Count == 0)
             {
-                ConfigToV4();
+                // Install default layout
+                Config.version = version;
+                system.InstallDefault();
             }
+
+            Config.version = version;
         }
 
         public void Load()
         {
+            int modConfigVersion = GetVersion();
+
+            if (modConfigVersion <= 0) { return; }
+            else if (modConfigVersion <= 3)
+            {
+                // Convert the old config type to the new one
+                StatusHudConfigOld oldConfig = system.capi.LoadModConfig<StatusHudConfigOld>(filename);
+                if (oldConfig.version == 2)
+                {
+                    oldConfig = ConfigToV3(oldConfig);
+                }
+                if (oldConfig.version == 3)
+                {
+                    config = ConfigToV4(oldConfig);
+                }
+            }
+            else { config = system.capi.LoadModConfig<StatusHudConfig>(filename); }
+        }
+
+        private int GetVersion()
+        {
+            string modConfigPath = Path.Combine(GamePaths.ModConfig, filename);
+
+            if (!File.Exists(modConfigPath))
+            {
+                system.capi.Logger.Debug(StatusHudSystem.PrintModName("Config file does not exist"));
+                return 0;
+            }
+
             try
             {
-                config = system.capi.LoadModConfig<StatusHudConfig>(filename);
+                return JsonDocument.Parse(File.ReadAllText(modConfigPath)).RootElement.GetProperty("version").GetInt32();
             }
             catch (Exception)
             {
-                system.capi.Logger.Debug(StatusHudSystem.PrintModName("Config file does not exist"));
+                system.capi.Logger.Error(StatusHudSystem.PrintModName("Config file is malformed"));
+                return 0;
             }
         }
 
@@ -78,7 +146,7 @@ namespace StatusHud
                 if (element != null)
                 {
                     element.ConfigOptions(configElement.options);
-                    StatusHudSystem.Pos(element, (StatusHudPos.HorzAlign)configElement.halign, configElement.x, (StatusHudPos.VertAlign)configElement.valign, configElement.y);
+                    StatusHudSystem.Pos(element, (StatusHudPos.HorzAlign)configElement.horzAlign, configElement.x, (StatusHudPos.VertAlign)configElement.vertAlign, configElement.y);
                 }
             }
         }
@@ -95,6 +163,8 @@ namespace StatusHud
                     element.pos.y,
                     (int)element.pos.horzAlign,
                     (int)element.pos.vertAlign,
+                    Orientation.Up, // Placeholder
+                    0, // Placeholder
                     element.ElementOption)
                 );
             }
@@ -102,9 +172,11 @@ namespace StatusHud
             system.capi.StoreModConfig(config, filename);
         }
 
-        private void ConfigToV3()
+        private static StatusHudConfigOld ConfigToV3(StatusHudConfigOld configOld)
         {
-            foreach (var element in config.elements)
+            configOld.version = 3;
+
+            foreach (var element in configOld.elements)
             {
                 switch (element.name)
                 {
@@ -191,13 +263,35 @@ namespace StatusHud
                         break;
                 }
             }
+
+            return configOld;
         }
-        private void ConfigToV4()
+        private StatusHudConfig ConfigToV4(StatusHudConfigOld configOld)
         {
-            foreach (var configElement in config.elements)
+            StatusHudConfig newConfig = new()
             {
-                configElement.name = StatusHudSystem.elementTypes.TryGetValue(configElement.name, out Type value) ? value.ToString() : "invalid";
+                version = 4,
+                elementScale = (float)Math.Clamp(Math.Round((double)(configOld.iconSize / StatusHudSystem.iconSize)), 0.5f, 2f),
+                showHidden = configOld.showHidden
+            };
+
+            foreach (var oldElement in configOld.elements)
+            {
+                StatusHudConfigElement newElement = new(
+                    StatusHudSystem.elementTypes.TryGetValue(oldElement.name, out Type value) ? value.ToString() : "invalid",
+                    oldElement.x,
+                    oldElement.y,
+                    oldElement.halign,
+                    oldElement.valign,
+                    Orientation.Up,
+                    0,
+                    oldElement.options
+                );
+
+                newConfig.elements.Add(newElement);
             }
+
+            return newConfig;
         }
     }
 }

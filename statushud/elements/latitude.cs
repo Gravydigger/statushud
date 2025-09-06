@@ -40,7 +40,7 @@ namespace StatusHud
         {
             double latitude = system.capi.World.Calendar.OnGetLatitude(system.capi.World.Player.Entity.Pos.Z);
             renderer.SetText((int)Math.Round(latitude * 900, 0) / 10f + "°");
-            needleOffset = (float)(-latitude * (system.Config.iconSize / 2f) * 0.75f);
+            needleOffset = (float)(-latitude * (StatusHudSystem.iconSize * system.Config.elementScale / 2f) * 0.75f);
         }
 
         public override void Dispose()
@@ -57,35 +57,35 @@ namespace StatusHud
         public StatusHudLatitudeRenderer(StatusHudSystem system, StatusHudLatitudeElement element) : base(system)
         {
             this.element = element;
-            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), system.Config);
+            Text = new StatusHudText(this.System.capi, this.element.GetTextKey(), system.Config);
         }
 
         public override void Reload()
         {
-            text.ReloadText(pos);
+            Text.ReloadText(pos);
         }
 
         public void SetText(string value)
         {
-            text.Set(value);
+            Text.Set(value);
         }
 
         protected override void Update()
         {
             base.Update();
-            text.Pos(pos);
+            Text.Pos(pos);
         }
 
         protected override void Render()
         {
-            system.capi.Render.RenderTexture(system.textures.texturesDict["latitude"].TextureId, x, y, w, h);
-            system.capi.Render.RenderTexture(system.textures.texturesDict["latitude_needle"].TextureId, x, y + GuiElement.scaled(element.needleOffset), w, h);
+            System.capi.Render.RenderTexture(System.textures.texturesDict["latitude"].TextureId, x, y, w, h);
+            System.capi.Render.RenderTexture(System.textures.texturesDict["latitude_needle"].TextureId, x, y + GuiElement.scaled(element.needleOffset), w, h);
         }
 
         public override void Dispose()
         {
             base.Dispose();
-            text.Dispose();
+            Text.Dispose();
         }
     }
 }

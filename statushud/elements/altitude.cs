@@ -43,7 +43,7 @@ namespace StatusHud
             renderer.SetText(altitude.ToString());
 
             float ratio = -(altitude / (system.capi.World.BlockAccessor.MapSizeY / 2));
-            needleOffset = GameMath.Clamp(ratio, -1, 1) * (system.Config.iconSize / 2f) * 0.75f;
+            needleOffset = GameMath.Clamp(ratio, -1, 1) * (StatusHudSystem.iconSize * system.Config.elementScale / 2f) * 0.75f;
         }
 
         public override void Dispose()
@@ -59,35 +59,35 @@ namespace StatusHud
         public StatusHudAltitudeRenderer(StatusHudSystem system, StatusHudAltitudeElement element) : base(system)
         {
             this.element = element;
-            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), system.Config);
+            Text = new StatusHudText(this.System.capi, this.element.GetTextKey(), system.Config);
         }
 
         public override void Reload()
         {
-            text.ReloadText(pos);
+            Text.ReloadText(pos);
         }
 
         public void SetText(string value)
         {
-            text.Set(value);
+            Text.Set(value);
         }
 
         protected override void Update()
         {
             base.Update();
-            text.Pos(pos);
+            Text.Pos(pos);
         }
 
         protected override void Render()
         {
-            system.capi.Render.RenderTexture(system.textures.texturesDict["altitude"].TextureId, x, y, w, h);
-            system.capi.Render.RenderTexture(system.textures.texturesDict["altitude_needle"].TextureId, x, y + GuiElement.scaled(element.needleOffset), w, h);
+            System.capi.Render.RenderTexture(System.textures.texturesDict["altitude"].TextureId, x, y, w, h);
+            System.capi.Render.RenderTexture(System.textures.texturesDict["altitude_needle"].TextureId, x, y + GuiElement.scaled(element.needleOffset), w, h);
         }
 
         public override void Dispose()
         {
             base.Dispose();
-            text.Dispose();
+            Text.Dispose();
         }
     }
 }

@@ -2,18 +2,18 @@
   "profiles": {
     "Client": {
       "commandName": "Executable",
-      "executablePath": "$(VINTAGE_STORY)/Vintagestory.exe",
-      "commandLineArgs": "--tracelog --addModPath \"$(ProjectDir)/bin/$(Configuration)/Mods\" -oTestWorld",
+      "executablePath": "$(VINTAGE_STORY)/Vintagestory",
+      "commandLineArgs": "--tracelog --addModPath \"$(ProjectDir)/bin/$(Configuration)/Mods\" -o testworld",
       "workingDirectory": "$(VINTAGE_STORY)",
       "environmentVariables": {
-        "TEXTURE_DEBUG_DISPOSE": "1",
-        "VAO_DEBUG_DISPOSE": "1"
+        "TEXTURE_DEBUG_DISPOSE": "0",
+        "VAO_DEBUG_DISPOSE": "0"
       }
     },
     "Server": {
       "commandName": "Executable",
-      "executablePath": "$(VINTAGE_STORY)/VintagestoryServer.exe",
-      "commandLineArgs": "--tracelog --addModPath \"$(ProjectDir)/bin/$(Configuration)/Mods\" -oTestWorld",
+      "executablePath": "$(VINTAGE_STORY)/VintagestoryServer",
+      "commandLineArgs": "--tracelog --addModPath \"$(ProjectDir)/bin/$(Configuration)/Mods\" -o testworld",
       "workingDirectory": "$(VINTAGE_STORY)"
     }
   }

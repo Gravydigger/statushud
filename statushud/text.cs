@@ -127,20 +127,21 @@ namespace StatusHud
                     }
             }
 
-            float iconHalf = config.iconSize / 2f;
+            float iconSize = StatusHudSystem.iconSize * config.elementScale;
+            float iconHalf = iconSize / 2f;
             float frameWidth = capi.Render.FrameWidth;
             float frameHeight = capi.Render.FrameHeight;
-            width = config.iconSize * 3;
-            height = config.iconSize;
+            width = iconSize * 3;
+            height = iconSize;
 
             // X.
             switch (pos.horzAlign)
             {
                 case StatusHudPos.HorzAlign.Left:
                     {
-                        x = GameMath.Clamp(x, 0, frameWidth - config.iconSize);
+                        x = GameMath.Clamp(x, 0, frameWidth - iconSize);
 
-                        x -= (float)Math.Round((width - config.iconSize) / 2f);
+                        x -= (float)Math.Round((width - iconSize) / 2f);
                         break;
                     }
                 case StatusHudPos.HorzAlign.Center:
@@ -150,9 +151,9 @@ namespace StatusHud
                     }
                 case StatusHudPos.HorzAlign.Right:
                     {
-                        x = GameMath.Clamp(x, 0, frameWidth - config.iconSize);
+                        x = GameMath.Clamp(x, 0, frameWidth - iconSize);
 
-                        x = -x + (float)Math.Round((width - config.iconSize) / 2f);
+                        x = -x + (float)Math.Round((width - iconSize) / 2f);
                         break;
                     }
             }
@@ -162,7 +163,7 @@ namespace StatusHud
             {
                 case StatusHudPos.VertAlign.Top:
                     {
-                        y = GameMath.Clamp(y, 0, frameHeight - config.iconSize);
+                        y = GameMath.Clamp(y, 0, frameHeight - iconSize);
                         break;
                     }
                 case StatusHudPos.VertAlign.Middle:
@@ -191,7 +192,7 @@ namespace StatusHud
         protected void Compose(EnumDialogArea area, float x, float y)
         {
             const int offsetX = 0;
-            int offsetY = -config.textSize;
+            int offsetY = (int)-(StatusHudSystem.iconSize * config.elementScale / 1.5f);
 
             SingleComposer?.Dispose();
             ElementBounds dialogBounds = ElementBounds.Fixed(area, x + offsetX, y + offsetY, width, height);
@@ -211,7 +212,7 @@ namespace StatusHud
             return new CairoFont()
                 .WithColor([colour.R, colour.G, colour.B, colour.A])
                 .WithFont(GuiStyle.StandardFontName)
-                .WithFontSize(config.textSize)
+                .WithFontSize(StatusHudSystem.iconSize * config.elementScale / 2f)
                 .WithWeight(bold ? Cairo.FontWeight.Bold : Cairo.FontWeight.Normal)
                 .WithOrientation(align)
                 .WithStroke([0, 0, 0, 0.5], 2);

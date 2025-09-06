@@ -75,62 +75,62 @@ namespace StatusHud
         public StatusHudWindRenderer(StatusHudSystem system, StatusHudWindElement element) : base(system)
         {
             this.element = element;
-            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), system.Config);
+            Text = new StatusHudText(this.System.capi, this.element.GetTextKey(), system.Config);
         }
 
         public override void Reload()
         {
-            text.ReloadText(pos);
+            Text.ReloadText(pos);
         }
 
         public void SetText(string value)
         {
-            text.Set(value);
+            Text.Set(value);
         }
 
         protected override void Update()
         {
             base.Update();
-            text.Pos(pos);
+            Text.Pos(pos);
         }
 
         protected override void Render()
         {
             if (element.directional)
             {
-                system.capi.Render.RenderTexture(system.textures.texturesDict["wind_dir"].TextureId, x, y, w, h);
+                System.capi.Render.RenderTexture(System.textures.texturesDict["wind_dir"].TextureId, x, y, w, h);
 
-                IShaderProgram prog = system.capi.Render.GetEngineShader(EnumShaderProgram.Gui);
+                IShaderProgram prog = System.capi.Render.GetEngineShader(EnumShaderProgram.Gui);
                 prog.Uniform("rgbaIn", ColorUtil.WhiteArgbVec);
                 prog.Uniform("extraGlow", 0);
                 prog.Uniform("applyColor", 0);
                 prog.Uniform("noTexture", 0f);
-                prog.BindTexture2D("tex2d", system.textures.texturesDict["wind_dir_arrow"].TextureId, 0);
+                prog.BindTexture2D("tex2d", System.textures.texturesDict["wind_dir_arrow"].TextureId, 0);
 
-                float angle = element.dirAngle - system.capi.World.Player.CameraYaw + GameMath.PI;
+                float angle = element.dirAngle - System.capi.World.Player.CameraYaw + GameMath.PI;
 
                 // Use hidden matrix and mesh because this element is never hidden.
-                hiddenMatrix.Set(system.capi.Render.CurrentModelviewMatrix)
+                hiddenMatrix.Set(System.capi.Render.CurrentModelviewMatrix)
                         .Translate(x + (w / 2f), y + (h / 2f), 50)
                         .Scale(w, h, 0)
                         .Scale(0.5f, 0.5f, 0)
                         .RotateZ(-angle);
 
-                prog.UniformMatrix("projectionMatrix", system.capi.Render.CurrentProjectionMatrix);
+                prog.UniformMatrix("projectionMatrix", System.capi.Render.CurrentProjectionMatrix);
                 prog.UniformMatrix("modelViewMatrix", hiddenMatrix.Values);
 
-                system.capi.Render.RenderMesh(hiddenMesh);
+                System.capi.Render.RenderMesh(hiddenMesh);
             }
             else
             {
-                system.capi.Render.RenderTexture(system.textures.texturesDict["wind"].TextureId, x, y, w, h);
+                System.capi.Render.RenderTexture(System.textures.texturesDict["wind"].TextureId, x, y, w, h);
             }
         }
 
         public override void Dispose()
         {
             base.Dispose();
-            text.Dispose();
+            Text.Dispose();
         }
     }
 }

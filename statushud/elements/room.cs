@@ -93,18 +93,18 @@ namespace StatusHud
         {
             if (!element.inside)
             {
-                if (system.ShowHidden)
+                if (System.ShowHidden)
                 {
-                    this.RenderHidden(system.textures.texturesDict["room_room"].TextureId);
+                    this.RenderHidden(System.textures.texturesDict["room_room"].TextureId);
                 }
                 return;
             }
 
-            system.capi.Render.RenderTexture(element.cellar ? system.textures.texturesDict["room_cellar"].TextureId : system.textures.texturesDict["room_room"].TextureId, x, y, w, h);
+            System.capi.Render.RenderTexture(element.cellar ? System.textures.texturesDict["room_cellar"].TextureId : System.textures.texturesDict["room_room"].TextureId, x, y, w, h);
 
             if (element.greenhouse)
             {
-                system.capi.Render.RenderTexture(system.textures.texturesDict["room_greenhouse"].TextureId, x, ghy, w, h);
+                System.capi.Render.RenderTexture(System.textures.texturesDict["room_greenhouse"].TextureId, x, ghy, w, h);
             }
         }
 
@@ -112,7 +112,7 @@ namespace StatusHud
         {
             base.Update();
 
-            ghy = (float)(y - GuiElement.scaled(system.Config.iconSize));
+            ghy = (float)(y - GuiElement.scaled(StatusHudSystem.iconSize * System.Config.elementScale));
         }
 
         public override void Dispose()

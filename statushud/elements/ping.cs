@@ -72,41 +72,41 @@ namespace StatusHud
         public StatusHudPingRenderer(StatusHudSystem system, StatusHudPingElement element) : base(system)
         {
             this.element = element;
-            text = new StatusHudText(this.system.capi, this.element.GetTextKey(), system.Config);
+            Text = new StatusHudText(this.System.capi, this.element.GetTextKey(), system.Config);
         }
 
         public override void Reload()
         {
-            text.ReloadText(pos);
+            Text.ReloadText(pos);
         }
 
         public void SetText(string value)
         {
-            text.Set(value);
+            Text.Set(value);
         }
 
         protected override void Update()
         {
             base.Update();
-            text.Pos(pos);
+            Text.Pos(pos);
         }
 
         protected override void Render()
         {
-            if (system.ShowHidden && system.capi.IsSinglePlayer)
+            if (System.ShowHidden && System.capi.IsSinglePlayer)
             {
-                RenderHidden(system.textures.texturesDict["network"].TextureId);
+                RenderHidden(System.textures.texturesDict["network"].TextureId);
             }
             else
             {
-                system.capi.Render.RenderTexture(system.textures.texturesDict["network"].TextureId, x, y, w, h);
+                System.capi.Render.RenderTexture(System.textures.texturesDict["network"].TextureId, x, y, w, h);
             }
         }
 
         public override void Dispose()
         {
             base.Dispose();
-            text.Dispose();
+            Text.Dispose();
         }
     }
 }

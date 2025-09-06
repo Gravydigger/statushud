@@ -11,16 +11,17 @@ namespace StatusHud
     public class StatusHudSystem : ModSystem
     {
         public const string domain = "statushudcont";
+        public const int iconSize = 32;
         private const int slowListenInterval = 1000;
         private const int fastListenInterval = 100;
 
         public static readonly Dictionary<string, Type> elementTypes =
             typeof(StatusHudElement).Assembly.GetTypes()
-            .Where(t => t.IsSubclassOf(typeof(StatusHudElement)))
-            .ToDictionary(
-                t => (string)t.GetField("name", BindingFlags.Public | BindingFlags.Static)?.GetValue(null),
-                t => t
-            );
+                .Where(t => t.IsSubclassOf(typeof(StatusHudElement)))
+                .ToDictionary(
+                    t => (string)t.GetField("name", BindingFlags.Public | BindingFlags.Static)?.GetValue(null),
+                    t => t
+                );
 
         private StatusHudConfigManager configManager;
         public StatusHudConfig Config => configManager.Config;
@@ -54,31 +55,13 @@ namespace StatusHud
             elements = [];
             slowElements = [];
             fastElements = [];
-            textures = new StatusHudTextures(this.capi, Config.iconSize);
+            textures = new StatusHudTextures(this.capi, iconSize * Config.elementScale);
 
             configManager.LoadElements(this);
+            configManager.Save();
 
             slowListenerId = this.capi.Event.RegisterGameTickListener(SlowTick, slowListenInterval);
             fastListenerId = this.capi.Event.RegisterGameTickListener(FastTick, fastListenInterval);
-
-            if (Config.version != StatusHudConfigManager.version)
-            {
-                if (Config.version > StatusHudConfigManager.version)
-                {
-                    capi.Logger.Error(PrintModName($"Expected mod config version is {StatusHudConfigManager.version}, got {Config.version}."
-                    + "\nOverwriting config with default config."));
-                    InstallDefault();
-                }
-
-                else if (Config.version < StatusHudConfigManager.version && Config.elements.Count == 0)
-                {
-                    // Install default layout
-                    InstallDefault();
-                }
-
-                Config.version = StatusHudConfigManager.version;
-                SaveConfig();
-            }
 
             capi.Event.PlayerJoin += SetUUID;
 
@@ -110,9 +93,9 @@ namespace StatusHud
             return $"[Status HUD] {text}";
         }
 
-        public void SlowTick(float dt) => slowElements.ForEach(e => e.Tick());
+        private void SlowTick(float dt) => slowElements.ForEach(e => e.Tick());
 
-        public void FastTick(float dt) => fastElements.ForEach(e => e.Tick());
+        private void FastTick(float dt) => fastElements.ForEach(e => e.Tick());
 
         public StatusHudElement Set(Type type)
         {
@@ -143,6 +126,7 @@ namespace StatusHud
             {
                 slowElements.Add(element);
             }
+
             return element;
         }
 
@@ -183,12 +167,13 @@ namespace StatusHud
             }
         }
 
-        public static void Pos(StatusHudElement element, StatusHudPos.HorzAlign horzAlign, int x, StatusHudPos.VertAlign vertAlign, int y)
+        public static void Pos(StatusHudElement element, StatusHudPos.HorzAlign horzAlign, int x,
+            StatusHudPos.VertAlign vertAlign, int y)
         {
             element.Pos(horzAlign, x, vertAlign, y);
         }
 
-        protected void Clear()
+        private void Clear()
         {
             fastElements.Clear();
             slowElements.Clear();
@@ -197,6 +182,7 @@ namespace StatusHud
             {
                 element.Dispose();
             }
+
             elements.Clear();
         }
 
@@ -220,32 +206,42 @@ namespace StatusHud
         {
             Clear();
 
-            int size = Config.iconSize;
-            int sideX = (int)Math.Round(size * 0.75f);
+            int sideX = (int)Math.Round(iconSize * 0.75f);
             int sideMinimapX = sideX + 256;
-            int topY = size;
-            int bottomY = (int)Math.Round(size * 0.375f);
-            int offset = (int)Math.Round(size * 1.5f);
+            int toolbarMidpoint = (int)(310 * RuntimeEnv.GUIScale);
+            int topY = iconSize;
+            int bottomY = (int)Math.Round(iconSize * 0.375f);
+            int offset = (int)Math.Round(iconSize * Config.elementScale * 1.5f);
 
-            Pos(Set(typeof(StatusHudDateElement)), StatusHudPos.HorzAlign.Left, sideX, StatusHudPos.VertAlign.Bottom, bottomY);
+            Pos(Set(typeof(StatusHudDateElement)), StatusHudPos.HorzAlign.Left, sideX, StatusHudPos.VertAlign.Bottom,
+                bottomY);
 
-            Pos(Set(typeof(StatusHudTimeElement)), StatusHudPos.HorzAlign.Left, sideX + (int)(offset * 1.3f), StatusHudPos.VertAlign.Bottom, bottomY);
+            Pos(Set(typeof(StatusHudTimeElement)), StatusHudPos.HorzAlign.Left, sideX + (int)(offset),
+                StatusHudPos.VertAlign.Bottom, bottomY);
 
-            Pos(Set(typeof(StatusHudWeatherElement)), StatusHudPos.HorzAlign.Left, sideX + (int)(offset * 2.5f), StatusHudPos.VertAlign.Bottom, bottomY);
+            Pos(Set(typeof(StatusHudWeatherElement)), StatusHudPos.HorzAlign.Left, sideX + (int)(offset * 2f),
+                StatusHudPos.VertAlign.Bottom, bottomY);
 
-            Pos(Set(typeof(StatusHudWindElement)), StatusHudPos.HorzAlign.Left, sideX + (int)(offset * 3.5f), StatusHudPos.VertAlign.Bottom, bottomY);
+            Pos(Set(typeof(StatusHudWindElement)), StatusHudPos.HorzAlign.Left, sideX + (int)(offset * 3f),
+                StatusHudPos.VertAlign.Bottom, bottomY);
 
-            Pos(Set(typeof(StatusHudArmourElement)), StatusHudPos.HorzAlign.Center, sideX + (int)(offset * 9f), StatusHudPos.VertAlign.Bottom, bottomY);
+            Pos(Set(typeof(StatusHudArmourElement)), StatusHudPos.HorzAlign.Center, sideX + toolbarMidpoint + offset,
+                StatusHudPos.VertAlign.Bottom, bottomY);
 
-            Pos(Set(typeof(StatusHudStabilityElement)), StatusHudPos.HorzAlign.Center, sideX + (int)(offset * 10f), StatusHudPos.VertAlign.Bottom, bottomY);
+            Pos(Set(typeof(StatusHudStabilityElement)), StatusHudPos.HorzAlign.Center,
+                sideX + toolbarMidpoint + offset * 2, StatusHudPos.VertAlign.Bottom, bottomY);
 
-            Pos(Set(typeof(StatusHudRoomElement)), StatusHudPos.HorzAlign.Center, -1 * (sideX + (int)(offset * 9f)), StatusHudPos.VertAlign.Bottom, bottomY);
+            Pos(Set(typeof(StatusHudRoomElement)), StatusHudPos.HorzAlign.Center,
+                -1 * (sideX + toolbarMidpoint + offset), StatusHudPos.VertAlign.Bottom, bottomY);
 
-            Pos(Set(typeof(StatusHudSleepElement)), StatusHudPos.HorzAlign.Right, sideMinimapX + offset, StatusHudPos.VertAlign.Top, topY);
+            Pos(Set(typeof(StatusHudSleepElement)), StatusHudPos.HorzAlign.Right, sideMinimapX + offset,
+                StatusHudPos.VertAlign.Top, topY);
 
-            Pos(Set(typeof(StatusHudWetElement)), StatusHudPos.HorzAlign.Right, sideMinimapX, StatusHudPos.VertAlign.Top, topY);
+            Pos(Set(typeof(StatusHudWetElement)), StatusHudPos.HorzAlign.Right, sideMinimapX,
+                StatusHudPos.VertAlign.Top, topY);
 
-            Pos(Set(typeof(StatusHudTimeLocalElement)), StatusHudPos.HorzAlign.Right, sideX, StatusHudPos.VertAlign.Bottom, bottomY);
+            Pos(Set(typeof(StatusHudTimeLocalElement)), StatusHudPos.HorzAlign.Right, sideX,
+                StatusHudPos.VertAlign.Bottom, bottomY);
         }
 
         public void SaveConfig()
