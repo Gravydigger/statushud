@@ -1,105 +1,104 @@
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 
-namespace StatusHud
+namespace StatusHud;
+
+public class StatusHudDurabilityElement : StatusHudElement
 {
-    public class StatusHudDurabilityElement : StatusHudElement
+    public const string name = "durability";
+    private const string textKey = "shud-durability";
+
+    private readonly StatusHudDurabilityRenderer renderer;
+
+    public bool active;
+
+    public StatusHudDurabilityElement(StatusHudSystem system) : base(system, true)
     {
-        public new const string name = "durability";
-        protected const string textKey = "shud-durability";
+        renderer = new StatusHudDurabilityRenderer(this.system, this);
+        this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
+    }
 
-        public override string ElementName => name;
+    public override string ElementName => name;
 
-        public bool active;
+    public override StatusHudRenderer GetRenderer()
+    {
+        return renderer;
+    }
 
-        protected StatusHudDurabilityRenderer renderer;
+    public static string GetTextKey()
+    {
+        return textKey;
+    }
 
-        public StatusHudDurabilityElement(StatusHudSystem system) : base(system, true)
+    public override void Tick()
+    {
+        CollectibleObject item = system.capi.World.Player.InventoryManager.ActiveHotbarSlot?.Itemstack?.Collectible;
+
+        if (item != null && item.Durability != 0)
         {
-            renderer = new StatusHudDurabilityRenderer(this.system, this);
-            this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
+            renderer.SetText(item.GetRemainingDurability(system.capi.World.Player.InventoryManager.ActiveHotbarSlot.Itemstack).ToString());
+            active = true;
         }
-
-        public override StatusHudRenderer GetRenderer()
+        else
         {
-            return renderer;
-        }
-
-        public virtual string GetTextKey()
-        {
-            return textKey;
-        }
-
-        public override void Tick()
-        {
-            CollectibleObject item = system.capi.World.Player.InventoryManager.ActiveHotbarSlot?.Itemstack?.Collectible;
-
-            if (item != null && item.Durability != 0)
+            if (active)
             {
-                renderer.SetText(item.GetRemainingDurability(system.capi.World.Player.InventoryManager.ActiveHotbarSlot.Itemstack).ToString());
-                active = true;
+                renderer.SetText("");
             }
-            else
-            {
-                if (active)
-                {
-                    renderer.SetText("");
-                }
-                active = false;
-            }
-        }
-
-        public override void Dispose()
-        {
-            renderer.Dispose();
-            system.capi.Event.UnregisterRenderer(renderer, EnumRenderStage.Ortho);
+            active = false;
         }
     }
 
-    public class StatusHudDurabilityRenderer : StatusHudRenderer
+    public override void Dispose()
     {
-        protected StatusHudDurabilityElement element;
+        renderer.Dispose();
+        system.capi.Event.UnregisterRenderer(renderer, EnumRenderStage.Ortho);
+    }
+}
 
-        public StatusHudDurabilityRenderer(StatusHudSystem system, StatusHudDurabilityElement element) : base(system)
-        {
-            this.element = element;
-            Text = new StatusHudText(this.System.capi, this.element.GetTextKey(), system.Config);
-        }
+public class StatusHudDurabilityRenderer : StatusHudRenderer
+{
+    private readonly StatusHudDurabilityElement element;
 
-        public override void Reload()
-        {
-            Text.ReloadText(pos);
-        }
+    public StatusHudDurabilityRenderer(StatusHudSystem system, StatusHudDurabilityElement element) : base(system)
+    {
+        this.element = element;
+        text = new StatusHudText(this.system.capi, StatusHudDurabilityElement.GetTextKey(), system.Config);
+    }
 
-        public void SetText(string value)
-        {
-            Text.Set(value);
-        }
+    public override void Reload()
+    {
+        text.ReloadText(pos);
+    }
 
-        protected override void Update()
-        {
-            base.Update();
-            Text.Pos(pos);
-        }
+    public void SetText(string value)
+    {
+        text.Set(value);
+    }
 
-        protected override void Render()
+    protected override void Update()
+    {
+        base.Update();
+        text.SetPos(pos);
+    }
+
+    protected override void Render()
+    {
+        if (!element.active)
         {
-            if (!element.active)
+            if (system.ShowHidden)
             {
-                if (System.ShowHidden)
-                {
-                    RenderHidden(System.textures.texturesDict["durability"].TextureId);
-                }
-                return;
+                RenderHidden(system.textures.texturesDict["durability"].TextureId);
             }
-
-            System.capi.Render.RenderTexture(System.textures.texturesDict["durability"].TextureId, x, y, w, h);
+            return;
         }
 
-        public override void Dispose()
-        {
-            base.Dispose();
-            Text.Dispose();
-        }
+        system.capi.Render.RenderTexture(system.textures.texturesDict["durability"].TextureId, x, y, w, h);
+    }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        text.Dispose();
     }
 }

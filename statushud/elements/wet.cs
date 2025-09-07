@@ -1,109 +1,108 @@
 using System;
 using Vintagestory.API.Client;
 
-namespace StatusHud
+namespace StatusHud;
+
+public class StatusHudWetElement : StatusHudElement
 {
-    public class StatusHudWetElement : StatusHudElement
+    public const string name = "wet";
+    private const string textKey = "shud-wet";
+
+    public bool active;
+
+    private readonly StatusHudWetRenderer renderer;
+
+    public StatusHudWetElement(StatusHudSystem system) : base(system)
     {
-        public new const string name = "wet";
-        protected const string textKey = "shud-wet";
+        renderer = new StatusHudWetRenderer(system, this);
+        this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
-        public override string ElementName => name;
+        active = false;
+    }
 
-        public bool active;
+    public override string ElementName => name;
 
-        protected StatusHudWetRenderer renderer;
+    public override StatusHudRenderer GetRenderer()
+    {
+        return renderer;
+    }
 
-        public StatusHudWetElement(StatusHudSystem system) : base(system)
+    public virtual string GetTextKey()
+    {
+        return textKey;
+    }
+
+    public override void Tick()
+    {
+        float wetness = system.capi.World.Player.Entity.WatchedAttributes.GetFloat("wetness");
+
+        if (wetness > 0)
         {
-            renderer = new StatusHudWetRenderer(system, this);
-            this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
+            renderer.SetText((int)Math.Round(wetness * 100f, 0) + "%");
 
+            active = true;
+        }
+        else
+        {
+            if (active)
+            {
+                // Only set text once.
+                renderer.SetText("");
+            }
             active = false;
-        }
-
-        public override StatusHudRenderer GetRenderer()
-        {
-            return renderer;
-        }
-
-        public virtual string GetTextKey()
-        {
-            return textKey;
-        }
-
-        public override void Tick()
-        {
-            float wetness = system.capi.World.Player.Entity.WatchedAttributes.GetFloat("wetness");
-
-            if (wetness > 0)
-            {
-                renderer.SetText((int)Math.Round(wetness * 100f, 0) + "%");
-
-                active = true;
-            }
-            else
-            {
-                if (active)
-                {
-                    // Only set text once.
-                    renderer.SetText("");
-                }
-                active = false;
-            }
-        }
-
-        public override void Dispose()
-        {
-            renderer.Dispose();
-            system.capi.Event.UnregisterRenderer(renderer, EnumRenderStage.Ortho);
         }
     }
 
-    public class StatusHudWetRenderer : StatusHudRenderer
+    public override void Dispose()
     {
-        protected StatusHudWetElement element;
+        renderer.Dispose();
+        system.capi.Event.UnregisterRenderer(renderer, EnumRenderStage.Ortho);
+    }
+}
 
-        public StatusHudWetRenderer(StatusHudSystem system, StatusHudWetElement element) : base(system)
-        {
-            this.element = element;
-            Text = new StatusHudText(this.System.capi, this.element.GetTextKey(), system.Config);
-        }
+public class StatusHudWetRenderer : StatusHudRenderer
+{
+    private readonly StatusHudWetElement element;
 
-        public override void Reload()
-        {
-            Text.ReloadText(pos);
-        }
+    public StatusHudWetRenderer(StatusHudSystem system, StatusHudWetElement element) : base(system)
+    {
+        this.element = element;
+        text = new StatusHudText(this.system.capi, this.element.GetTextKey(), system.Config);
+    }
 
-        public void SetText(string value)
-        {
-            Text.Set(value);
-        }
+    public override void Reload()
+    {
+        text.ReloadText(pos);
+    }
 
-        protected override void Update()
-        {
-            base.Update();
-            Text.Pos(pos);
-        }
+    public void SetText(string value)
+    {
+        text.Set(value);
+    }
 
-        protected override void Render()
+    protected override void Update()
+    {
+        base.Update();
+        text.SetPos(pos);
+    }
+
+    protected override void Render()
+    {
+        if (!element.active)
         {
-            if (!element.active)
+            if (system.ShowHidden)
             {
-                if (System.ShowHidden)
-                {
-                    this.RenderHidden(System.textures.texturesDict["wet"].TextureId);
-                }
-                return;
+                RenderHidden(system.textures.texturesDict["wet"].TextureId);
             }
-
-            System.capi.Render.RenderTexture(System.textures.texturesDict["wet"].TextureId, x, y, w, h);
+            return;
         }
 
-        public override void Dispose()
-        {
-            base.Dispose();
-            Text.Dispose();
-        }
+        system.capi.Render.RenderTexture(system.textures.texturesDict["wet"].TextureId, x, y, w, h);
+    }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        text.Dispose();
     }
 }

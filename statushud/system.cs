@@ -2,251 +2,228 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using statushud;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Config;
 
-namespace StatusHud
+namespace StatusHud;
+
+public class StatusHudSystem : ModSystem
 {
-    public class StatusHudSystem : ModSystem
+    public const string domain = "statushudcont";
+    public const int iconSize = 32;
+    private const int slowListenInterval = 1000;
+    private const int fastListenInterval = 100;
+
+    public static readonly Dictionary<string, Type> ElementTypes =
+        typeof(StatusHudElement).Assembly.GetTypes()
+            .Where(t => t.IsSubclassOf(typeof(StatusHudElement)))
+            .ToDictionary(
+                t => (string)t.GetField("name", BindingFlags.Public | BindingFlags.Static)?.GetValue(null),
+                t => t
+            );
+
+    public ICoreClientAPI capi;
+
+    private StatusHudConfigManager configManager;
+    private StatusHudConfigGui dialog;
+
+    public List<StatusHudElement> elements;
+    private List<StatusHudElement> fastElements;
+    private long fastListenerId;
+    private List<StatusHudElement> slowElements;
+    private long slowListenerId;
+    public StatusHudTextures textures;
+
+    public StatusHudConfig Config => configManager.Config;
+    public string Uuid { get; private set; }
+
+    public bool ShowHidden => configManager.Config.showHidden;
+
+    public override bool ShouldLoad(EnumAppSide side)
     {
-        public const string domain = "statushudcont";
-        public const int iconSize = 32;
-        private const int slowListenInterval = 1000;
-        private const int fastListenInterval = 100;
+        return side == EnumAppSide.Client;
+    }
 
-        public static readonly Dictionary<string, Type> elementTypes =
-            typeof(StatusHudElement).Assembly.GetTypes()
-                .Where(t => t.IsSubclassOf(typeof(StatusHudElement)))
-                .ToDictionary(
-                    t => (string)t.GetField("name", BindingFlags.Public | BindingFlags.Static)?.GetValue(null),
-                    t => t
-                );
+    public override void StartClientSide(ICoreClientAPI capi)
+    {
+        base.StartClientSide(capi);
+        this.capi = capi;
 
-        private StatusHudConfigManager configManager;
-        public StatusHudConfig Config => configManager.Config;
+        configManager = new StatusHudConfigManager(this);
 
-        public List<StatusHudElement> elements;
-        private List<StatusHudElement> slowElements;
-        private List<StatusHudElement> fastElements;
-        public StatusHudTextures textures;
-        private StatusHudConfigGui dialog;
+        elements = [];
+        slowElements = [];
+        fastElements = [];
+        textures = new StatusHudTextures(this.capi, iconSize * Config.elementScale);
 
-        private string uuid = null;
-        public string UUID => uuid;
-        public bool ShowHidden => configManager.Config.showHidden;
+        configManager.LoadElements(this);
+        configManager.Save();
 
-        public override bool ShouldLoad(EnumAppSide side)
+        slowListenerId = this.capi.Event.RegisterGameTickListener(SlowTick, slowListenInterval);
+        fastListenerId = this.capi.Event.RegisterGameTickListener(FastTick, fastListenInterval);
+
+        capi.Event.PlayerJoin += SetUuid;
+
+        dialog = new StatusHudConfigGui(capi, this);
+        capi.Input.RegisterHotKey("statushudconfiggui", "Status Hud Menu", GlKeys.U, HotkeyType.GUIOrOtherControls);
+        capi.Input.SetHotKeyHandler("statushudconfiggui", ToggleConfigGui);
+
+        this.capi.Logger.Debug(PrintModName($"Current locale set to: {Lang.CurrentLocale}"));
+    }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+
+        capi.Event.UnregisterGameTickListener(slowListenerId);
+        capi.Event.UnregisterGameTickListener(fastListenerId);
+        foreach (StatusHudElement element in elements)
         {
-            return side == EnumAppSide.Client;
-        }
-
-        public ICoreClientAPI capi;
-        private long slowListenerId;
-        private long fastListenerId;
-
-        public override void StartClientSide(ICoreClientAPI capi)
-        {
-            base.StartClientSide(capi);
-            this.capi = capi;
-
-            configManager = new StatusHudConfigManager(this);
-
-            elements = [];
-            slowElements = [];
-            fastElements = [];
-            textures = new StatusHudTextures(this.capi, iconSize * Config.elementScale);
-
-            configManager.LoadElements(this);
-            configManager.Save();
-
-            slowListenerId = this.capi.Event.RegisterGameTickListener(SlowTick, slowListenInterval);
-            fastListenerId = this.capi.Event.RegisterGameTickListener(FastTick, fastListenInterval);
-
-            capi.Event.PlayerJoin += SetUUID;
-
-            dialog = new StatusHudConfigGui(capi, this);
-            capi.Input.RegisterHotKey("statushudconfiggui", "Status Hud Menu", GlKeys.U, HotkeyType.GUIOrOtherControls);
-            capi.Input.SetHotKeyHandler("statushudconfiggui", ToggleConfigGui);
-
-            this.capi.Logger.Debug(PrintModName($"Current locale set to: {Lang.CurrentLocale}"));
-        }
-
-        public override void Dispose()
-        {
-            base.Dispose();
-
-            capi.Event.UnregisterGameTickListener(slowListenerId);
-            capi.Event.UnregisterGameTickListener(fastListenerId);
-            foreach (var element in elements)
-            {
-                element.Dispose();
-            }
-
-            textures.Dispose();
-            dialog.Dispose();
-            capi.Event.PlayerJoin -= SetUUID;
-        }
-
-        public static string PrintModName(string text)
-        {
-            return $"[Status HUD] {text}";
-        }
-
-        private void SlowTick(float dt) => slowElements.ForEach(e => e.Tick());
-
-        private void FastTick(float dt) => fastElements.ForEach(e => e.Tick());
-
-        public StatusHudElement Set(Type type)
-        {
-            if (type == null) return null;
-
-            StatusHudElement element = (StatusHudElement)Activator.CreateInstance(type, this);
-
-            if (element == null) return null;
-
-            // Remove any other element of the same type.
-            foreach (StatusHudElement elementVal in elements)
-            {
-                if (elementVal.GetType() == element.GetType())
-                {
-                    elementVal.Dispose();
-                }
-            }
-
-            elements.Add(element);
-
-            elements[elements.IndexOf(element)].Repos();
-
-            if (element.fast)
-            {
-                fastElements.Add(element);
-            }
-            else
-            {
-                slowElements.Add(element);
-            }
-
-            return element;
-        }
-
-        public bool Unset(Type type)
-        {
-            StatusHudElement element = elements.FirstOrDefault(e => e.GetType() == type);
-            if (element == null) return false;
-
-            (element.fast ? fastElements : slowElements).Remove(element);
             element.Dispose();
-            elements.Remove(element);
-
-            return false;
         }
 
-        // Will load elements from file
-        public void LoadConfig()
+        textures.Dispose();
+        dialog.Dispose();
+        capi.Event.PlayerJoin -= SetUuid;
+    }
+
+    public static string PrintModName(string text)
+    {
+        return $"[Status HUD] {text}";
+    }
+
+    private void SlowTick(float dt)
+    {
+        slowElements.ForEach(e => e.Tick());
+    }
+
+    private void FastTick(float dt)
+    {
+        fastElements.ForEach(e => e.Tick());
+    }
+
+    public StatusHudElement Set(Type type)
+    {
+        if (type == null) return null;
+
+        StatusHudElement element = (StatusHudElement)Activator.CreateInstance(type, this);
+
+        if (element == null) return null;
+
+        // Remove any other element of the same type.
+        foreach (StatusHudElement elementVal in elements.Where(elementVal => elementVal.GetType() == element.GetType()))
         {
-            Clear();
-            configManager.Load();
-            configManager.LoadElements(this);
+            elementVal.Dispose();
         }
 
-        public void Reload()
+        elements.Add(element);
+
+        elements[elements.IndexOf(element)].Repos();
+
+        (element.fast ? fastElements : slowElements).Add(element);
+
+        return element;
+    }
+
+    public bool Unset(Type type)
+    {
+        StatusHudElement element = elements.FirstOrDefault(e => e.GetType() == type);
+        if (element == null) return false;
+
+        (element.fast ? fastElements : slowElements).Remove(element);
+        element.Dispose();
+        elements.Remove(element);
+
+        return false;
+    }
+
+    // Will load elements from file
+    public void LoadConfig()
+    {
+        Clear();
+        configManager.Load();
+        configManager.LoadElements(this);
+    }
+
+    public void Reload()
+    {
+        foreach (StatusHudElement element in elements)
         {
-            foreach (var element in elements)
-            {
-                element.GetRenderer().Reload();
-                element.GetRenderer().UpdateRender();
-            }
+            element.GetRenderer().Reload();
+            element.GetRenderer().UpdateRender();
         }
+    }
 
-        public void Reload(IClientPlayer byPlayer)
+    public static void SetPos(StatusHudElement element, StatusHudPos.HorizAlign horizAlign, int x,
+        StatusHudPos.VertAlign vertAlign, int y)
+    {
+        element.SetPos(horizAlign, x, vertAlign, y);
+    }
+
+    private void Clear()
+    {
+        fastElements?.Clear();
+        slowElements?.Clear();
+
+        foreach (StatusHudElement element in elements)
         {
-            if (byPlayer != null && byPlayer.PlayerUID == UUID)
-            {
-                Reload();
-            }
+            element.Dispose();
         }
 
-        public static void Pos(StatusHudElement element, StatusHudPos.HorzAlign horzAlign, int x,
-            StatusHudPos.VertAlign vertAlign, int y)
+        elements.Clear();
+    }
+
+    private void SetUuid(IClientPlayer byPlayer)
+    {
+        if (Uuid == null && byPlayer != null)
         {
-            element.Pos(horzAlign, x, vertAlign, y);
+            Uuid = byPlayer.PlayerUID;
         }
+    }
 
-        private void Clear()
-        {
-            fastElements.Clear();
-            slowElements.Clear();
+    private bool ToggleConfigGui(KeyCombination comb)
+    {
+        if (dialog.IsOpened()) dialog.TryClose();
+        else dialog.TryOpen();
 
-            foreach (var element in elements)
-            {
-                element.Dispose();
-            }
+        return true;
+    }
 
-            elements.Clear();
-        }
+    public void InstallDefault()
+    {
+        Clear();
 
-        private void SetUUID(IClientPlayer byPlayer)
-        {
-            if (uuid == null && byPlayer != null)
-            {
-                uuid = byPlayer.PlayerUID;
-            }
-        }
+        int sideX = (int)Math.Round(iconSize * 0.75f);
+        int sideMinimapX = sideX + 256;
+        int toolbarMidpoint = (int)(310 * RuntimeEnv.GUIScale);
+        int bottomY = (int)Math.Round(iconSize * 0.375f);
+        int offset = (int)Math.Round(iconSize * Config.elementScale * 1.5f);
 
-        private bool ToggleConfigGui(KeyCombination comb)
-        {
-            if (dialog.IsOpened()) dialog.TryClose();
-            else dialog.TryOpen();
+        SetPos(Set(typeof(StatusHudDateElement)), StatusHudPos.HorizAlign.Left, sideX, StatusHudPos.VertAlign.Bottom, bottomY);
 
-            return true;
-        }
+        SetPos(Set(typeof(StatusHudTimeElement)), StatusHudPos.HorizAlign.Left, sideX + offset, StatusHudPos.VertAlign.Bottom, bottomY);
 
-        public void InstallDefault()
-        {
-            Clear();
+        SetPos(Set(typeof(StatusHudWeatherElement)), StatusHudPos.HorizAlign.Left, sideX + (int)(offset * 2f), StatusHudPos.VertAlign.Bottom, bottomY);
 
-            int sideX = (int)Math.Round(iconSize * 0.75f);
-            int sideMinimapX = sideX + 256;
-            int toolbarMidpoint = (int)(310 * RuntimeEnv.GUIScale);
-            int topY = iconSize;
-            int bottomY = (int)Math.Round(iconSize * 0.375f);
-            int offset = (int)Math.Round(iconSize * Config.elementScale * 1.5f);
+        SetPos(Set(typeof(StatusHudWindElement)), StatusHudPos.HorizAlign.Left, sideX + (int)(offset * 3f), StatusHudPos.VertAlign.Bottom, bottomY);
 
-            Pos(Set(typeof(StatusHudDateElement)), StatusHudPos.HorzAlign.Left, sideX, StatusHudPos.VertAlign.Bottom,
-                bottomY);
+        SetPos(Set(typeof(StatusHudArmourElement)), StatusHudPos.HorizAlign.Center, sideX + toolbarMidpoint + offset, StatusHudPos.VertAlign.Bottom, bottomY);
 
-            Pos(Set(typeof(StatusHudTimeElement)), StatusHudPos.HorzAlign.Left, sideX + (int)(offset),
-                StatusHudPos.VertAlign.Bottom, bottomY);
+        SetPos(Set(typeof(StatusHudStabilityElement)), StatusHudPos.HorizAlign.Center, sideX + toolbarMidpoint + offset * 2, StatusHudPos.VertAlign.Bottom, bottomY);
 
-            Pos(Set(typeof(StatusHudWeatherElement)), StatusHudPos.HorzAlign.Left, sideX + (int)(offset * 2f),
-                StatusHudPos.VertAlign.Bottom, bottomY);
+        SetPos(Set(typeof(StatusHudRoomElement)), StatusHudPos.HorizAlign.Center, -1 * (sideX + toolbarMidpoint + offset), StatusHudPos.VertAlign.Bottom, bottomY);
 
-            Pos(Set(typeof(StatusHudWindElement)), StatusHudPos.HorzAlign.Left, sideX + (int)(offset * 3f),
-                StatusHudPos.VertAlign.Bottom, bottomY);
+        SetPos(Set(typeof(StatusHudSleepElement)), StatusHudPos.HorizAlign.Right, sideMinimapX + offset, StatusHudPos.VertAlign.Top, iconSize);
 
-            Pos(Set(typeof(StatusHudArmourElement)), StatusHudPos.HorzAlign.Center, sideX + toolbarMidpoint + offset,
-                StatusHudPos.VertAlign.Bottom, bottomY);
+        SetPos(Set(typeof(StatusHudWetElement)), StatusHudPos.HorizAlign.Right, sideMinimapX, StatusHudPos.VertAlign.Top, iconSize);
 
-            Pos(Set(typeof(StatusHudStabilityElement)), StatusHudPos.HorzAlign.Center,
-                sideX + toolbarMidpoint + offset * 2, StatusHudPos.VertAlign.Bottom, bottomY);
+        SetPos(Set(typeof(StatusHudTimeLocalElement)), StatusHudPos.HorizAlign.Right, sideX, StatusHudPos.VertAlign.Bottom, bottomY);
+    }
 
-            Pos(Set(typeof(StatusHudRoomElement)), StatusHudPos.HorzAlign.Center,
-                -1 * (sideX + toolbarMidpoint + offset), StatusHudPos.VertAlign.Bottom, bottomY);
-
-            Pos(Set(typeof(StatusHudSleepElement)), StatusHudPos.HorzAlign.Right, sideMinimapX + offset,
-                StatusHudPos.VertAlign.Top, topY);
-
-            Pos(Set(typeof(StatusHudWetElement)), StatusHudPos.HorzAlign.Right, sideMinimapX,
-                StatusHudPos.VertAlign.Top, topY);
-
-            Pos(Set(typeof(StatusHudTimeLocalElement)), StatusHudPos.HorzAlign.Right, sideX,
-                StatusHudPos.VertAlign.Bottom, bottomY);
-        }
-
-        public void SaveConfig()
-        {
-            configManager.Save();
-        }
+    public void SaveConfig()
+    {
+        configManager.Save();
     }
 }

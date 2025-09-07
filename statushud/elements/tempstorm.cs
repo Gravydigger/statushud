@@ -5,176 +5,172 @@ using Vintagestory.API.Client;
 using Vintagestory.API.Config;
 using Vintagestory.GameContent;
 
-namespace StatusHud
+namespace StatusHud;
+
+public class StatusHudTempstormElement : StatusHudElement
 {
-    public class StatusHudTempstormElement : StatusHudElement
+    public const string name = "tempstorm";
+    private const string textKey = "shud-tempstorm";
+    private const string harmonyId = "shud-tempstorm";
+
+    // Hard-coded values from SystemTemporalStability.
+    private const double approachingThreshold = 0.35;
+    // private const double imminentThreshold = 0.02;
+    // private const double waningThreshold = 0.02;
+
+    private static TemporalStormRunTimeData _data;
+    private readonly Harmony harmony;
+    private readonly StatusHudTempstormRenderer renderer;
+
+    private readonly SystemTemporalStability stabilitySystem;
+
+    public bool active;
+    private bool firstLoad;
+    public int textureId;
+
+    public StatusHudTempstormElement(StatusHudSystem system) : base(system)
     {
-        public new const string name = "tempstorm";
-        protected const string textKey = "shud-tempstorm";
-        protected const string harmonyId = "shud-tempstorm";
+        stabilitySystem = this.system.capi.ModLoader.GetModSystem<SystemTemporalStability>();
 
-        public override string ElementName => name;
+        renderer = new StatusHudTempstormRenderer(system, this);
+        this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
-        // Hard-coded values from SystemTemporalStability.
-        protected const double approachingThreshold = 0.35;
-        protected const double imminentThreshold = 0.02;
-        protected const double waningThreshold = 0.02;
+        active = false;
+        firstLoad = true;
+        textureId = this.system.textures.texturesDict["empty"].TextureId;
 
-        public bool active;
-        public int textureId;
+        if (stabilitySystem == null) return;
 
-        protected SystemTemporalStability stabilitySystem;
-        protected StatusHudTempstormRenderer renderer;
-        protected Harmony harmony;
+        harmony = new Harmony(harmonyId);
 
-        protected static TemporalStormRunTimeData data;
-        private bool firstLoad;
+        harmony.Patch(typeof(SystemTemporalStability).GetMethod("onServerData", BindingFlags.Instance | BindingFlags.NonPublic),
+            postfix: new HarmonyMethod(typeof(StatusHudTempstormElement).GetMethod(nameof(ReceiveData))));
+    }
 
-        public StatusHudTempstormElement(StatusHudSystem system) : base(system)
+    public override string ElementName => name;
+
+    public static void ReceiveData(TemporalStormRunTimeData data)
+    {
+        _data = data;
+    }
+
+    public override StatusHudRenderer GetRenderer()
+    {
+        return renderer;
+    }
+
+    public virtual string GetTextKey()
+    {
+        return textKey;
+    }
+
+    public override void Tick()
+    {
+        if (stabilitySystem == null)
         {
-            stabilitySystem = this.system.capi.ModLoader.GetModSystem<SystemTemporalStability>();
-
-            renderer = new StatusHudTempstormRenderer(system, this);
-            this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
-
-            active = false;
-            firstLoad = true;
-            textureId = this.system.textures.texturesDict["empty"].TextureId;
-
-            if (stabilitySystem != null)
-            {
-                harmony = new Harmony(harmonyId);
-
-                harmony.Patch(typeof(SystemTemporalStability).GetMethod("onServerData", BindingFlags.Instance | BindingFlags.NonPublic),
-                        postfix: new HarmonyMethod(typeof(StatusHudTempstormElement).GetMethod(nameof(ReceiveData))));
-            }
+            return;
         }
 
-        public static void ReceiveData(TemporalStormRunTimeData data)
+        if (_data == null)
         {
-            StatusHudTempstormElement.data = data;
+            if (!firstLoad) return;
+
+            string langName = Lang.Get("statushudcont:tempstorm-name");
+            system.capi.ShowChatMessage(StatusHudSystem.PrintModName(Lang.Get("statushudcont:harmony-nodata", langName, langName.ToLower())));
+            firstLoad = false;
+            return;
         }
 
-        public override StatusHudRenderer GetRenderer()
+        double nextStormDaysLeft = _data.nextStormTotalDays - system.capi.World.Calendar.TotalDays;
+
+        if (nextStormDaysLeft is > 0 and < approachingThreshold)
         {
-            return renderer;
+            // Preparing.
+            float hoursLeft = (float)((_data.nextStormTotalDays - system.capi.World.Calendar.TotalDays) * system.capi.World.Calendar.HoursPerDay);
+
+            active = true;
+            textureId = system.textures.texturesDict["tempstorm_incoming"].TextureId;
+
+            TimeSpan ts = TimeSpan.FromHours(Math.Max(hoursLeft, 0));
+            renderer.SetText(ts.ToString("h':'mm"));
         }
-
-        public virtual string GetTextKey()
+        else
         {
-            return textKey;
-        }
-
-        public override void Tick()
-        {
-            if (stabilitySystem == null)
+            // In progress.
+            if (_data.nowStormActive)
             {
-                return;
-            }
-
-            if (data == null)
-            {
-                if (firstLoad)
-                {
-                    string langName = Lang.Get("statushudcont:tempstorm-name");
-                    system.capi.ShowChatMessage(StatusHudSystem.PrintModName(Lang.Get($"statushudcont:harmony-nodata", langName, langName.ToLower())));
-                    firstLoad = false;
-                }
-                return;
-            }
-
-            double nextStormDaysLeft = data.nextStormTotalDays - system.capi.World.Calendar.TotalDays;
-
-            if (nextStormDaysLeft > 0 && nextStormDaysLeft < approachingThreshold)
-            {
-                // Preparing.
-                float hoursLeft = (float)((data.nextStormTotalDays - system.capi.World.Calendar.TotalDays) * system.capi.World.Calendar.HoursPerDay);
-                // float approachingHours = (float)(approachingThreshold * system.capi.World.Calendar.HoursPerDay);
+                // Active.
+                double hoursLeft = (_data.stormActiveTotalDays - system.capi.World.Calendar.TotalDays) * system.capi.World.Calendar.HoursPerDay;
 
                 active = true;
-                textureId = system.textures.texturesDict["tempstorm_incoming"].TextureId;
+                textureId = system.textures.texturesDict["tempstorm_duration"].TextureId;
 
                 TimeSpan ts = TimeSpan.FromHours(Math.Max(hoursLeft, 0));
                 renderer.SetText(ts.ToString("h':'mm"));
             }
-            else
+            else if (active)
             {
-                // In progress.
-                if (data.nowStormActive)
-                {
-                    // Active.
-                    double hoursLeft = (data.stormActiveTotalDays - system.capi.World.Calendar.TotalDays) * system.capi.World.Calendar.HoursPerDay;
+                // Ending.
+                active = false;
+                textureId = system.textures.texturesDict["empty"].TextureId;
 
-                    active = true;
-                    textureId = system.textures.texturesDict["tempstorm_duration"].TextureId;
-
-                    TimeSpan ts = TimeSpan.FromHours(Math.Max(hoursLeft, 0));
-                    renderer.SetText(ts.ToString("h':'mm"));
-                }
-                else if (active)
-                {
-                    // Ending.
-                    active = false;
-                    textureId = system.textures.texturesDict["empty"].TextureId;
-
-                    renderer.SetText("");
-                }
+                renderer.SetText("");
             }
-        }
-
-        public override void Dispose()
-        {
-            harmony.UnpatchAll(harmonyId);
-
-            renderer.Dispose();
-            system.capi.Event.UnregisterRenderer(renderer, EnumRenderStage.Ortho);
         }
     }
 
-    public class StatusHudTempstormRenderer : StatusHudRenderer
+    public override void Dispose()
     {
-        protected StatusHudTempstormElement element;
+        harmony.UnpatchAll(harmonyId);
 
-        public StatusHudTempstormRenderer(StatusHudSystem system, StatusHudTempstormElement element) : base(system)
-        {
-            this.element = element;
-            Text = new StatusHudText(this.System.capi, this.element.GetTextKey(), system.Config);
-        }
+        renderer.Dispose();
+        system.capi.Event.UnregisterRenderer(renderer, EnumRenderStage.Ortho);
+    }
+}
 
-        public override void Reload()
-        {
-            Text.ReloadText(pos);
-        }
+public class StatusHudTempstormRenderer : StatusHudRenderer
+{
+    private readonly StatusHudTempstormElement element;
 
-        public void SetText(string value)
-        {
-            Text.Set(value);
-        }
+    public StatusHudTempstormRenderer(StatusHudSystem system, StatusHudTempstormElement element) : base(system)
+    {
+        this.element = element;
+        text = new StatusHudText(this.system.capi, this.element.GetTextKey(), system.Config);
+    }
 
-        protected override void Update()
-        {
-            base.Update();
-            Text.Pos(pos);
-        }
+    public override void Reload()
+    {
+        text.ReloadText(pos);
+    }
 
-        protected override void Render()
+    public void SetText(string value)
+    {
+        text.Set(value);
+    }
+
+    protected override void Update()
+    {
+        base.Update();
+        text.SetPos(pos);
+    }
+
+    protected override void Render()
+    {
+        if (!element.active)
         {
-            if (!element.active)
+            if (system.ShowHidden)
             {
-                if (System.ShowHidden)
-                {
-                    this.RenderHidden(System.textures.texturesDict["tempstorm_incoming"].TextureId);
-                }
-                return;
+                RenderHidden(system.textures.texturesDict["tempstorm_incoming"].TextureId);
             }
-
-            System.capi.Render.RenderTexture(element.textureId, x, y, w, h);
+            return;
         }
 
-        public override void Dispose()
-        {
-            base.Dispose();
-            Text.Dispose();
-        }
+        system.capi.Render.RenderTexture(element.textureId, x, y, w, h);
+    }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        text.Dispose();
     }
 }

@@ -3,83 +3,78 @@ using Cairo;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 
-namespace StatusHud
+namespace StatusHud;
+
+public class StatusHudTextures
 {
-    public class StatusHudTextures
+    private readonly ICoreClientAPI capi;
+    public readonly Dictionary<string, LoadedTexture> texturesDict;
+
+    public StatusHudTextures(ICoreClientAPI capi, float size)
     {
-        private readonly int size;
-        protected ICoreClientAPI capi;
-        public Dictionary<string, LoadedTexture> texturesDict;
+        this.capi = capi;
+        int size1 = (int)size;
 
-        public StatusHudTextures(ICoreClientAPI capi, float size)
+        texturesDict = new Dictionary<string, LoadedTexture>();
+
+        // Generate empty texture.
+        LoadedTexture empty = new(this.capi);
+        ImageSurface surface = new(Format.Argb32, size1, size1);
+
+        this.capi.Gui.LoadOrUpdateCairoTexture(surface, true, ref empty);
+        surface.Dispose();
+
+        texturesDict.Add("empty", empty);
+
+        // Generate ping texture.
+        LoadedTexture ping = new(this.capi);
+        surface = new ImageSurface(Format.Argb32, size1, size1);
+        Context context = new(surface)
         {
-            this.capi = capi;
-            this.size = (int)size;
+            LineWidth = 2
+        };
 
-            texturesDict = new Dictionary<string, LoadedTexture>();
+        context.SetSourceRGBA(0, 0, 0, 0.5);
+        context.Rectangle(0, 0, size1, size1);
+        context.Stroke();
 
-            ImageSurface surface;
-            Context context;
+        context.SetSourceRGBA(1, 1, 1, 1);
+        context.Rectangle(context.LineWidth, context.LineWidth, size1 - context.LineWidth * 2, size1 - context.LineWidth * 2);
+        context.Stroke();
 
-            // Generate empty texture.
-            LoadedTexture empty = new(this.capi);
-            surface = new ImageSurface(Format.Argb32, this.size, this.size);
+        this.capi.Gui.LoadOrUpdateCairoTexture(surface, true, ref ping);
+        context.Dispose();
+        surface.Dispose();
 
-            this.capi.Gui.LoadOrUpdateCairoTexture(surface, true, ref empty);
-            surface.Dispose();
+        texturesDict.Add("ping", ping);
 
-            texturesDict.Add("empty", empty);
+        // Load Texture files
+        LoadAllTextures();
+    }
 
-            // Generate ping texture.
-            LoadedTexture ping = new(this.capi);
-            surface = new ImageSurface(Format.Argb32, this.size, this.size);
-            context = new Context(surface)
-            {
-                LineWidth = 2
-            };
-
-            context.SetSourceRGBA(0, 0, 0, 0.5);
-            context.Rectangle(0, 0, this.size, this.size);
-            context.Stroke();
-
-            context.SetSourceRGBA(1, 1, 1, 1);
-            context.Rectangle(context.LineWidth, context.LineWidth, this.size - (context.LineWidth * 2), this.size - (context.LineWidth * 2));
-            context.Stroke();
-
-            this.capi.Gui.LoadOrUpdateCairoTexture(surface, true, ref ping);
-            context.Dispose();
-            surface.Dispose();
-
-            texturesDict.Add("ping", ping);
-
-            // Load Texture files
-            LoadAllTextures();
-        }
-
-        public void Dispose()
+    public void Dispose()
+    {
+        foreach (var texture in texturesDict)
         {
-            foreach (var texture in texturesDict)
-            {
-                texture.Value.Dispose();
-            }
-            texturesDict.Clear();
+            texture.Value.Dispose();
         }
+        texturesDict.Clear();
+    }
 
-        protected void LoadAllTextures()
+    private void LoadAllTextures()
+    {
+        var assetLocations = capi.Assets.GetLocations("textures/", StatusHudSystem.domain);
+
+        foreach (AssetLocation asset in assetLocations)
         {
-            List<AssetLocation> assetLocations = capi.Assets.GetLocations("textures/", StatusHudSystem.domain);
+            LoadedTexture texture = new(capi);
 
-            foreach (var asset in assetLocations)
-            {
-                LoadedTexture texture = new(capi);
+            // Get asset name without file extension
+            string name = asset.GetName().Split('.')[0];
 
-                // Get asset name without file extension
-                string name = asset.GetName().Split('.')[0];
-
-                capi.Render.GetOrLoadTexture(asset, ref texture);
-                texturesDict.Add(name, texture);
-            }
-            assetLocations.Clear();
+            capi.Render.GetOrLoadTexture(asset, ref texture);
+            texturesDict.Add(name, texture);
         }
+        assetLocations.Clear();
     }
 }

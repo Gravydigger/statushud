@@ -1,189 +1,181 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using HarmonyLib;
 using Vintagestory.API.Client;
-using Vintagestory.API.Util;
 using Vintagestory.API.Config;
+using Vintagestory.API.Util;
 using Vintagestory.GameContent;
 
-namespace StatusHud
+namespace StatusHud;
+
+public class StatusHudRiftActivityElement : StatusHudElement
 {
-    public class StatusHudRiftActivityElement : StatusHudElement
+    public const string name = "riftactivity";
+    private const string textKey = "shud-riftactivity";
+    private const string harmonyId = "shud-riftactivity";
+
+    public static readonly string[] RiftChangeOptions = ["true", "false"];
+
+    private static CurrentPattern _riftActivityData;
+    public readonly bool active;
+    private readonly Harmony harmony;
+    private readonly StatusHudRiftActivityRenderer renderer;
+
+    private readonly ModSystemRiftWeather riftSystem;
+    private bool firstLoad;
+    private string showRiftChange;
+
+    public int textureId;
+
+    public StatusHudRiftActivityElement(StatusHudSystem system) : base(system)
     {
-        public new const string name = "riftactivity";
-        protected const string textKey = "shud-riftactivity";
-        protected const string harmonyId = "shud-riftactivity";
+        riftSystem = this.system.capi.ModLoader.GetModSystem<ModSystemRiftWeather>();
 
-        public static readonly string[] riftChangeOptions = { "true", "false" };
-        private string showRiftChange;
+        renderer = new StatusHudRiftActivityRenderer(system, this);
+        this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
-        public override string ElementName => name;
-        public override string ElementOption => showRiftChange;
+        // When a player first activates this element when already in a world, the element hasn't gotten the rift data yet.
+        // Until the player gets rift data, show the element with the unknown icon
+        textureId = this.system.textures.texturesDict["rift_unknown"].TextureId;
 
-        public int textureId;
-        public bool active;
+        active = this.system.capi.World.Config.GetString("temporalRifts") != "off";
 
-        private ModSystemRiftWeather riftSystem;
-        private StatusHudRiftActivityRenderer renderer;
-        private Harmony harmony;
+        showRiftChange = "false";
+        firstLoad = true;
 
-        private static CurrentPattern riftActivityData;
-        private bool firstLoad;
+        // World has to be reloaded for changes to apply
+        harmony = new Harmony(harmonyId);
+        harmony.Patch(typeof(ModSystemRiftWeather).GetMethod("onPacket", BindingFlags.Instance | BindingFlags.NonPublic),
+            postfix: new HarmonyMethod(typeof(StatusHudRiftActivityElement).GetMethod(nameof(ReceiveData))));
 
-        public StatusHudRiftActivityElement(StatusHudSystem system) : base(system)
+        if (!active)
         {
-            riftSystem = this.system.capi.ModLoader.GetModSystem<ModSystemRiftWeather>();
-
-            renderer = new StatusHudRiftActivityRenderer(system, this);
-            this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
-
-            // When a player first activates this element when already in a world, the element hasn't gotten the rift data yet.
-            // Until the player gets rift data, show the element with the unknown icon
-            textureId = this.system.textures.texturesDict["rift_unknown"].TextureId;
-
-            active = this.system.capi.World.Config.GetString("temporalRifts") != "off";
-
-            showRiftChange = "false";
-            firstLoad = true;
-
-            // World has to be reloaded for changes to apply
-            harmony = new Harmony(harmonyId);
-            harmony.Patch(typeof(ModSystemRiftWeather).GetMethod("onPacket", BindingFlags.Instance | BindingFlags.NonPublic),
-                    postfix: new HarmonyMethod(typeof(StatusHudRiftActivityElement).GetMethod(nameof(ReceiveData))));
-
-            if (!active)
-            {
-                Dispose();
-            }
-        }
-
-        public static void ReceiveData(SpawnPatternPacket msg)
-        {
-            riftActivityData = msg.Pattern;
-        }
-
-        public override StatusHudRenderer GetRenderer()
-        {
-            return renderer;
-        }
-
-        public virtual string GetTextKey()
-        {
-            return textKey;
-        }
-
-        public override void ConfigOptions(string value)
-        {
-            if (value.ToBool())
-            {
-                showRiftChange = "true";
-            }
-            else
-            {
-                showRiftChange = "false";
-            }
-        }
-
-        public override void Tick()
-        {
-            if (!active)
-            {
-                return;
-            }
-
-            if (riftSystem == null || riftActivityData == null)
-            {
-                if (firstLoad)
-                {
-                    string langName = Lang.Get("statushudcont:riftactivity-name");
-                    system.capi.ShowChatMessage(StatusHudSystem.PrintModName(Lang.Get($"statushudcont:harmony-nodata", langName, langName.ToLower())));
-                    firstLoad = false;
-                }
-                return;
-            }
-
-            if (showRiftChange.ToLower().ToBool())
-            {
-                double hours = system.capi.World.Calendar.TotalHours;
-                double nextRiftChange = Math.Max(riftActivityData.UntilTotalHours - hours, 0);
-
-                TimeSpan ts = TimeSpan.FromHours(nextRiftChange);
-                string text = (int)nextRiftChange + ":" + ts.ToString("mm");
-
-                renderer.SetText(text);
-            }
-            else
-            {
-                renderer.SetText("");
-            }
-
-            updateTexture(riftActivityData.Code);
-        }
-
-        public override void Dispose()
-        {
-            harmony.UnpatchAll(harmonyId);
-
-            renderer.Dispose();
-            system.capi.Event.UnregisterRenderer(renderer, EnumRenderStage.Ortho);
-        }
-
-        protected void updateTexture(string activity)
-        {
-            try
-            {
-                textureId = system.textures.texturesDict["rift_" + activity].TextureId;
-            }
-            catch (System.Collections.Generic.KeyNotFoundException)
-            {
-                system.capi.Logger.Error("For {0} element, texture rift_{1} is not valid", name, activity);
-                throw;
-            }
+            Dispose();
         }
     }
 
-    public class StatusHudRiftActivityRenderer : StatusHudRenderer
+    public override string ElementName => name;
+    public override string ElementOption => showRiftChange;
+
+    public static void ReceiveData(SpawnPatternPacket msg)
     {
-        protected StatusHudRiftActivityElement element;
+        _riftActivityData = msg.Pattern;
+    }
 
-        public StatusHudRiftActivityRenderer(StatusHudSystem system, StatusHudRiftActivityElement element) : base(system)
+    public override StatusHudRenderer GetRenderer()
+    {
+        return renderer;
+    }
+
+    public static string GetTextKey()
+    {
+        return textKey;
+    }
+
+    public override void ConfigOptions(string value)
+    {
+        showRiftChange = value.ToBool() ? "true" : "false";
+    }
+
+    public override void Tick()
+    {
+        if (!active)
         {
-            this.element = element;
-            Text = new StatusHudText(this.System.capi, this.element.GetTextKey(), system.Config);
+            return;
         }
 
-        public override void Reload()
+        if (riftSystem == null || _riftActivityData == null)
         {
-            Text.ReloadText(pos);
+            if (!firstLoad) return;
+
+            string langName = Lang.Get("statushudcont:riftactivity-name");
+            system.capi.ShowChatMessage(StatusHudSystem.PrintModName(Lang.Get("statushudcont:harmony-nodata", langName, langName.ToLower())));
+            firstLoad = false;
+            return;
         }
 
-        public void SetText(string value)
+        if (showRiftChange.ToLower().ToBool())
         {
-            Text.Set(value);
+            double hours = system.capi.World.Calendar.TotalHours;
+            double nextRiftChange = Math.Max(_riftActivityData.UntilTotalHours - hours, 0);
+
+            TimeSpan ts = TimeSpan.FromHours(nextRiftChange);
+            string text = (int)nextRiftChange + ":" + ts.ToString("mm");
+
+            renderer.SetText(text);
+        }
+        else
+        {
+            renderer.SetText("");
         }
 
-        protected override void Update()
-        {
-            base.Update();
-            Text.Pos(pos);
-        }
+        UpdateTexture(_riftActivityData.Code);
+    }
 
-        protected override void Render()
-        {
-            if (element.active)
-            {
-                System.capi.Render.RenderTexture(element.textureId, x, y, w, h);
-            }
-            else if (System.ShowHidden)
-            {
-                RenderHidden(System.textures.texturesDict["rift_calm"].TextureId);
-            }
-        }
+    public sealed override void Dispose()
+    {
+        harmony.UnpatchAll(harmonyId);
 
-        public override void Dispose()
+        renderer.Dispose();
+        system.capi.Event.UnregisterRenderer(renderer, EnumRenderStage.Ortho);
+    }
+
+    private void UpdateTexture(string activity)
+    {
+        try
         {
-            base.Dispose();
-            Text.Dispose();
+            textureId = system.textures.texturesDict["rift_" + activity].TextureId;
         }
+        catch (KeyNotFoundException)
+        {
+            system.capi.Logger.Error("For {0} element, texture rift_{1} is not valid", name, activity);
+            throw;
+        }
+    }
+}
+
+public class StatusHudRiftActivityRenderer : StatusHudRenderer
+{
+    private readonly StatusHudRiftActivityElement element;
+
+    public StatusHudRiftActivityRenderer(StatusHudSystem system, StatusHudRiftActivityElement element) : base(system)
+    {
+        this.element = element;
+        text = new StatusHudText(this.system.capi, StatusHudRiftActivityElement.GetTextKey(), system.Config);
+    }
+
+    public override void Reload()
+    {
+        text.ReloadText(pos);
+    }
+
+    public void SetText(string value)
+    {
+        text.Set(value);
+    }
+
+    protected override void Update()
+    {
+        base.Update();
+        text.SetPos(pos);
+    }
+
+    protected override void Render()
+    {
+        if (element.active)
+        {
+            system.capi.Render.RenderTexture(element.textureId, x, y, w, h);
+        }
+        else if (system.ShowHidden)
+        {
+            RenderHidden(system.textures.texturesDict["rift_calm"].TextureId);
+        }
+    }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        text.Dispose();
     }
 }

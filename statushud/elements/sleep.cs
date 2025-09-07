@@ -2,117 +2,116 @@ using System;
 using Vintagestory.API.Client;
 using Vintagestory.GameContent;
 
-namespace StatusHud
+namespace StatusHud;
+
+public class StatusHudSleepElement : StatusHudElement
 {
-    public class StatusHudSleepElement : StatusHudElement
+    public const string name = "sleep";
+    private const string textKey = "shud-sleep";
+
+    private const float threshold = 8; // Hard-coded in BlockBed.
+    private const float ratio = 0.75f; // Hard-coded in EntityBehaviorTiredness.
+    public bool active;
+
+    private readonly StatusHudSleepRenderer renderer;
+
+    public StatusHudSleepElement(StatusHudSystem system) : base(system)
     {
-        public new const string name = "sleep";
-        protected const string textKey = "shud-sleep";
+        renderer = new StatusHudSleepRenderer(system, this);
+        this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
-        public override string ElementName => name;
+        active = false;
+    }
 
-        protected const float threshold = 8;        // Hard-coded in BlockBed.
-        protected const float ratio = 0.75f;        // Hard-coded in EntityBehaviorTiredness.
-        public bool active;
+    public override string ElementName => name;
 
-        protected StatusHudSleepRenderer renderer;
+    public override StatusHudRenderer GetRenderer()
+    {
+        return renderer;
+    }
 
-        public StatusHudSleepElement(StatusHudSystem system) : base(system)
+    public static string GetTextKey()
+    {
+        return textKey;
+    }
+
+    public override void Tick()
+    {
+        if (system.capi.World.Player.Entity.GetBehavior("tiredness") is not EntityBehaviorTiredness ebt)
         {
-            renderer = new StatusHudSleepRenderer(system, this);
-            this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
+            return;
+        }
 
+        if (ebt.Tiredness <= threshold
+            && !ebt.IsSleeping)
+        {
+            TimeSpan ts = TimeSpan.FromHours((threshold - ebt.Tiredness) / ratio);
+            renderer.SetText(ts.ToString("h':'mm"));
+
+            active = true;
+        }
+        else
+        {
+            if (active)
+            {
+                // Only set text once.
+                renderer.SetText("");
+            }
             active = false;
-        }
-
-        public override StatusHudRenderer GetRenderer()
-        {
-            return renderer;
-        }
-
-        public virtual string GetTextKey()
-        {
-            return textKey;
-        }
-
-        public override void Tick()
-        {
-            if (system.capi.World.Player.Entity.GetBehavior("tiredness") is not EntityBehaviorTiredness ebt)
-            {
-                return;
-            }
-
-            if (ebt.Tiredness <= threshold
-                    && !ebt.IsSleeping)
-            {
-                TimeSpan ts = TimeSpan.FromHours((threshold - ebt.Tiredness) / ratio);
-                renderer.SetText(ts.ToString("h':'mm"));
-
-                active = true;
-            }
-            else
-            {
-                if (active)
-                {
-                    // Only set text once.
-                    renderer.SetText("");
-                }
-                active = false;
-            }
-        }
-
-        public override void Dispose()
-        {
-            renderer.Dispose();
-            system.capi.Event.UnregisterRenderer(renderer, EnumRenderStage.Ortho);
         }
     }
 
-    public class StatusHudSleepRenderer : StatusHudRenderer
+    public override void Dispose()
     {
-        protected StatusHudSleepElement element;
+        renderer.Dispose();
+        system.capi.Event.UnregisterRenderer(renderer, EnumRenderStage.Ortho);
+    }
+}
 
-        public StatusHudSleepRenderer(StatusHudSystem system, StatusHudSleepElement element) : base(system)
+public class StatusHudSleepRenderer : StatusHudRenderer
+{
+    private readonly StatusHudSleepElement element;
+
+    public StatusHudSleepRenderer(StatusHudSystem system, StatusHudSleepElement element) : base(system)
+    {
+        this.element = element;
+        text = new StatusHudText(this.system.capi, StatusHudSleepElement.GetTextKey(), system.Config);
+    }
+
+    public override void Reload()
+    {
+        text.ReloadText(pos);
+    }
+
+
+    public void SetText(string value)
+    {
+        text.Set(value);
+    }
+
+    protected override void Update()
+    {
+        base.Update();
+        text.SetPos(pos);
+    }
+
+    protected override void Render()
+    {
+        if (!element.active)
         {
-            this.element = element;
-            Text = new StatusHudText(this.System.capi, this.element.GetTextKey(), system.Config);
-        }
-
-        public override void Reload()
-        {
-            Text.ReloadText(pos);
-        }
-
-
-        public void SetText(string value)
-        {
-            Text.Set(value);
-        }
-
-        protected override void Update()
-        {
-            base.Update();
-            Text.Pos(pos);
-        }
-
-        protected override void Render()
-        {
-            if (!element.active)
+            if (system.ShowHidden)
             {
-                if (System.ShowHidden)
-                {
-                    this.RenderHidden(System.textures.texturesDict["sleep"].TextureId);
-                }
-                return;
+                RenderHidden(system.textures.texturesDict["sleep"].TextureId);
             }
-
-            System.capi.Render.RenderTexture(System.textures.texturesDict["sleep"].TextureId, x, y, w, h);
+            return;
         }
 
-        public override void Dispose()
-        {
-            base.Dispose();
-            Text.Dispose();
-        }
+        system.capi.Render.RenderTexture(system.textures.texturesDict["sleep"].TextureId, x, y, w, h);
+    }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        text.Dispose();
     }
 }

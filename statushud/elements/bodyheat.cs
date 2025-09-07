@@ -1,159 +1,151 @@
 using Vintagestory.API.Client;
 using Vintagestory.API.Datastructures;
 
-namespace StatusHud
+namespace StatusHud;
+
+public class StatusHudBodyHeatElement : StatusHudElement
 {
-    public class StatusHudBodyheatElement : StatusHudElement
+    public const string name = "bodyheat";
+    private const string textKey = "shud-bodyheat";
+
+    private const float cfratio = 9f / 5f;
+    private const float tempIdeal = 37;
+
+    public static readonly string[] TempFormatWords = ["C", "F"];
+
+    private readonly StatusHudBodyHeatRenderer renderer;
+
+    public bool active;
+    private string tempScale;
+    public int textureId;
+
+    public StatusHudBodyHeatElement(StatusHudSystem system) : base(system)
     {
-        public new const string name = "bodyheat";
-        protected const string textKey = "shud-bodyheat";
+        renderer = new StatusHudBodyHeatRenderer(this.system, this);
+        this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
-        protected const float cfratio = 9f / 5f;
-        public const float tempIdeal = 37;
+        textureId = this.system.textures.texturesDict["empty"].TextureId;
 
-        public static readonly string[] tempFormatWords = { "C", "F" };
-        private string tempScale;
+        tempScale = "C";
+        active = false;
+    }
 
-        public override string ElementOption => tempScale;
-        public override string ElementName => name;
+    public override string ElementOption => tempScale;
+    public override string ElementName => name;
 
-        public bool active;
-        public int textureId;
+    public override StatusHudRenderer GetRenderer()
+    {
+        return renderer;
+    }
 
-        protected StatusHudBodyheatRenderer renderer;
+    public static string GetTextKey()
+    {
+        return textKey;
+    }
 
-        public StatusHudBodyheatElement(StatusHudSystem system) : base(system)
+    public override void ConfigOptions(string value)
+    {
+        foreach (string words in TempFormatWords)
         {
-            renderer = new StatusHudBodyheatRenderer(this.system, this);
-            this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
-
-            textureId = this.system.textures.texturesDict["empty"].TextureId;
-
-            tempScale = "C";
-            active = false;
-        }
-
-        public override StatusHudRenderer GetRenderer()
-        {
-            return renderer;
-        }
-
-        public virtual string GetTextKey()
-        {
-            return textKey;
-        }
-
-        public override void ConfigOptions(string value)
-        {
-            foreach (var words in tempFormatWords)
+            if (words == value)
             {
-                if (words == value)
-                {
-                    tempScale = value;
-                }
-            }
-        }
-
-        public override void Tick()
-        {
-            ITreeAttribute tempTree = system.capi.World.Player.Entity.WatchedAttributes.GetTreeAttribute("bodyTemp");
-
-            if (tempTree == null)
-            {
-                return;
-            }
-
-            float temp = tempTree.GetFloat("bodytemp");
-            float tempDiff = temp - tempIdeal;
-
-            // Heatstroke doesn't exists yet, only consider cold tempatures
-            if (tempDiff <= -0.5f)
-            {
-                string textRender = tempScale switch
-                {
-                    "F" => string.Format("{0:N1}", tempDiff * cfratio) + "°F",
-                    _ => string.Format("{0:N1}", tempDiff) + "°C",
-                };
-
-                active = true;
-                renderer.SetText(textRender);
-            }
-            else
-            {
-                if (active)
-                {
-                    renderer.SetText("");
-                }
-
-                active = false;
-            }
-            UpdateTexture(tempDiff);
-        }
-
-        public override void Dispose()
-        {
-            renderer.Dispose();
-            system.capi.Event.UnregisterRenderer(renderer, EnumRenderStage.Ortho);
-        }
-
-        protected void UpdateTexture(float tempDiff)
-        {
-            // If body temp ~33C, the player will start freezing
-            if (tempDiff > -4)
-            {
-                textureId = system.textures.texturesDict["bodyheat"].TextureId;
-            }
-            else
-            {
-                textureId = system.textures.texturesDict["bodyheat_cold"].TextureId;
+                tempScale = value;
             }
         }
     }
 
-    public class StatusHudBodyheatRenderer : StatusHudRenderer
+    public override void Tick()
     {
-        protected StatusHudBodyheatElement element;
+        ITreeAttribute tempTree = system.capi.World.Player.Entity.WatchedAttributes.GetTreeAttribute("bodyTemp");
 
-        public StatusHudBodyheatRenderer(StatusHudSystem system, StatusHudBodyheatElement element) : base(system)
+        if (tempTree == null)
         {
-            this.element = element;
-            Text = new StatusHudText(this.System.capi, this.element.GetTextKey(), system.Config);
+            return;
         }
 
-        public override void Reload()
-        {
-            Text.ReloadText(pos);
-        }
+        float temp = tempTree.GetFloat("bodytemp");
+        float tempDiff = temp - tempIdeal;
 
-        public void SetText(string value)
+        // Heatstroke doesn't exist yet, only consider cold temperatures
+        if (tempDiff <= -0.5f)
         {
-            Text.Set(value);
-        }
-
-        protected override void Update()
-        {
-            base.Update();
-            Text.Pos(pos);
-        }
-
-        protected override void Render()
-        {
-            if (!element.active)
+            string textRender = tempScale switch
             {
-                if (System.ShowHidden)
-                {
-                    RenderHidden(System.textures.texturesDict["bodyheat"].TextureId);
-                }
-                return;
+                "F" => $"{tempDiff * cfratio:N1}" + "°F",
+                _ => $"{tempDiff:N1}" + "°C"
+            };
+
+            active = true;
+            renderer.SetText(textRender);
+        }
+        else
+        {
+            if (active)
+            {
+                renderer.SetText("");
             }
 
-            System.capi.Render.RenderTexture(element.textureId, x, y, w, h);
+            active = false;
+        }
+        UpdateTexture(tempDiff);
+    }
+
+    public override void Dispose()
+    {
+        renderer.Dispose();
+        system.capi.Event.UnregisterRenderer(renderer, EnumRenderStage.Ortho);
+    }
+
+    private void UpdateTexture(float tempDiff)
+    {
+        // If body temp ~33C, the player will start freezing
+        textureId = tempDiff > -4 ? system.textures.texturesDict["bodyheat"].TextureId : system.textures.texturesDict["bodyheat_cold"].TextureId;
+    }
+}
+
+public class StatusHudBodyHeatRenderer : StatusHudRenderer
+{
+    private readonly StatusHudBodyHeatElement element;
+
+    public StatusHudBodyHeatRenderer(StatusHudSystem system, StatusHudBodyHeatElement element) : base(system)
+    {
+        this.element = element;
+        text = new StatusHudText(this.system.capi, StatusHudBodyHeatElement.GetTextKey(), system.Config);
+    }
+
+    public override void Reload()
+    {
+        text.ReloadText(pos);
+    }
+
+    public void SetText(string value)
+    {
+        text.Set(value);
+    }
+
+    protected override void Update()
+    {
+        base.Update();
+        text.SetPos(pos);
+    }
+
+    protected override void Render()
+    {
+        if (!element.active)
+        {
+            if (system.ShowHidden)
+            {
+                RenderHidden(system.textures.texturesDict["bodyheat"].TextureId);
+            }
+            return;
         }
 
-        public override void Dispose()
-        {
-            base.Dispose();
-            Text.Dispose();
-        }
+        system.capi.Render.RenderTexture(element.textureId, x, y, w, h);
+    }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        text.Dispose();
     }
 }

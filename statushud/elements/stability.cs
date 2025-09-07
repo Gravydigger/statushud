@@ -2,118 +2,117 @@ using System;
 using Vintagestory.API.Client;
 using Vintagestory.GameContent;
 
-namespace StatusHud
+namespace StatusHud;
+
+public class StatusHudStabilityElement : StatusHudElement
 {
-    public class StatusHudStabilityElement : StatusHudElement
+    public const string name = "stability";
+    private const string textKey = "shud-stability";
+
+    private const float maxStability = 1.5f; // Hard-coded in SystemTemporalStability.
+    private readonly StatusHudStabilityRenderer renderer;
+
+    private readonly SystemTemporalStability stabilitySystem;
+
+    public bool active;
+
+    public StatusHudStabilityElement(StatusHudSystem system) : base(system)
     {
-        public new const string name = "stability";
-        protected const string textKey = "shud-stability";
+        stabilitySystem = this.system.capi.ModLoader.GetModSystem<SystemTemporalStability>();
 
-        public override string ElementName => name;
+        renderer = new StatusHudStabilityRenderer(system, this);
+        this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
-        protected const float maxStability = 1.5f; // Hard-coded in SystemTemporalStability.
+        active = false;
+    }
 
-        public bool active;
+    public override string ElementName => name;
 
-        protected SystemTemporalStability stabilitySystem;
-        protected StatusHudStabilityRenderer renderer;
+    public override StatusHudRenderer GetRenderer()
+    {
+        return renderer;
+    }
 
-        public StatusHudStabilityElement(StatusHudSystem system) : base(system)
+    public static string GetTextKey()
+    {
+        return textKey;
+    }
+
+    public override void Tick()
+    {
+        if (stabilitySystem == null)
         {
-            stabilitySystem = this.system.capi.ModLoader.GetModSystem<SystemTemporalStability>();
+            return;
+        }
 
-            renderer = new StatusHudStabilityRenderer(system, this);
-            this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
+        float stability = stabilitySystem.GetTemporalStability(system.capi.World.Player.Entity.Pos.AsBlockPos);
 
+        if (stability < maxStability)
+        {
+            renderer.SetText((int)Math.Floor(stability * 100) + "%");
+            active = true;
+        }
+        else
+        {
+            if (active)
+            {
+                // Only set text once.
+                renderer.SetText("");
+            }
             active = false;
-        }
-
-        public override StatusHudRenderer GetRenderer()
-        {
-            return renderer;
-        }
-
-        public virtual string GetTextKey()
-        {
-            return textKey;
-        }
-
-        public override void Tick()
-        {
-            if (stabilitySystem == null)
-            {
-                return;
-            }
-
-            float stability = stabilitySystem.GetTemporalStability(system.capi.World.Player.Entity.Pos.AsBlockPos);
-
-            if (stability < maxStability)
-            {
-                renderer.SetText((int)Math.Floor(stability * 100) + "%");
-                active = true;
-            }
-            else
-            {
-                if (active)
-                {
-                    // Only set text once.
-                    renderer.SetText("");
-                }
-                active = false;
-            }
-        }
-
-        public override void Dispose()
-        {
-            renderer.Dispose();
-            system.capi.Event.UnregisterRenderer(renderer, EnumRenderStage.Ortho);
         }
     }
 
-    public class StatusHudStabilityRenderer : StatusHudRenderer
+    public override void Dispose()
     {
-        protected StatusHudStabilityElement element;
+        renderer.Dispose();
+        system.capi.Event.UnregisterRenderer(renderer, EnumRenderStage.Ortho);
+    }
+}
 
-        public StatusHudStabilityRenderer(StatusHudSystem system, StatusHudStabilityElement element) : base(system)
-        {
-            this.element = element;
-            Text = new StatusHudText(this.System.capi, this.element.GetTextKey(), system.Config);
-        }
+public class StatusHudStabilityRenderer : StatusHudRenderer
+{
+    private readonly StatusHudStabilityElement element;
 
-        public override void Reload()
-        {
-            Text.ReloadText(pos);
-        }
+    public StatusHudStabilityRenderer(StatusHudSystem system, StatusHudStabilityElement element) : base(system)
+    {
+        this.element = element;
+        text = new StatusHudText(this.system.capi, StatusHudStabilityElement.GetTextKey(), system.Config);
+    }
 
-        public void SetText(string value)
-        {
-            Text.Set(value);
-        }
+    public override void Reload()
+    {
+        text.ReloadText(pos);
+    }
 
-        protected override void Update()
-        {
-            base.Update();
-            Text.Pos(pos);
-        }
+    public void SetText(string value)
+    {
+        text.Set(value);
+    }
 
-        protected override void Render()
+    protected override void Update()
+    {
+        base.Update();
+        text.SetPos(pos);
+    }
+
+    protected override void Render()
+    {
+        if (!element.active)
         {
-            if (!element.active)
+            if (system.ShowHidden)
             {
-                if (System.ShowHidden)
-                {
-                    this.RenderHidden(System.textures.texturesDict["stability"].TextureId);
-                }
-                return;
+                RenderHidden(system.textures.texturesDict["stability"].TextureId);
             }
-
-            System.capi.Render.RenderTexture(System.textures.texturesDict["stability"].TextureId, x, y, w, h);
+            return;
         }
 
-        public override void Dispose()
-        {
-            base.Dispose();
-            Text.Dispose();
-        }
+        system.capi.Render.RenderTexture(system.textures.texturesDict["stability"].TextureId, x, y, w, h);
+    }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        text.Dispose();
     }
 }

@@ -1,112 +1,108 @@
 using System;
 using System.Linq;
 using Vintagestory.API.Client;
-using Vintagestory.API.Common;
 using Vintagestory.Client.NoObf;
 
-namespace StatusHud
+namespace StatusHud;
+
+public class StatusHudPingElement : StatusHudElement
 {
-    public class StatusHudPingElement : StatusHudElement
+    public const string name = "ping";
+    private const string textKey = "shud-ping";
+
+    private const int maxPing = 999;
+
+    private readonly StatusHudPingRenderer renderer;
+    private ClientPlayer player;
+
+    public StatusHudPingElement(StatusHudSystem system) : base(system, true)
     {
-        public new const string name = "ping";
-        protected const string textKey = "shud-ping";
+        renderer = new StatusHudPingRenderer(system, this);
+        this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
+    }
 
-        public override string ElementName => name;
+    public override string ElementName => name;
 
-        private static readonly int maxPing = 999;
-        private ClientPlayer player;
+    public override StatusHudRenderer GetRenderer()
+    {
+        return renderer;
+    }
 
-        protected StatusHudPingRenderer renderer;
+    public virtual string GetTextKey()
+    {
+        return textKey;
+    }
 
-        public StatusHudPingElement(StatusHudSystem system) : base(system, true)
+    public override void Tick()
+    {
+        if (system.capi.IsSinglePlayer)
         {
-            renderer = new StatusHudPingRenderer(system, this);
-            this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
+            renderer.SetText("");
+            return;
         }
 
-        public override StatusHudRenderer GetRenderer()
+        if (player == null)
         {
-            return renderer;
+            var players = system.capi.World.AllOnlinePlayers;
+
+            // Get the clients player object
+            player = (ClientPlayer)players.FirstOrDefault(p => p.PlayerUID == system.Uuid);
+            renderer.SetText("");
+
+            return;
         }
 
-        public virtual string GetTextKey()
+        int ping = (int)(player.Ping * 1000f);
+        string msg = ping < maxPing ? $"{Math.Min(ping, maxPing)}" : "+" + maxPing;
+
+        renderer.SetText(msg);
+    }
+
+    public override void Dispose()
+    {
+        renderer.Dispose();
+        system.capi.Event.UnregisterRenderer(renderer, EnumRenderStage.Ortho);
+    }
+}
+
+public class StatusHudPingRenderer : StatusHudRenderer
+{
+    public StatusHudPingRenderer(StatusHudSystem system, StatusHudPingElement element) : base(system)
+    {
+        text = new StatusHudText(this.system.capi, element.GetTextKey(), system.Config);
+    }
+
+    public override void Reload()
+    {
+        text.ReloadText(pos);
+    }
+
+    public void SetText(string value)
+    {
+        text.Set(value);
+    }
+
+    protected override void Update()
+    {
+        base.Update();
+        text.SetPos(pos);
+    }
+
+    protected override void Render()
+    {
+        if (system.ShowHidden && system.capi.IsSinglePlayer)
         {
-            return textKey;
+            RenderHidden(system.textures.texturesDict["network"].TextureId);
         }
-
-        public override void Tick()
+        else
         {
-            if (system.capi.IsSinglePlayer)
-            {
-                renderer.SetText("");
-                return;
-            }
-
-            if (player == null)
-            {
-                IPlayer[] players = system.capi.World.AllOnlinePlayers;
-
-                // Get the clients player object
-                player = (ClientPlayer)players.FirstOrDefault(player => player.PlayerUID == system.UUID);
-                renderer.SetText("");
-
-                return;
-            }
-
-            int ping = (int)(player.Ping * 1000f);
-            string msg = ping < maxPing ? string.Format("{0}", Math.Min(ping, maxPing)) : "+" + maxPing;
-
-            renderer.SetText(msg);
-        }
-
-        public override void Dispose()
-        {
-            renderer.Dispose();
-            system.capi.Event.UnregisterRenderer(renderer, EnumRenderStage.Ortho);
+            system.capi.Render.RenderTexture(system.textures.texturesDict["network"].TextureId, x, y, w, h);
         }
     }
 
-    public class StatusHudPingRenderer : StatusHudRenderer
+    public override void Dispose()
     {
-        protected StatusHudPingElement element;
-        public StatusHudPingRenderer(StatusHudSystem system, StatusHudPingElement element) : base(system)
-        {
-            this.element = element;
-            Text = new StatusHudText(this.System.capi, this.element.GetTextKey(), system.Config);
-        }
-
-        public override void Reload()
-        {
-            Text.ReloadText(pos);
-        }
-
-        public void SetText(string value)
-        {
-            Text.Set(value);
-        }
-
-        protected override void Update()
-        {
-            base.Update();
-            Text.Pos(pos);
-        }
-
-        protected override void Render()
-        {
-            if (System.ShowHidden && System.capi.IsSinglePlayer)
-            {
-                RenderHidden(System.textures.texturesDict["network"].TextureId);
-            }
-            else
-            {
-                System.capi.Render.RenderTexture(System.textures.texturesDict["network"].TextureId, x, y, w, h);
-            }
-        }
-
-        public override void Dispose()
-        {
-            base.Dispose();
-            Text.Dispose();
-        }
+        base.Dispose();
+        text.Dispose();
     }
 }

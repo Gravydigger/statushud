@@ -1,88 +1,90 @@
 using System;
+using System.Globalization;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common.Entities;
 
-namespace StatusHud
+namespace StatusHud;
+
+public class StatusHudSpeedElement : StatusHudElement
 {
-    public class StatusHudSpeedElement : StatusHudElement
+    public const string name = "speed";
+    private const string textKey = "shud-speed";
+
+    private readonly StatusHudSpeedRenderer renderer;
+
+    public StatusHudSpeedElement(StatusHudSystem system) : base(system)
     {
-        public new const string name = "speed";
-        protected const string textKey = "shud-speed";
-
-        public override string ElementName => name;
-
-        protected StatusHudSpeedRenderer renderer;
-
-        public StatusHudSpeedElement(StatusHudSystem system) : base(system)
-        {
-            renderer = new StatusHudSpeedRenderer(system, this);
-            this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
-        }
-
-        public override StatusHudRenderer GetRenderer()
-        {
-            return renderer;
-        }
-
-        public virtual string GetTextKey()
-        {
-            return textKey;
-        }
-
-        public override void Tick() { }
-
-        public override void Dispose()
-        {
-            renderer.Dispose();
-            system.capi.Event.UnregisterRenderer(renderer, EnumRenderStage.Ortho);
-        }
+        renderer = new StatusHudSpeedRenderer(system, this);
+        this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
     }
 
-    public class StatusHudSpeedRenderer : StatusHudRenderer
+    public override string ElementName => name;
+
+    public override StatusHudRenderer GetRenderer()
     {
-        protected StatusHudSpeedElement element;
+        return renderer;
+    }
 
-        public StatusHudSpeedRenderer(StatusHudSystem system, StatusHudSpeedElement element) : base(system)
+    public static string GetTextKey()
+    {
+        return textKey;
+    }
+
+    public override void Tick()
+    {
+    }
+
+    public override void Dispose()
+    {
+        renderer.Dispose();
+        system.capi.Event.UnregisterRenderer(renderer, EnumRenderStage.Ortho);
+    }
+}
+
+public class StatusHudSpeedRenderer : StatusHudRenderer
+{
+    protected StatusHudSpeedElement element;
+
+    public StatusHudSpeedRenderer(StatusHudSystem system, StatusHudSpeedElement element) : base(system)
+    {
+        this.element = element;
+        text = new StatusHudText(this.system.capi, StatusHudSpeedElement.GetTextKey(), system.Config);
+    }
+
+    public override void Reload()
+    {
+        text.ReloadText(pos);
+    }
+
+    public void SetText(string value)
+    {
+        text.Set(value);
+    }
+
+    protected override void Update()
+    {
+        base.Update();
+        text.SetPos(pos);
+    }
+
+    protected override void Render()
+    {
+        Entity mount = system.capi.World.Player.Entity.MountedOn?.Entity;
+
+        if (mount != null)
         {
-            this.element = element;
-            Text = new StatusHudText(this.System.capi, this.element.GetTextKey(), system.Config);
+            text.Set(((int)Math.Round(mount.Pos.Motion.Length() * 1000) / 10f).ToString(CultureInfo.InvariantCulture));
         }
-
-        public override void Reload()
+        else
         {
-            Text.ReloadText(pos);
+            text.Set(((int)Math.Round(system.capi.World.Player.Entity.Pos.Motion.Length() * 1000) / 10f).ToString(CultureInfo.InvariantCulture));
         }
+        system.capi.Render.RenderTexture(system.textures.texturesDict["speed"].TextureId, x, y, w, h);
+    }
 
-        public void SetText(string value)
-        {
-            Text.Set(value);
-        }
-
-        protected override void Update()
-        {
-            base.Update();
-            Text.Pos(pos);
-        }
-
-        protected override void Render()
-        {
-            Entity mount = System.capi.World.Player.Entity.MountedOn?.Entity;
-
-            if (mount != null)
-            {
-                Text.Set(((int)Math.Round(mount.Pos.Motion.Length() * 1000) / 10f).ToString());
-            }
-            else
-            {
-                Text.Set(((int)Math.Round(System.capi.World.Player.Entity.Pos.Motion.Length() * 1000) / 10f).ToString());
-            }
-            System.capi.Render.RenderTexture(System.textures.texturesDict["speed"].TextureId, x, y, w, h);
-        }
-
-        public override void Dispose()
-        {
-            base.Dispose();
-            Text.Dispose();
-        }
+    public override void Dispose()
+    {
+        base.Dispose();
+        text.Dispose();
     }
 }

@@ -4,294 +4,282 @@ using System.IO;
 using System.Text.Json;
 using Vintagestory.API.Config;
 
-namespace StatusHud
+namespace StatusHud;
+
+// For config versions 3 or lower
+public class StatusHudConfigV3
 {
-    // For config versions 3 or lower
-    public class StatusHudConfigOld
+    // ReSharper disable once CollectionNeverUpdated.Global
+    public IList<StatusHudConfigElementV3> elements = [];
+    public int iconSize = 32;
+    public bool showHidden = false;
+    public int textSize = 16;
+    public int version;
+}
+
+// For config versions 3 or lower
+public class StatusHudConfigElementV3(string name, int x, int y, int halign, int valign, string elementOptions)
+{
+    public int halign = halign;
+    public string name = name;
+    public string options = elementOptions;
+    public int valign = valign;
+    public int x = x;
+    public int y = y;
+}
+
+public enum Orientation
+{
+    Up,
+    Left,
+    Right,
+    Down
+}
+
+public class StatusHudConfig
+{
+    public IList<StatusHudConfigElement> elements = [];
+    public float elementScale = 1;
+    public bool showHidden;
+    public int version;
+}
+
+public class StatusHudConfigElement(string name, int x, int y, int horzAlign, int vertAlign, Orientation orientation, int orientationOffset, string elementOptions)
+{
+    public int horzAlign = horzAlign;
+    public string name = name;
+    public int offset = orientationOffset;
+    public string options = elementOptions;
+    public Orientation orientation = orientation;
+    public int vertAlign = vertAlign;
+    public int x = x;
+    public int y = y;
+}
+
+public class StatusHudConfigManager
+{
+    private const string filename = "statushud.json";
+    private const int version = 4;
+    private readonly StatusHudSystem system;
+
+    public StatusHudConfigManager(StatusHudSystem system)
     {
-        public int version = 0;
-        public int iconSize = 32;
-        public int textSize = 16;
-        public bool showHidden = false;
-        public IList<StatusHudConfigElementOld> elements = [];
-    }
+        this.system = system;
 
-    // For config versions 3 or lower
-    public class StatusHudConfigElementOld(string name, int x, int y, int halign, int valign, string elementOptions)
-    {
-        public string name = name;
-        public int x = x;
-        public int y = y;
-        public int halign = halign;
-        public int valign = valign;
-        public string options = elementOptions;
-    }
+        Load();
 
-    public enum Orientation
-    {
-        Up,
-        Left,
-        Right,
-        Down
-    }
-
-    public class StatusHudConfig
-    {
-        public int version = 0;
-        public float elementScale = 1;
-        public bool showHidden = false;
-        public IList<StatusHudConfigElement> elements = [];
-    }
-
-    public class StatusHudConfigElement(string name, int x, int y, int horzAlign, int vertAlign, Orientation orientation, int orientationOffset, string elementOptions)
-    {
-        public string name = name;
-        public int x = x;
-        public int y = y;
-        public int horzAlign = horzAlign;
-        public int vertAlign = vertAlign;
-        public Orientation orientation = orientation;
-        public int offset = orientationOffset;
-        public string options = elementOptions;
-    }
-
-    public class StatusHudConfigManager
-    {
-        private const string filename = "statushud.json";
-        private const int version = 4;
-
-        private StatusHudConfig config;
-        private readonly StatusHudSystem system;
-
-        public StatusHudConfig Config => config;
-
-        public StatusHudConfigManager(StatusHudSystem system)
+        if (Config == null)
         {
-            this.system = system;
-
-            Load();
-
-            if (config == null)
-            {
-                config = new StatusHudConfig();
-                system.capi.Logger.Debug(StatusHudSystem.PrintModName($"Generated new config file {filename}"));
-            }
-
-            // Someone is loading a new config version for an old mod version
-            if (Config.version > version)
-            {
-                system.capi.Logger.Error(StatusHudSystem.PrintModName($"Expected mod config version is {version}, got {Config.version}."
-                + "\nOverwriting config with default config."));
-                system.InstallDefault();
-            }
-
-            else if (config.version <= 1 || Config.elements.Count == 0)
-            {
-                // Install default layout
-                Config.version = version;
-                system.InstallDefault();
-            }
-
-            Config.version = version;
+            Config = new StatusHudConfig();
+            system.capi.Logger.Debug(StatusHudSystem.PrintModName($"Generated new config file {filename}"));
         }
 
-        public void Load()
+        // Someone is loading a new config version for an old mod version
+        if (Config.version > version)
         {
-            int modConfigVersion = GetVersion();
+            system.capi.Logger.Error(StatusHudSystem.PrintModName($"Expected mod config version is {version}, got {Config.version}."
+                                                                  + "\nOverwriting config with default config."));
+            system.InstallDefault();
+        }
 
-            if (modConfigVersion <= 0) { return; }
-            else if (modConfigVersion <= 3)
+        else if (Config.version <= 1 || Config.elements.Count == 0)
+        {
+            // Install default layout
+            Config.version = version;
+            system.InstallDefault();
+        }
+
+        Config.version = version;
+    }
+
+    public StatusHudConfig Config { get; private set; }
+
+    public void Load()
+    {
+        int modConfigVersion = GetVersion();
+
+        switch (modConfigVersion)
+        {
+            case <= 0:
+                break;
+            case <= 3:
             {
                 // Convert the old config type to the new one
-                StatusHudConfigOld oldConfig = system.capi.LoadModConfig<StatusHudConfigOld>(filename);
-                if (oldConfig.version == 2)
+                StatusHudConfigV3 v3Config = system.capi.LoadModConfig<StatusHudConfigV3>(filename);
+                if (v3Config.version == 2)
                 {
-                    oldConfig = ConfigToV3(oldConfig);
+                    v3Config = ConfigToV3(v3Config);
                 }
-                if (oldConfig.version == 3)
+                if (v3Config.version == 3)
                 {
-                    config = ConfigToV4(oldConfig);
+                    Config = ConfigToV4(v3Config);
                 }
+                break;
             }
-            else { config = system.capi.LoadModConfig<StatusHudConfig>(filename); }
+            default:
+                Config = system.capi.LoadModConfig<StatusHudConfig>(filename);
+                break;
         }
+    }
 
-        private int GetVersion()
+    private int GetVersion()
+    {
+        string modConfigPath = Path.Combine(GamePaths.ModConfig, filename);
+
+        if (!File.Exists(modConfigPath))
         {
-            string modConfigPath = Path.Combine(GamePaths.ModConfig, filename);
-
-            if (!File.Exists(modConfigPath))
-            {
-                system.capi.Logger.Debug(StatusHudSystem.PrintModName("Config file does not exist"));
-                return 0;
-            }
-
-            try
-            {
-                return JsonDocument.Parse(File.ReadAllText(modConfigPath)).RootElement.GetProperty("version").GetInt32();
-            }
-            catch (Exception)
-            {
-                system.capi.Logger.Error(StatusHudSystem.PrintModName("Config file is malformed"));
-                return 0;
-            }
+            system.capi.Logger.Debug(StatusHudSystem.PrintModName("Config file does not exist"));
+            return 0;
         }
 
-        public void LoadElements(StatusHudSystem system)
+        try
         {
-            foreach (var configElement in config.elements)
-            {
-                StatusHudElement element = system.Set(Type.GetType(configElement.name));
-
-                if (element != null)
-                {
-                    element.ConfigOptions(configElement.options);
-                    StatusHudSystem.Pos(element, (StatusHudPos.HorzAlign)configElement.horzAlign, configElement.x, (StatusHudPos.VertAlign)configElement.vertAlign, configElement.y);
-                }
-            }
+            return JsonDocument.Parse(File.ReadAllText(modConfigPath)).RootElement.GetProperty("version").GetInt32();
         }
-
-        public void Save()
+        catch (Exception)
         {
-            config.elements.Clear();
-
-            foreach (var element in system.elements)
-            {
-                config.elements.Add(new StatusHudConfigElement(
-                    element.GetType().ToString(),
-                    element.pos.x,
-                    element.pos.y,
-                    (int)element.pos.horzAlign,
-                    (int)element.pos.vertAlign,
-                    Orientation.Up, // Placeholder
-                    0, // Placeholder
-                    element.ElementOption)
-                );
-            }
-
-            system.capi.StoreModConfig(config, filename);
+            system.capi.Logger.Error(StatusHudSystem.PrintModName("Config file is malformed"));
+            return 0;
         }
+    }
 
-        private static StatusHudConfigOld ConfigToV3(StatusHudConfigOld configOld)
+    public void LoadElements(StatusHudSystem system)
+    {
+        foreach (StatusHudConfigElement configElement in Config.elements)
         {
-            configOld.version = 3;
+            StatusHudElement element = system.Set(Type.GetType(configElement.name));
 
-            foreach (var element in configOld.elements)
-            {
-                switch (element.name)
-                {
-                    case "Date":
-                        element.name = StatusHudDateElement.name;
-                        break;
-                    case "Time":
-                        element.name = StatusHudTimeElement.name;
-                        break;
-                    case "Weather":
-                        element.name = StatusHudWeatherElement.name;
-                        break;
-                    case "Wind":
-                        element.name = StatusHudWindElement.name;
-                        break;
-                    case "Stability":
-                        element.name = StatusHudStabilityElement.name;
-                        break;
-                    case "Armour":
-                        element.name = StatusHudArmourElement.name;
-                        break;
-                    case "Room":
-                        element.name = StatusHudRoomElement.name;
-                        break;
-                    case "Sleep":
-                        element.name = StatusHudSleepElement.name;
-                        break;
-                    case "Wetness":
-                        element.name = StatusHudWetElement.name;
-                        break;
-                    case "Time (Local)":
-                        element.name = StatusHudTimeLocalElement.name;
-                        break;
-                    case "Body heat":
-                        element.name = StatusHudBodyheatElement.name;
-                        break;
-                    case "Durability":
-                        element.name = StatusHudDurabilityElement.name;
-                        break;
-                    case "Latitude":
-                        element.name = StatusHudLatitudeElement.name;
-                        break;
-                    case "Light":
-                        element.name = StatusHudLightElement.name;
-                        break;
-                    case "Ping":
-                        element.name = StatusHudPingElement.name;
-                        break;
-                    case "Players":
-                        element.name = StatusHudPlayersElement.name;
-                        break;
-                    case "Speed":
-                        element.name = StatusHudSpeedElement.name;
-                        break;
-                    case "Temporal Storm":
-                        element.name = StatusHudTempstormElement.name;
-                        break;
-                    case "Rift Activity":
-                        element.name = StatusHudRiftActivityElement.name;
-                        if (element.options == "True")
-                        {
-                            element.options = StatusHudRiftActivityElement.riftChangeOptions[0];
-                        }
-                        else
-                        {
-                            element.options = StatusHudRiftActivityElement.riftChangeOptions[1];
-                        }
-                        break;
-                    case "Altitude":
-                        element.name = StatusHudAltitudeElement.name;
-                        break;
-                    case "Compass":
-                        element.name = StatusHudCompassElement.name;
-                        if (element.options == "Relative")
-                        {
-                            element.options = StatusHudCompassElement.compassBearingOptions[0];
-                        }
-                        else
-                        {
-                            element.options = StatusHudCompassElement.compassBearingOptions[1];
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
+            if (element == null) continue;
 
-            return configOld;
+            element.ConfigOptions(configElement.options);
+            StatusHudSystem.SetPos(element, (StatusHudPos.HorizAlign)configElement.horzAlign, configElement.x, (StatusHudPos.VertAlign)configElement.vertAlign, configElement.y);
         }
-        private StatusHudConfig ConfigToV4(StatusHudConfigOld configOld)
+    }
+
+    public void Save()
+    {
+        Config.elements.Clear();
+
+        foreach (StatusHudElement element in system.elements)
         {
-            StatusHudConfig newConfig = new()
-            {
-                version = 4,
-                elementScale = (float)Math.Clamp(Math.Round((double)(configOld.iconSize / StatusHudSystem.iconSize)), 0.5f, 2f),
-                showHidden = configOld.showHidden
-            };
-
-            foreach (var oldElement in configOld.elements)
-            {
-                StatusHudConfigElement newElement = new(
-                    StatusHudSystem.elementTypes.TryGetValue(oldElement.name, out Type value) ? value.ToString() : "invalid",
-                    oldElement.x,
-                    oldElement.y,
-                    oldElement.halign,
-                    oldElement.valign,
-                    Orientation.Up,
-                    0,
-                    oldElement.options
-                );
-
-                newConfig.elements.Add(newElement);
-            }
-
-            return newConfig;
+            Config.elements.Add(new StatusHudConfigElement(
+                element.GetType().ToString(),
+                element.pos.x,
+                element.pos.y,
+                (int)element.pos.horizAlign,
+                (int)element.pos.vertAlign,
+                Orientation.Up, // Placeholder
+                0, // Placeholder
+                element.ElementOption)
+            );
         }
+
+        system.capi.StoreModConfig(Config, filename);
+    }
+
+    private static StatusHudConfigV3 ConfigToV3(StatusHudConfigV3 configV3)
+    {
+        configV3.version = 3;
+
+        foreach (StatusHudConfigElementV3 element in configV3.elements)
+        {
+            switch (element.name)
+            {
+                case "Date":
+                    element.name = StatusHudDateElement.name;
+                    break;
+                case "Time":
+                    element.name = StatusHudTimeElement.name;
+                    break;
+                case "Weather":
+                    element.name = StatusHudWeatherElement.name;
+                    break;
+                case "Wind":
+                    element.name = StatusHudWindElement.name;
+                    break;
+                case "Stability":
+                    element.name = StatusHudStabilityElement.name;
+                    break;
+                case "Armour":
+                    element.name = StatusHudArmourElement.name;
+                    break;
+                case "Room":
+                    element.name = StatusHudRoomElement.name;
+                    break;
+                case "Sleep":
+                    element.name = StatusHudSleepElement.name;
+                    break;
+                case "Wetness":
+                    element.name = StatusHudWetElement.name;
+                    break;
+                case "Time (Local)":
+                    element.name = StatusHudTimeLocalElement.name;
+                    break;
+                case "Body heat":
+                    element.name = StatusHudBodyHeatElement.name;
+                    break;
+                case "Durability":
+                    element.name = StatusHudDurabilityElement.name;
+                    break;
+                case "Latitude":
+                    element.name = StatusHudLatitudeElement.name;
+                    break;
+                case "Light":
+                    element.name = StatusHudLightElement.name;
+                    break;
+                case "Ping":
+                    element.name = StatusHudPingElement.name;
+                    break;
+                case "Players":
+                    element.name = StatusHudPlayersElement.name;
+                    break;
+                case "Speed":
+                    element.name = StatusHudSpeedElement.name;
+                    break;
+                case "Temporal Storm":
+                    element.name = StatusHudTempstormElement.name;
+                    break;
+                case "Rift Activity":
+                    element.name = StatusHudRiftActivityElement.name;
+                    element.options = element.options == "True" ? StatusHudRiftActivityElement.RiftChangeOptions[0] : StatusHudRiftActivityElement.RiftChangeOptions[1];
+                    break;
+                case "Altitude":
+                    element.name = StatusHudAltitudeElement.name;
+                    break;
+                case "Compass":
+                    element.name = StatusHudCompassElement.name;
+                    element.options = element.options == "Relative" ? StatusHudCompassElement.CompassBearingOptions[0] : StatusHudCompassElement.CompassBearingOptions[1];
+                    break;
+            }
+        }
+
+        return configV3;
+    }
+    private static StatusHudConfig ConfigToV4(StatusHudConfigV3 configV3)
+    {
+        StatusHudConfig newConfig = new()
+        {
+            version = 4,
+            elementScale = (float)Math.Clamp(Math.Round((double)(configV3.iconSize / StatusHudSystem.iconSize)), 0.5f, 2f),
+            showHidden = configV3.showHidden
+        };
+
+        foreach (StatusHudConfigElementV3 oldElement in configV3.elements)
+        {
+            StatusHudConfigElement newElement = new(
+                StatusHudSystem.ElementTypes.TryGetValue(oldElement.name, out Type value) ? value.ToString() : "invalid",
+                oldElement.x,
+                oldElement.y,
+                oldElement.halign,
+                oldElement.valign,
+                Orientation.Up,
+                0,
+                oldElement.options
+            );
+
+            newConfig.elements.Add(newElement);
+        }
+
+        return newConfig;
     }
 }

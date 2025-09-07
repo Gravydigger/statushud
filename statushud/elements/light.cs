@@ -1,103 +1,103 @@
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 
-namespace StatusHud
+namespace StatusHud;
+
+public class StatusHudLightElement : StatusHudElement
 {
-    public class StatusHudLightElement : StatusHudElement
+    public const string name = "light";
+    private const string textKey = "shud-light";
+
+    private readonly StatusHudLightRenderer renderer;
+
+    public bool active;
+
+    public StatusHudLightElement(StatusHudSystem system) : base(system, true)
     {
-        public new const string name = "light";
-        protected const string textKey = "shud-light";
+        renderer = new StatusHudLightRenderer(system, this);
+        this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
+    }
 
-        public override string ElementName => name;
+    public override string ElementName => name;
 
-        public bool active;
+    public override StatusHudRenderer GetRenderer()
+    {
+        return renderer;
+    }
 
-        protected StatusHudLightRenderer renderer;
+    public virtual string GetTextKey()
+    {
+        return textKey;
+    }
 
-        public StatusHudLightElement(StatusHudSystem system) : base(system, true)
+    public override void Tick()
+    {
+        if (system.capi.World.Player.CurrentBlockSelection != null)
         {
-            renderer = new StatusHudLightRenderer(system, this);
-            this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
+            renderer.SetText(system.capi.World.BlockAccessor.GetLightLevel(system.capi.World.Player.CurrentBlockSelection.Position, EnumLightLevelType.MaxTimeOfDayLight)
+                .ToString());
+            active = true;
         }
-
-        public override StatusHudRenderer GetRenderer()
+        else
         {
-            return renderer;
-        }
-
-        public virtual string GetTextKey()
-        {
-            return textKey;
-        }
-
-        public override void Tick()
-        {
-            if (system.capi.World.Player.CurrentBlockSelection != null)
+            if (active)
             {
-                renderer.SetText(system.capi.World.BlockAccessor.GetLightLevel(system.capi.World.Player.CurrentBlockSelection.Position, EnumLightLevelType.MaxTimeOfDayLight).ToString());
-                active = true;
+                renderer.SetText("");
             }
-            else
-            {
-                if (active)
-                {
-                    renderer.SetText("");
-                }
-                active = false;
-            }
-        }
-
-        public override void Dispose()
-        {
-            renderer.Dispose();
-            system.capi.Event.UnregisterRenderer(renderer, EnumRenderStage.Ortho);
+            active = false;
         }
     }
 
-    public class StatusHudLightRenderer : StatusHudRenderer
+    public override void Dispose()
     {
-        protected StatusHudLightElement element;
+        renderer.Dispose();
+        system.capi.Event.UnregisterRenderer(renderer, EnumRenderStage.Ortho);
+    }
+}
 
-        public StatusHudLightRenderer(StatusHudSystem system, StatusHudLightElement element) : base(system)
-        {
-            this.element = element;
-            Text = new StatusHudText(this.System.capi, this.element.GetTextKey(), system.Config);
-        }
+public class StatusHudLightRenderer : StatusHudRenderer
+{
+    private readonly StatusHudLightElement element;
 
-        public override void Reload()
-        {
-            Text.ReloadText(pos);
-        }
+    public StatusHudLightRenderer(StatusHudSystem system, StatusHudLightElement element) : base(system)
+    {
+        this.element = element;
+        text = new StatusHudText(this.system.capi, this.element.GetTextKey(), system.Config);
+    }
 
-        public void SetText(string value)
-        {
-            Text.Set(value);
-        }
+    public override void Reload()
+    {
+        text.ReloadText(pos);
+    }
 
-        protected override void Update()
-        {
-            base.Update();
-            Text.Pos(pos);
-        }
+    public void SetText(string value)
+    {
+        text.Set(value);
+    }
 
-        protected override void Render()
+    protected override void Update()
+    {
+        base.Update();
+        text.SetPos(pos);
+    }
+
+    protected override void Render()
+    {
+        if (!element.active)
         {
-            if (!element.active)
+            if (system.ShowHidden)
             {
-                if (System.ShowHidden)
-                {
-                    RenderHidden(System.textures.texturesDict["light"].TextureId);
-                }
-                return;
+                RenderHidden(system.textures.texturesDict["light"].TextureId);
             }
-
-            System.capi.Render.RenderTexture(System.textures.texturesDict["light"].TextureId, x, y, w, h);
+            return;
         }
 
-        public override void Dispose()
-        {
-            base.Dispose();
-            Text.Dispose();
-        }
+        system.capi.Render.RenderTexture(system.textures.texturesDict["light"].TextureId, x, y, w, h);
+    }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        text.Dispose();
     }
 }

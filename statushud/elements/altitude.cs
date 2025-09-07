@@ -1,93 +1,93 @@
 using System;
+using System.Globalization;
 using Vintagestory.API.Client;
 using Vintagestory.API.MathTools;
 using Vintagestory.GameContent;
 
-namespace StatusHud
+namespace StatusHud;
+
+public class StatusHudAltitudeElement : StatusHudElement
 {
-    public class StatusHudAltitudeElement : StatusHudElement
+    public const string name = "altitude";
+    private const string textKey = "shud-altitude";
+    private readonly StatusHudAltitudeRenderer renderer;
+
+    public float needleOffset;
+
+    protected WeatherSystemBase weatherSystem;
+
+    public StatusHudAltitudeElement(StatusHudSystem system) : base(system)
     {
-        public new const string name = "altitude";
-        protected const string textKey = "shud-altitude";
+        weatherSystem = this.system.capi.ModLoader.GetModSystem<WeatherSystemBase>();
 
-        public override string ElementName => name;
+        renderer = new StatusHudAltitudeRenderer(this.system, this);
+        this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
-        protected WeatherSystemBase weatherSystem;
-        protected StatusHudAltitudeRenderer renderer;
-
-        public float needleOffset;
-
-        public StatusHudAltitudeElement(StatusHudSystem system) : base(system)
-        {
-            weatherSystem = this.system.capi.ModLoader.GetModSystem<WeatherSystemBase>();
-
-            renderer = new StatusHudAltitudeRenderer(this.system, this);
-            this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
-
-            needleOffset = 0;
-        }
-
-        public override StatusHudRenderer GetRenderer()
-        {
-            return renderer;
-        }
-
-        public virtual string GetTextKey()
-        {
-            return textKey;
-        }
-
-        public override void Tick()
-        {
-            float altitude = (int)Math.Round(system.capi.World.Player.Entity.Pos.Y - system.capi.World.SeaLevel, 0);
-            renderer.SetText(altitude.ToString());
-
-            float ratio = -(altitude / (system.capi.World.BlockAccessor.MapSizeY / 2));
-            needleOffset = GameMath.Clamp(ratio, -1, 1) * (StatusHudSystem.iconSize * system.Config.elementScale / 2f) * 0.75f;
-        }
-
-        public override void Dispose()
-        {
-            renderer.Dispose();
-            system.capi.Event.UnregisterRenderer(renderer, EnumRenderStage.Ortho);
-        }
+        needleOffset = 0;
     }
 
-    public class StatusHudAltitudeRenderer : StatusHudRenderer
+    public override string ElementName => name;
+
+    public override StatusHudRenderer GetRenderer()
     {
-        protected StatusHudAltitudeElement element;
-        public StatusHudAltitudeRenderer(StatusHudSystem system, StatusHudAltitudeElement element) : base(system)
-        {
-            this.element = element;
-            Text = new StatusHudText(this.System.capi, this.element.GetTextKey(), system.Config);
-        }
+        return renderer;
+    }
 
-        public override void Reload()
-        {
-            Text.ReloadText(pos);
-        }
+    public static string GetTextKey()
+    {
+        return textKey;
+    }
 
-        public void SetText(string value)
-        {
-            Text.Set(value);
-        }
+    public override void Tick()
+    {
+        float altitude = (int)Math.Round(system.capi.World.Player.Entity.Pos.Y - system.capi.World.SeaLevel, 0);
+        renderer.SetText(altitude.ToString(CultureInfo.InvariantCulture));
 
-        protected override void Update()
-        {
-            base.Update();
-            Text.Pos(pos);
-        }
+        float ratio = -(altitude / (system.capi.World.BlockAccessor.MapSizeY / 2));
+        needleOffset = GameMath.Clamp(ratio, -1, 1) * (StatusHudSystem.iconSize * system.Config.elementScale / 2f) * 0.75f;
+    }
 
-        protected override void Render()
-        {
-            System.capi.Render.RenderTexture(System.textures.texturesDict["altitude"].TextureId, x, y, w, h);
-            System.capi.Render.RenderTexture(System.textures.texturesDict["altitude_needle"].TextureId, x, y + GuiElement.scaled(element.needleOffset), w, h);
-        }
+    public override void Dispose()
+    {
+        renderer.Dispose();
+        system.capi.Event.UnregisterRenderer(renderer, EnumRenderStage.Ortho);
+    }
+}
 
-        public override void Dispose()
-        {
-            base.Dispose();
-            Text.Dispose();
-        }
+public class StatusHudAltitudeRenderer : StatusHudRenderer
+{
+    private readonly StatusHudAltitudeElement element;
+    public StatusHudAltitudeRenderer(StatusHudSystem system, StatusHudAltitudeElement element) : base(system)
+    {
+        this.element = element;
+        text = new StatusHudText(this.system.capi, StatusHudAltitudeElement.GetTextKey(), system.Config);
+    }
+
+    public override void Reload()
+    {
+        text.ReloadText(pos);
+    }
+
+    public void SetText(string value)
+    {
+        text.Set(value);
+    }
+
+    protected override void Update()
+    {
+        base.Update();
+        text.SetPos(pos);
+    }
+
+    protected override void Render()
+    {
+        system.capi.Render.RenderTexture(system.textures.texturesDict["altitude"].TextureId, x, y, w, h);
+        system.capi.Render.RenderTexture(system.textures.texturesDict["altitude_needle"].TextureId, x, y + GuiElement.scaled(element.needleOffset), w, h);
+    }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        text.Dispose();
     }
 }

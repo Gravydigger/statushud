@@ -1,55 +1,42 @@
 using System;
 using System.Globalization;
+using System.Linq;
 
-namespace StatusHud
+namespace StatusHud;
+
+public class StatusHudTimeLocalElement : StatusHudTimeElement
 {
-    public class StatusHudTimeLocalElement : StatusHudTimeElement
+    public new const string name = "timelocal";
+    private const string textKey = "shud-timelocal";
+
+    private new string timeFormat;
+
+    public StatusHudTimeLocalElement(StatusHudSystem system) : base(system)
     {
-        public new const string name = "timelocal";
-        protected new const string textKey = "shud-timelocal";
+        textureId = this.system.textures.texturesDict["time_local"].TextureId;
+        timeFormat = base.timeFormat;
+    }
+    public override string ElementOption => timeFormat;
 
-        private new string timeFormat;
-        public override string ElementOption => timeFormat;
+    public override string ElementName => name;
 
-        public override string ElementName => name;
+    public override string GetTextKey()
+    {
+        return textKey;
+    }
 
-        public StatusHudTimeLocalElement(StatusHudSystem system) : base(system)
+    public override void ConfigOptions(string value)
+    {
+        if (TimeFormatWords.Any(word => value == word))
         {
-            textureId = this.system.textures.texturesDict["time_local"].TextureId;
-            timeFormat = base.timeFormat;
+            timeFormat = value;
         }
+    }
 
-        public override string GetTextKey()
-        {
-            return textKey;
-        }
+    public override void Tick()
+    {
+        string time = timeFormat == "12hr" ? DateTime.Now.ToString("h:mmtt", CultureInfo.InvariantCulture) : DateTime.Now.ToString("HH':'mm");
 
-        public override void ConfigOptions(string value)
-        {
-            foreach (var word in timeFormatWords)
-            {
-                if (value == word)
-                {
-                    timeFormat = value;
-                    return;
-                }
-            }
-        }
-
-        public override void Tick()
-        {
-            string time;
-
-            if (timeFormat == "12hr")
-            {
-                time = DateTime.Now.ToString("h:mmtt", CultureInfo.InvariantCulture);
-            }
-            else
-            {
-                time = DateTime.Now.ToString("HH':'mm");
-            }
-
-            renderer.SetText(time);
-        }
+        renderer.SetText(time);
     }
 }

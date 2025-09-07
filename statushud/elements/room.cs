@@ -2,122 +2,118 @@ using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.GameContent;
 
-namespace StatusHud
+namespace StatusHud;
+
+public class StatusHudRoomElement : StatusHudElement
 {
-    public class StatusHudRoomElement : StatusHudElement
+    public const string name = "room";
+    private const string textKey = "shud-room";
+
+    private readonly StatusHudRoomRenderer renderer;
+    public bool cellar;
+    public bool greenhouse;
+
+    public bool inside;
+
+    public StatusHudRoomElement(StatusHudSystem system) : base(system)
     {
-        public new const string name = "room";
-        protected const string textKey = "shud-room";
+        renderer = new StatusHudRoomRenderer(system, this);
+        this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
+    }
 
-        public override string ElementName => name;
+    public override string ElementName => name;
 
-        public bool inside;
-        public bool cellar;
-        public bool greenhouse;
+    public override StatusHudRenderer GetRenderer()
+    {
+        return renderer;
+    }
 
-        protected StatusHudRoomRenderer renderer;
+    public virtual string GetTextKey()
+    {
+        return textKey;
+    }
 
-        public StatusHudRoomElement(StatusHudSystem system) : base(system)
+    public override void Tick()
+    {
+        EntityPlayer entity = system.capi.World.Player.Entity;
+        if (entity == null)
         {
-            renderer = new StatusHudRoomRenderer(system, this);
-            this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
+            inside = false;
+            cellar = false;
+            greenhouse = false;
+            return;
         }
 
-        public override StatusHudRenderer GetRenderer()
+        Room room = entity.World.Api.ModLoader.GetModSystem<RoomRegistry>().GetRoomForPosition(entity.Pos.AsBlockPos);
+        if (room == null)
         {
-            return renderer;
+            inside = false;
+            cellar = false;
+            greenhouse = false;
+            return;
         }
 
-        public virtual string GetTextKey()
+        if (room.ExitCount == 0)
         {
-            return textKey;
+            // Inside.
+            inside = true;
+            cellar = room.IsSmallRoom;
+            greenhouse = room.SkylightCount > room.NonSkylightCount; // No room flag avaiable, based on FruitTreeRootBH.
         }
-
-        public override void Tick()
+        else
         {
-            EntityPlayer entity = system.capi.World.Player.Entity;
-            if (entity == null)
-            {
-                inside = false;
-                cellar = false;
-                greenhouse = false;
-                return;
-            }
-
-            Room room = entity.World.Api.ModLoader.GetModSystem<RoomRegistry>().GetRoomForPosition(entity.Pos.AsBlockPos);
-            if (room == null)
-            {
-                inside = false;
-                cellar = false;
-                greenhouse = false;
-                return;
-            }
-
-            if (room.ExitCount == 0)
-            {
-                // Inside.
-                inside = true;
-                cellar = room.IsSmallRoom;
-                greenhouse = room.SkylightCount > room.NonSkylightCount;   // No room flag avaiable, based on FruitTreeRootBH.
-            }
-            else
-            {
-                // Outside.
-                inside = false;
-                cellar = false;
-                greenhouse = false;
-            }
-        }
-
-        public override void Dispose()
-        {
-            renderer.Dispose();
-            system.capi.Event.UnregisterRenderer(renderer, EnumRenderStage.Ortho);
+            // Outside.
+            inside = false;
+            cellar = false;
+            greenhouse = false;
         }
     }
 
-    public class StatusHudRoomRenderer : StatusHudRenderer
+    public override void Dispose()
     {
-        protected StatusHudRoomElement element;
+        renderer.Dispose();
+        system.capi.Event.UnregisterRenderer(renderer, EnumRenderStage.Ortho);
+    }
+}
 
-        protected float ghy;
+public class StatusHudRoomRenderer : StatusHudRenderer
+{
+    private readonly StatusHudRoomElement element;
 
-        public StatusHudRoomRenderer(StatusHudSystem system, StatusHudRoomElement element) : base(system)
+    private float ghy;
+
+    public StatusHudRoomRenderer(StatusHudSystem system, StatusHudRoomElement element) : base(system)
+    {
+        this.element = element;
+    }
+
+    public override void Reload()
+    {
+    }
+
+    protected override void Render()
+    {
+        if (!element.inside)
         {
-            this.element = element;
-        }
-
-        public override void Reload() { }
-
-        protected override void Render()
-        {
-            if (!element.inside)
+            if (system.ShowHidden)
             {
-                if (System.ShowHidden)
-                {
-                    this.RenderHidden(System.textures.texturesDict["room_room"].TextureId);
-                }
-                return;
+                RenderHidden(system.textures.texturesDict["room_room"].TextureId);
             }
-
-            System.capi.Render.RenderTexture(element.cellar ? System.textures.texturesDict["room_cellar"].TextureId : System.textures.texturesDict["room_room"].TextureId, x, y, w, h);
-
-            if (element.greenhouse)
-            {
-                System.capi.Render.RenderTexture(System.textures.texturesDict["room_greenhouse"].TextureId, x, ghy, w, h);
-            }
+            return;
         }
 
-        protected override void Update()
+        system.capi.Render.RenderTexture(element.cellar ? system.textures.texturesDict["room_cellar"].TextureId : system.textures.texturesDict["room_room"].TextureId, x, y, w, h);
+
+        if (element.greenhouse)
         {
-            base.Update();
-
-            ghy = (float)(y - GuiElement.scaled(StatusHudSystem.iconSize * System.Config.elementScale));
+            system.capi.Render.RenderTexture(system.textures.texturesDict["room_greenhouse"].TextureId, x, ghy, w, h);
         }
+    }
 
-        public override void Dispose()
-        {
-            base.Dispose();
-        }
+    protected override void Update()
+    {
+        base.Update();
+
+        ghy = (float)(y - GuiElement.scaled(StatusHudSystem.iconSize * system.Config.elementScale));
     }
 }
