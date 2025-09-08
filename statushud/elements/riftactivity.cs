@@ -167,7 +167,7 @@ public class StatusHudRiftActivityRenderer : StatusHudRenderer
         {
             system.capi.Render.RenderTexture(element.textureId, x, y, w, h);
         }
-        else if (system.ShowHidden)
+        else if (showHidden)
         {
             RenderHidden(system.textures.texturesDict["rift_calm"].TextureId);
         }

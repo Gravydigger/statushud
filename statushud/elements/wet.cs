@@ -8,9 +8,9 @@ public class StatusHudWetElement : StatusHudElement
     public const string name = "wet";
     private const string textKey = "shud-wet";
 
-    public bool active;
-
     private readonly StatusHudWetRenderer renderer;
+
+    public bool active;
 
     public StatusHudWetElement(StatusHudSystem system) : base(system)
     {
@@ -90,7 +90,7 @@ public class StatusHudWetRenderer : StatusHudRenderer
     {
         if (!element.active)
         {
-            if (system.ShowHidden)
+            if (showHidden)
             {
                 RenderHidden(system.textures.texturesDict["wet"].TextureId);
             }

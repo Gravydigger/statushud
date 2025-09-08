@@ -85,7 +85,7 @@ public class StatusHudLightRenderer : StatusHudRenderer
     {
         if (!element.active)
         {
-            if (system.ShowHidden)
+            if (showHidden)
             {
                 RenderHidden(system.textures.texturesDict["light"].TextureId);
             }

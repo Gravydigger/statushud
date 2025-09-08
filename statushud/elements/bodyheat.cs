@@ -133,7 +133,7 @@ public class StatusHudBodyHeatRenderer : StatusHudRenderer
     {
         if (!element.active)
         {
-            if (system.ShowHidden)
+            if (showHidden)
             {
                 RenderHidden(system.textures.texturesDict["bodyheat"].TextureId);
             }

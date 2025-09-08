@@ -100,7 +100,7 @@ public class StatusHudStabilityRenderer : StatusHudRenderer
     {
         if (!element.active)
         {
-            if (system.ShowHidden)
+            if (showHidden)
             {
                 RenderHidden(system.textures.texturesDict["stability"].TextureId);
             }

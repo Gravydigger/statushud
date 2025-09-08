@@ -95,7 +95,7 @@ public class StatusHudRoomRenderer : StatusHudRenderer
     {
         if (!element.inside)
         {
-            if (system.ShowHidden)
+            if (showHidden)
             {
                 RenderHidden(system.textures.texturesDict["room_room"].TextureId);
             }

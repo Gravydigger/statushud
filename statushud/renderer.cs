@@ -34,6 +34,7 @@ public abstract class StatusHudRenderer : IRenderer
     private int pingTime;
 
     private float scale;
+    protected bool showHidden;
 
     // Text Element
     protected StatusHudText text;
@@ -46,6 +47,7 @@ public abstract class StatusHudRenderer : IRenderer
     protected StatusHudRenderer(StatusHudSystem system)
     {
         this.system = system;
+        showHidden = system.Config.showHidden;
 
         pos = new StatusHudPos();
         text = new StatusHudText(system.capi, "", system.Config);
@@ -152,6 +154,7 @@ public abstract class StatusHudRenderer : IRenderer
         y = SolveY(h);
 
         scale = RuntimeEnv.GUIScale;
+        showHidden = system.Config.showHidden;
         frameWidth = system.capi.Render.FrameWidth;
         frameHeight = system.capi.Render.FrameHeight;
 

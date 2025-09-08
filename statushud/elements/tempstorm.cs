@@ -158,7 +158,7 @@ public class StatusHudTempstormRenderer : StatusHudRenderer
     {
         if (!element.active)
         {
-            if (system.ShowHidden)
+            if (showHidden)
             {
                 RenderHidden(system.textures.texturesDict["tempstorm_incoming"].TextureId);
             }

@@ -28,6 +28,13 @@ public class StatusHudConfigGui : GuiDialog
     private readonly List<string> elementNamesTranslated = [];
 
     private readonly StatusHudSystem system;
+
+    private readonly string[] translatedTextAlign =
+        Enum.GetValues(typeof(StatusHudPos.TextAlign))
+            .Cast<StatusHudPos.TextAlign>()
+            .Select(e => Lang.Get($"statushudcont:{e}"))
+            .ToArray();
+
     private bool elementScaleChange;
     private float scaled;
     private int selectedElementIndex;
@@ -93,7 +100,12 @@ public class StatusHudConfigGui : GuiDialog
         ElementBounds yPosTextBounds = ElementBounds.Fixed(0, 0, 150, 30).FixedUnder(xPosInputBounds, vertOffset / 2);
         ElementBounds yPosInputBounds = ElementBounds.Fixed(0, yPosTextBounds.fixedY, 205, 30).WithAlignment(EnumDialogArea.RightFixed);
 
-        ElementBounds optionalConfigTextBounds = ElementBounds.Fixed(0, 0, 150, 30).FixedUnder(yPosTextBounds, vertOffset / 2);
+        ElementBounds textAlignTextBounds = ElementBounds.Fixed(0, 0, 150, 30).FixedUnder(yPosTextBounds, vertOffset / 2);
+        ElementBounds textAlignInputBounds = ElementBounds.Fixed(0, textAlignTextBounds.fixedY, 205, 30).WithAlignment(EnumDialogArea.RightFixed);
+        ElementBounds textAlignOffsetTextBounds = ElementBounds.Fixed(0, 0, 150, 30).FixedUnder(textAlignTextBounds, vertOffset / 2);
+        ElementBounds textAlignOffsetInputBounds = ElementBounds.Fixed(0, textAlignOffsetTextBounds.fixedY, 205, 30).WithAlignment(EnumDialogArea.RightFixed);
+
+        ElementBounds optionalConfigTextBounds = ElementBounds.Fixed(0, 0, 150, 30).FixedUnder(textAlignOffsetTextBounds, vertOffset / 2);
         ElementBounds optionalConfigDropdownBounds = ElementBounds.Fixed(0, optionalConfigTextBounds.fixedY, 205, 30).WithAlignment(EnumDialogArea.RightFixed);
 
         // Create Element Editing Group
@@ -102,12 +114,13 @@ public class StatusHudConfigGui : GuiDialog
 
         if (element == null || element.ElementOption == "")
         {
-            editingBounds.WithChildren(enableElementButtonBounds, alignElementDropdownBounds, xPosInputBounds, xPosInputBounds, yPosTextBounds, yPosInputBounds);
+            editingBounds.WithChildren(enableElementButtonBounds, alignElementDropdownBounds, xPosInputBounds, xPosInputBounds, yPosTextBounds, yPosInputBounds,
+                textAlignTextBounds, textAlignInputBounds, textAlignOffsetTextBounds, textAlignOffsetInputBounds);
         }
         else
         {
             editingBounds.WithChildren(enableElementButtonBounds, alignElementDropdownBounds, xPosInputBounds, xPosInputBounds, yPosTextBounds, yPosInputBounds,
-                optionalConfigTextBounds, optionalConfigDropdownBounds);
+                textAlignTextBounds, textAlignInputBounds, textAlignOffsetTextBounds, textAlignOffsetInputBounds, optionalConfigTextBounds, optionalConfigDropdownBounds);
 
             string[] options = [];
 
@@ -138,7 +151,7 @@ public class StatusHudConfigGui : GuiDialog
         }
 
         // Create Element Editing Group Background
-        ElementBounds editingBgBounds = ElementBounds.Fill.FixedUnder(moveElementDropdownBounds, vertOffset).WithAlignment(EnumDialogArea.CenterFixed);
+        ElementBounds editingBgBounds = ElementBounds.Fill.FixedUnder(moveElementDropdownBounds, vertOffset / 2).WithAlignment(EnumDialogArea.CenterFixed);
         editingBgBounds.BothSizing = ElementSizing.FitToChildren;
         editingBgBounds.WithChildren(editingBounds);
 
@@ -166,16 +179,21 @@ public class StatusHudConfigGui : GuiDialog
                 .AddNumberInput(elementScaleInputBounds, OnElementScale, key: "shud-elementscale")
                 .AddToggleButton(Lang.Get("statushudcont:Show Hidden Elements"), CairoFont.ButtonText(), OnHidden, showHiddenButtonBounds, "shud-hidden")
                 .AddStaticText(Lang.Get("statushudcont:Edit Element"), CairoFont.ButtonText(), EnumTextOrientation.Center, moveElementTextBounds)
-                .AddDropDown(elementNames, elementNamesTranslated.ToArray(), selectedElementIndex, OnSelectionChange, moveElementDropdownBounds)
+                .AddDropDown(elementNames, elementNamesTranslated.ToArray(), selectedElementIndex, OnElementChange, moveElementDropdownBounds)
                 .AddAutoSizeHoverText(Lang.Get($"statushudcont:{selectedElementName}-desc"), CairoFont.WhiteSmallText(), tooltipLength, moveElementDropdownBounds.FlatCopy())
                 .BeginChildElements(editingBgBounds)
                 .BeginChildElements(editingBounds)
                 .AddToggleButton(Lang.Get("statushudcont:Enable"), CairoFont.ButtonText(), OnEnable, enableElementButtonBounds, "shud-enablebutton")
                 .AddDropDown(elementAlignmentsValue, elementAlignments, 4, OnAlignChange, alignElementDropdownBounds, "shud-align")
-                .AddStaticTextAutoFontSize(Lang.Get("statushudcont:X Position"), CairoFont.WhiteSmallishText(), xPosTextBounds)
-                .AddTextInput(xPosInputBounds, OnXPos, key: "shud-xpos")
-                .AddStaticTextAutoFontSize(Lang.Get("statushudcont:Y Position"), CairoFont.WhiteSmallishText(), yPosTextBounds)
-                .AddTextInput(yPosInputBounds, OnYPos, key: "shud-ypos")
+                .AddStaticText(Lang.Get("statushudcont:X Position"), CairoFont.WhiteSmallishText(), xPosTextBounds)
+                .AddNumberInput(xPosInputBounds, OnXPos, key: "shud-xpos")
+                .AddStaticText(Lang.Get("statushudcont:Y Position"), CairoFont.WhiteSmallishText(), yPosTextBounds)
+                .AddNumberInput(yPosInputBounds, OnYPos, key: "shud-ypos")
+                .AddStaticText(Lang.Get("statushudcont:Alignment"), CairoFont.WhiteSmallishText(), textAlignTextBounds)
+                .AddDropDown(Enum.GetNames(typeof(StatusHudPos.TextAlign)), translatedTextAlign, 0, OnTextAlignChange,
+                    textAlignInputBounds, "shud-textalign")
+                .AddStaticText(Lang.Get("statushudcont:Offset"), CairoFont.WhiteSmallishText(), textAlignOffsetTextBounds)
+                .AddNumberInput(textAlignOffsetInputBounds, OnTextAlignOffsetChange, key: "shud-textalignoffset")
                 .AddIf(selectedElementName is StatusHudTimeElement.name or StatusHudTimeLocalElement.name)
                 .AddStaticText(Lang.Get("statushudcont:Time Format"), CairoFont.WhiteSmallText(), optionalConfigTextBounds)
                 .AddDropDown(StatusHudTimeElement.TimeFormatWords, [Lang.Get("statushudcont:time-opt-1"), Lang.Get("statushudcont:time-opt-2")], optionIndex, OnOptionalConfig,
@@ -212,6 +230,8 @@ public class StatusHudConfigGui : GuiDialog
 
         SingleComposer.GetNumberInput("shud-elementscale").SetValue(system.Config.elementScale);
         SingleComposer.GetNumberInput("shud-elementscale").Interval = 0.25f;
+        SingleComposer.GetNumberInput("shud-xpos").Interval = 100f;
+        SingleComposer.GetNumberInput("shud-ypos").Interval = 100f;
     }
 
     private void OnOptionalConfig(string code, bool selected)
@@ -232,39 +252,43 @@ public class StatusHudConfigGui : GuiDialog
         if (element == null)
         {
             SingleComposer.GetToggleButton("shud-enablebutton").SetValue(false);
-            SingleComposer.GetTextInput("shud-xpos").SetValue(0);
-            SingleComposer.GetTextInput("shud-ypos").SetValue(0);
-            SingleComposer.GetDropDown("shud-align").SetSelectedValue("4");
+            SingleComposer.GetNumberInput("shud-xpos").SetValue(0);
+            SingleComposer.GetNumberInput("shud-ypos").SetValue(0);
+            SingleComposer.GetNumberInput("shud-textalignoffset").SetValue(0);
+            SingleComposer.GetDropDown("shud-textalign").SetSelectedValue(nameof(StatusHudPos.TextAlign.Up));
+            SingleComposer.GetDropDown("shud-align").SetSelectedValue(((int)HudAlign.TrueCenter).ToString());
         }
         else
         {
             SingleComposer.GetToggleButton("shud-enablebutton").SetValue(true);
             SingleComposer.GetTextInput("shud-xpos").SetValue(element.pos.x);
             SingleComposer.GetTextInput("shud-ypos").SetValue(element.pos.y);
+            SingleComposer.GetDropDown("shud-textalign").SetSelectedValue(element.pos.textAlign.ToString());
+            SingleComposer.GetNumberInput("shud-textalignoffset").SetValue(element.pos.textAlignOffset);
 
-            int alignDisplayVal = (int)Alignment.TrueCenter;
+            int alignDisplayVal = (int)HudAlign.TrueCenter;
 
             alignDisplayVal = element.pos.vertAlign switch
             {
                 StatusHudPos.VertAlign.Top => element.pos.horizAlign switch
                 {
-                    StatusHudPos.HorizAlign.Left => (int)Alignment.TopLeft,
-                    StatusHudPos.HorizAlign.Center => (int)Alignment.TopCenter,
-                    StatusHudPos.HorizAlign.Right => (int)Alignment.TopRight,
+                    StatusHudPos.HorizAlign.Left => (int)HudAlign.TopLeft,
+                    StatusHudPos.HorizAlign.Center => (int)HudAlign.TopCenter,
+                    StatusHudPos.HorizAlign.Right => (int)HudAlign.TopRight,
                     _ => alignDisplayVal
                 },
                 StatusHudPos.VertAlign.Middle => element.pos.horizAlign switch
                 {
-                    StatusHudPos.HorizAlign.Left => (int)Alignment.CenterLeft,
-                    StatusHudPos.HorizAlign.Center => (int)Alignment.TopCenter,
-                    StatusHudPos.HorizAlign.Right => (int)Alignment.CenterRight,
+                    StatusHudPos.HorizAlign.Left => (int)HudAlign.CenterLeft,
+                    StatusHudPos.HorizAlign.Center => (int)HudAlign.TopCenter,
+                    StatusHudPos.HorizAlign.Right => (int)HudAlign.CenterRight,
                     _ => alignDisplayVal
                 },
                 StatusHudPos.VertAlign.Bottom => element.pos.horizAlign switch
                 {
-                    StatusHudPos.HorizAlign.Left => (int)Alignment.BottomLeft,
-                    StatusHudPos.HorizAlign.Center => (int)Alignment.BottomCenter,
-                    StatusHudPos.HorizAlign.Right => (int)Alignment.BottomRight,
+                    StatusHudPos.HorizAlign.Left => (int)HudAlign.BottomLeft,
+                    StatusHudPos.HorizAlign.Center => (int)HudAlign.BottomCenter,
+                    StatusHudPos.HorizAlign.Right => (int)HudAlign.BottomRight,
                     _ => alignDisplayVal
                 },
                 _ => alignDisplayVal
@@ -326,7 +350,7 @@ public class StatusHudConfigGui : GuiDialog
 
         elementScaleChange = true;
         system.Config.elementScale = Math.Max(0, SanitiseIconFloat(value, system.Config.elementScale));
-        system.Reload();
+        system.ReloadElements();
         SingleComposer.GetNumberInput("shud-elementscale").SetValue(system.Config.elementScale);
     }
 
@@ -361,13 +385,14 @@ public class StatusHudConfigGui : GuiDialog
     private void OnHidden(bool on)
     {
         system.Config.showHidden = on;
+        system.ReloadElements();
 
         capi.Logger.Debug(StatusHudSystem.PrintModName(on
             ? "Showing hidden elements"
             : "Hiding hidden elements"));
     }
 
-    private void OnSelectionChange(string name, bool selected)
+    private void OnElementChange(string name, bool selected)
     {
         selectedElementName = name;
 
@@ -383,38 +408,64 @@ public class StatusHudConfigGui : GuiDialog
         capi.Logger.Debug(StatusHudSystem.PrintModName($"Element {name} selected"));
     }
 
+    private void OnTextAlignChange(string name, bool selected)
+    {
+        StatusHudElement element = GetElementFromName(selectedElementName);
+        if (element == null) return;
+
+        if (Enum.TryParse(name, out StatusHudPos.TextAlign textAlign))
+        {
+            element.SetPos(element.pos.horizAlign, element.pos.x, element.pos.vertAlign, element.pos.y, textAlign, element.pos.textAlignOffset);
+            capi.Logger.Debug(StatusHudSystem.PrintModName($"Element text alignment changed to {name}"));
+        }
+        else
+        {
+            system.capi.Logger.Debug(StatusHudSystem.PrintModName($"Could not parse element {name} into an text alignment"));
+        }
+    }
+
+    private void OnTextAlignOffsetChange(string value)
+    {
+        StatusHudElement element = GetElementFromName(selectedElementName);
+        if (element == null) return;
+
+        element.pos.textAlignOffset = value.ToInt();
+        element.SetPos();
+        capi.Logger.Debug(StatusHudSystem.PrintModName($"Element text alignment offset changed to {element.pos.textAlignOffset}"));
+    }
+
     private static Tuple<StatusHudPos.VertAlign, StatusHudPos.HorizAlign> AlignmentNameToPos(string name)
     {
         Tuple<StatusHudPos.VertAlign, StatusHudPos.HorizAlign> pos;
-        Alignment align = (Alignment)name.ToInt((int)Alignment.TrueCenter);
+        HudAlign align = (HudAlign)name.ToInt((int)HudAlign.TrueCenter);
 
         switch (align)
         {
-            case Alignment.TopLeft:
+            case HudAlign.TopLeft:
                 pos = new Tuple<StatusHudPos.VertAlign, StatusHudPos.HorizAlign>(StatusHudPos.VertAlign.Top, StatusHudPos.HorizAlign.Left);
                 break;
-            case Alignment.TopCenter:
+            case HudAlign.TopCenter:
                 pos = new Tuple<StatusHudPos.VertAlign, StatusHudPos.HorizAlign>(StatusHudPos.VertAlign.Top, StatusHudPos.HorizAlign.Center);
                 break;
-            case Alignment.TopRight:
+            case HudAlign.TopRight:
                 pos = new Tuple<StatusHudPos.VertAlign, StatusHudPos.HorizAlign>(StatusHudPos.VertAlign.Top, StatusHudPos.HorizAlign.Right);
                 break;
-            case Alignment.CenterLeft:
+            case HudAlign.CenterLeft:
                 pos = new Tuple<StatusHudPos.VertAlign, StatusHudPos.HorizAlign>(StatusHudPos.VertAlign.Middle, StatusHudPos.HorizAlign.Left);
                 break;
-            case Alignment.CenterRight:
+            case HudAlign.CenterRight:
                 pos = new Tuple<StatusHudPos.VertAlign, StatusHudPos.HorizAlign>(StatusHudPos.VertAlign.Middle, StatusHudPos.HorizAlign.Right);
                 break;
-            case Alignment.BottomLeft:
+            case HudAlign.BottomLeft:
                 pos = new Tuple<StatusHudPos.VertAlign, StatusHudPos.HorizAlign>(StatusHudPos.VertAlign.Bottom, StatusHudPos.HorizAlign.Left);
                 break;
-            case Alignment.BottomCenter:
+            case HudAlign.BottomCenter:
                 pos = new Tuple<StatusHudPos.VertAlign, StatusHudPos.HorizAlign>(StatusHudPos.VertAlign.Bottom, StatusHudPos.HorizAlign.Center);
                 break;
-            case Alignment.BottomRight:
+            case HudAlign.BottomRight:
                 pos = new Tuple<StatusHudPos.VertAlign, StatusHudPos.HorizAlign>(StatusHudPos.VertAlign.Bottom, StatusHudPos.HorizAlign.Right);
                 break;
-            case Alignment.TrueCenter:
+            case HudAlign.TrueCenter:
             default:
                 pos = new Tuple<StatusHudPos.VertAlign, StatusHudPos.HorizAlign>(StatusHudPos.VertAlign.Middle, StatusHudPos.HorizAlign.Center);
                 break;
@@ -428,7 +479,7 @@ public class StatusHudConfigGui : GuiDialog
         if (element == null) return;
 
         var align = AlignmentNameToPos(value);
-        element.SetPos(align.Item2, element.pos.x, align.Item1, element.pos.y);
+        element.SetPos(align.Item2, element.pos.x, align.Item1, element.pos.y, element.pos.textAlign, element.pos.textAlignOffset);
         element.Ping();
 
         capi.Logger.Debug(StatusHudSystem.PrintModName($"Element {selectedElementName} set to {Lang.GetL("en", elementAlignments[int.Parse(value)])} alignment"));
@@ -443,7 +494,7 @@ public class StatusHudConfigGui : GuiDialog
             int x = SingleComposer.GetTextInput("shud-xpos").GetText().ToInt();
             int y = SingleComposer.GetTextInput("shud-ypos").GetText().ToInt();
             var align = AlignmentNameToPos(SingleComposer.GetDropDown("shud-align").SelectedValue);
-            element.SetPos(align.Item2, x, align.Item1, y);
+            element.SetPos(align.Item2, x, align.Item1, y, element.pos.textAlign, element.pos.textAlignOffset);
             element.Ping();
 
             capi.ShowChatMessage(StatusHudSystem.PrintModName(Lang.Get("statushudcont:Element {0} created", Lang.Get($"statushudcont:{selectedElementName}-name"))));
@@ -457,7 +508,7 @@ public class StatusHudConfigGui : GuiDialog
         }
     }
 
-    private enum Alignment
+    private enum HudAlign
     {
         TopLeft,
         TopCenter,

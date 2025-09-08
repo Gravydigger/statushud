@@ -11,9 +11,9 @@ public class StatusHudSleepElement : StatusHudElement
 
     private const float threshold = 8; // Hard-coded in BlockBed.
     private const float ratio = 0.75f; // Hard-coded in EntityBehaviorTiredness.
-    public bool active;
 
     private readonly StatusHudSleepRenderer renderer;
+    public bool active;
 
     public StatusHudSleepElement(StatusHudSystem system) : base(system)
     {
@@ -99,7 +99,7 @@ public class StatusHudSleepRenderer : StatusHudRenderer
     {
         if (!element.active)
         {
-            if (system.ShowHidden)
+            if (showHidden)
             {
                 RenderHidden(system.textures.texturesDict["sleep"].TextureId);
             }

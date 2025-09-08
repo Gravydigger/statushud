@@ -86,7 +86,7 @@ public class StatusHudDurabilityRenderer : StatusHudRenderer
     {
         if (!element.active)
         {
-            if (system.ShowHidden)
+            if (showHidden)
             {
                 RenderHidden(system.textures.texturesDict["durability"].TextureId);
             }

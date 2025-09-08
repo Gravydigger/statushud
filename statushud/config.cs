@@ -28,14 +28,6 @@ public class StatusHudConfigElementV3(string name, int x, int y, int halign, int
     public int y = y;
 }
 
-public enum Orientation
-{
-    Up,
-    Left,
-    Right,
-    Down
-}
-
 public class StatusHudConfig
 {
     public IList<StatusHudConfigElement> elements = [];
@@ -44,14 +36,22 @@ public class StatusHudConfig
     public int version;
 }
 
-public class StatusHudConfigElement(string name, int x, int y, int horzAlign, int vertAlign, Orientation orientation, int orientationOffset, string elementOptions)
+public class StatusHudConfigElement(
+    string name,
+    int x,
+    int y,
+    StatusHudPos.HorizAlign horizAlign,
+    StatusHudPos.VertAlign vertAlign,
+    StatusHudPos.TextAlign textAlign,
+    int orientOffset,
+    string elementOptions)
 {
-    public int horzAlign = horzAlign;
+    public StatusHudPos.HorizAlign horizAlign = horizAlign;
     public string name = name;
-    public int offset = orientationOffset;
     public string options = elementOptions;
-    public Orientation orientation = orientation;
-    public int vertAlign = vertAlign;
+    public int orientOffset = orientOffset;
+    public StatusHudPos.TextAlign textAlign = textAlign;
+    public StatusHudPos.VertAlign vertAlign = vertAlign;
     public int x = x;
     public int y = y;
 }
@@ -152,7 +152,8 @@ public class StatusHudConfigManager
             if (element == null) continue;
 
             element.ConfigOptions(configElement.options);
-            StatusHudSystem.SetPos(element, (StatusHudPos.HorizAlign)configElement.horzAlign, configElement.x, (StatusHudPos.VertAlign)configElement.vertAlign, configElement.y);
+            StatusHudSystem.SetPos(element, configElement.horizAlign, configElement.x, configElement.vertAlign, configElement.y,
+                configElement.textAlign, configElement.orientOffset);
         }
     }
 
@@ -166,10 +167,10 @@ public class StatusHudConfigManager
                 element.GetType().ToString(),
                 element.pos.x,
                 element.pos.y,
-                (int)element.pos.horizAlign,
-                (int)element.pos.vertAlign,
-                Orientation.Up, // Placeholder
-                0, // Placeholder
+                element.pos.horizAlign,
+                element.pos.vertAlign,
+                element.pos.textAlign,
+                element.pos.textAlignOffset,
                 element.ElementOption)
             );
         }
@@ -270,9 +271,9 @@ public class StatusHudConfigManager
                 StatusHudSystem.ElementTypes.TryGetValue(oldElement.name, out Type value) ? value.ToString() : "invalid",
                 oldElement.x,
                 oldElement.y,
-                oldElement.halign,
-                oldElement.valign,
-                Orientation.Up,
+                (StatusHudPos.HorizAlign)oldElement.halign,
+                (StatusHudPos.VertAlign)oldElement.valign,
+                StatusHudPos.TextAlign.Up,
                 0,
                 oldElement.options
             );

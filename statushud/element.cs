@@ -22,9 +22,9 @@ public abstract class StatusHudElement
     public virtual string ElementName => name;
     public virtual string ElementOption => "";
 
-    public void SetPos(StatusHudPos.HorizAlign horizAlign, int x, StatusHudPos.VertAlign vertAlign, int y)
+    public void SetPos(StatusHudPos.HorizAlign horizAlign, int x, StatusHudPos.VertAlign vertAlign, int y, StatusHudPos.TextAlign textAlign, int orientOffset)
     {
-        pos.Set(horizAlign, x, vertAlign, y);
+        pos.Set(horizAlign, x, vertAlign, y, textAlign, orientOffset);
         SetPos();
     }
 
@@ -75,12 +75,11 @@ public abstract class StatusHudElement
         GetRenderer().Pos(pos);
     }
 
-    public bool Repos()
+    public void Repos()
     {
-        pos.Set(0, 0, 0, 0);
+        pos.Set(StatusHudPos.HorizAlign.Center, 0, StatusHudPos.VertAlign.Middle, 0, StatusHudPos.TextAlign.Up, 0);
 
         GetRenderer().Pos(pos);
-        return true;
     }
 
     public void Ping()

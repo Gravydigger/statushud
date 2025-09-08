@@ -120,7 +120,7 @@ public class StatusHudArmourRenderer : StatusHudRenderer
     {
         if (!element.active)
         {
-            if (system.ShowHidden)
+            if (showHidden)
             {
                 RenderHidden(system.textures.texturesDict["armour"].TextureId);
             }

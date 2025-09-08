@@ -57,76 +57,31 @@ public sealed class StatusHudText : HudElement
         float x = pos.x;
         float y = pos.y;
 
-        // Area.
-        switch (pos.horizAlign)
+        area = pos.horizAlign switch
         {
-            case StatusHudPos.HorizAlign.Left:
+            StatusHudPos.HorizAlign.Left => pos.vertAlign switch
             {
-                switch (pos.vertAlign)
-                {
-                    case StatusHudPos.VertAlign.Top:
-                    {
-                        area = EnumDialogArea.LeftTop;
-                        break;
-                    }
-                    case StatusHudPos.VertAlign.Middle:
-                    {
-                        area = EnumDialogArea.LeftMiddle;
-                        break;
-                    }
-                    case StatusHudPos.VertAlign.Bottom:
-                    {
-                        area = EnumDialogArea.LeftBottom;
-                        break;
-                    }
-                }
-                break;
-            }
-            case StatusHudPos.HorizAlign.Center:
+                StatusHudPos.VertAlign.Top => EnumDialogArea.LeftTop,
+                StatusHudPos.VertAlign.Middle => EnumDialogArea.LeftMiddle,
+                StatusHudPos.VertAlign.Bottom => EnumDialogArea.LeftBottom,
+                _ => area
+            },
+            StatusHudPos.HorizAlign.Center => pos.vertAlign switch
             {
-                switch (pos.vertAlign)
-                {
-                    case StatusHudPos.VertAlign.Top:
-                    {
-                        area = EnumDialogArea.CenterTop;
-                        break;
-                    }
-                    case StatusHudPos.VertAlign.Middle:
-                    {
-                        area = EnumDialogArea.CenterMiddle;
-                        break;
-                    }
-                    case StatusHudPos.VertAlign.Bottom:
-                    {
-                        area = EnumDialogArea.CenterBottom;
-                        break;
-                    }
-                }
-                break;
-            }
-            case StatusHudPos.HorizAlign.Right:
+                StatusHudPos.VertAlign.Top => EnumDialogArea.CenterTop,
+                StatusHudPos.VertAlign.Middle => EnumDialogArea.CenterMiddle,
+                StatusHudPos.VertAlign.Bottom => EnumDialogArea.CenterBottom,
+                _ => area
+            },
+            StatusHudPos.HorizAlign.Right => pos.vertAlign switch
             {
-                switch (pos.vertAlign)
-                {
-                    case StatusHudPos.VertAlign.Top:
-                    {
-                        area = EnumDialogArea.RightTop;
-                        break;
-                    }
-                    case StatusHudPos.VertAlign.Middle:
-                    {
-                        area = EnumDialogArea.RightMiddle;
-                        break;
-                    }
-                    case StatusHudPos.VertAlign.Bottom:
-                    {
-                        area = EnumDialogArea.RightBottom;
-                        break;
-                    }
-                }
-                break;
-            }
-        }
+                StatusHudPos.VertAlign.Top => EnumDialogArea.RightTop,
+                StatusHudPos.VertAlign.Middle => EnumDialogArea.RightMiddle,
+                StatusHudPos.VertAlign.Bottom => EnumDialogArea.RightBottom,
+                _ => area
+            },
+            _ => area
+        };
 
         float iconSize = StatusHudSystem.iconSize * config.elementScale;
         float iconHalf = iconSize / 2f;
@@ -157,6 +112,8 @@ public sealed class StatusHudText : HudElement
                 x = -x + (float)Math.Round((width - iconSize) / 2f);
                 break;
             }
+            default:
+                throw new ArgumentOutOfRangeException();
         }
 
         // Y.
@@ -179,9 +136,32 @@ public sealed class StatusHudText : HudElement
                 y = -y;
                 break;
             }
+            default:
+                throw new ArgumentOutOfRangeException();
         }
 
-        Compose(area, x, y);
+        int offsetX = 0;
+        int offsetY = 0;
+
+        switch (pos.textAlign)
+        {
+            case StatusHudPos.TextAlign.Up:
+                offsetY = (int)-((StatusHudSystem.iconSize + pos.textAlignOffset) * config.elementScale / 1.25f);
+                break;
+            case StatusHudPos.TextAlign.Left:
+                offsetX = (int)-((StatusHudSystem.iconSize + pos.textAlignOffset) * config.elementScale);
+                break;
+            case StatusHudPos.TextAlign.Right:
+                offsetX = (int)((StatusHudSystem.iconSize + pos.textAlignOffset) * config.elementScale);
+                break;
+            case StatusHudPos.TextAlign.Down:
+                offsetY = (int)((StatusHudSystem.iconSize + pos.textAlignOffset) * config.elementScale / 1.25f);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+
+        Compose(area, x, y, offsetX, offsetY);
     }
 
     public void Set(string value)
@@ -190,14 +170,11 @@ public sealed class StatusHudText : HudElement
         text.RecomposeText();
     }
 
-    private void Compose(EnumDialogArea area, float x, float y)
+    private void Compose(EnumDialogArea area, float x, float y, int offsetX, int offsetY)
     {
-        const int offsetX = 0;
-        int offsetY = (int)-(StatusHudSystem.iconSize * config.elementScale / 1.5f);
-
         SingleComposer?.Dispose();
         ElementBounds dialogBounds = ElementBounds.Fixed(area, x + offsetX, y + offsetY, width, height);
-        ElementBounds textBounds = ElementBounds.Fixed(EnumDialogArea.CenterTop, 0, 0, width, height);
+        ElementBounds textBounds = ElementBounds.Fixed(EnumDialogArea.CenterMiddle, 0, 0, width, height - StatusHudSystem.iconSize * config.elementScale / 4f);
         SingleComposer = capi.Gui.CreateCompo(dialogName, dialogBounds)
             .AddDynamicText("", font, textBounds, key)
             .Compose();
@@ -207,14 +184,12 @@ public sealed class StatusHudText : HudElement
 
     private CairoFont InitFont()
     {
-        const EnumTextOrientation align = EnumTextOrientation.Center;
-
         return new CairoFont()
             .WithColor([colour.R, colour.G, colour.B, colour.A])
             .WithFont(GuiStyle.StandardFontName)
             .WithFontSize(StatusHudSystem.iconSize * config.elementScale / 2f)
             .WithWeight(FontWeight.Bold)
-            .WithOrientation(align)
+            .WithOrientation(EnumTextOrientation.Center)
             .WithStroke([0, 0, 0, 0.5], 2);
     }
 }
