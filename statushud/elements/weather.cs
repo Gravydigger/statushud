@@ -14,8 +14,6 @@ public class StatusHudWeatherElement : StatusHudElement
     private const float cfratio = 9f / 5f;
     private const float cfdiff = 32;
     private const float ckdiff = 273.15f;
-
-    public static readonly string[] TempFormatWords = ["C", "F", "K"];
     private readonly StatusHudWeatherRenderer renderer;
 
     private readonly WeatherSystemBase weatherSystem;
@@ -33,12 +31,13 @@ public class StatusHudWeatherElement : StatusHudElement
         textureId = this.system.textures.texturesDict["empty"].TextureId;
 
         // Config error checking
-        if (!TempFormatWords.Any(str => str.Contains(tempScale)))
+        if (!ElementOptionList.Any(str => str.Contains(tempScale)))
         {
-            system.capi.Logger.Warning("[{0}] {1} is not a valid value for temperatureFormat. Defaulting to C", textKey, tempScale);
+            system.capi.Logger.Warning(StatusHudSystem.PrintModName("[{0}] {1} is not a valid value for temperatureFormat. Defaulting to C"), textKey, tempScale);
         }
     }
 
+    public sealed override string[] ElementOptionList => ["C", "F", "K"];
     public override string ElementOption => tempScale;
     public override string ElementName => name;
 
@@ -54,7 +53,7 @@ public class StatusHudWeatherElement : StatusHudElement
 
     public override void ConfigOptions(string value)
     {
-        foreach (string words in TempFormatWords)
+        foreach (string words in ElementOptionList)
         {
             if (words == value)
             {

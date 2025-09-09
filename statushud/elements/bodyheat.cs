@@ -1,3 +1,4 @@
+using System.Linq;
 using Vintagestory.API.Client;
 using Vintagestory.API.Datastructures;
 
@@ -10,8 +11,6 @@ public class StatusHudBodyHeatElement : StatusHudElement
 
     private const float cfratio = 9f / 5f;
     private const float tempIdeal = 37;
-
-    public static readonly string[] TempFormatWords = ["C", "F"];
 
     private readonly StatusHudBodyHeatRenderer renderer;
 
@@ -28,8 +27,15 @@ public class StatusHudBodyHeatElement : StatusHudElement
 
         tempScale = "C";
         active = false;
+
+        // Config error checking
+        if (!ElementOptionList.Any(str => str.Contains(tempScale)))
+        {
+            system.capi.Logger.Warning(StatusHudSystem.PrintModName("[{0}] {1} is not a valid value for temperatureFormat. Defaulting to C"), textKey, tempScale);
+        }
     }
 
+    public sealed override string[] ElementOptionList => ["C", "F"];
     public override string ElementOption => tempScale;
     public override string ElementName => name;
 
@@ -45,7 +51,7 @@ public class StatusHudBodyHeatElement : StatusHudElement
 
     public override void ConfigOptions(string value)
     {
-        foreach (string words in TempFormatWords)
+        foreach (string words in ElementOptionList)
         {
             if (words == value)
             {

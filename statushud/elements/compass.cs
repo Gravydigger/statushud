@@ -1,7 +1,7 @@
 using System;
+using System.Linq;
 using Vintagestory.API.Client;
 using Vintagestory.API.MathTools;
-using Vintagestory.GameContent;
 
 namespace StatusHud;
 
@@ -9,23 +9,24 @@ public class StatusHudCompassElement : StatusHudElement
 {
     public const string name = "compass";
     private const string textKey = "shud-compass";
-
-    public static readonly string[] CompassBearingOptions = ["relative", "absolute"];
     private readonly StatusHudCompassRenderer renderer;
     private string compassBearing;
 
-    protected WeatherSystemBase weatherSystem;
-
     public StatusHudCompassElement(StatusHudSystem system) : base(system)
     {
-        weatherSystem = this.system.capi.ModLoader.GetModSystem<WeatherSystemBase>();
-
         renderer = new StatusHudCompassRenderer(this.system, this);
         this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
         compassBearing = "relative";
+
+        // Config error checking
+        if (!ElementOptionList.Any(str => str.Contains(compassBearing)))
+        {
+            system.capi.Logger.Warning(StatusHudSystem.PrintModName("[{0}] {1} is not a valid value for temperatureFormat. Defaulting to relative"), textKey, compassBearing);
+        }
     }
 
+    public override string[] ElementOptionList => ["relative", "absolute"];
     public override string ElementName => name;
     public override string ElementOption => compassBearing;
 
@@ -41,7 +42,7 @@ public class StatusHudCompassElement : StatusHudElement
 
     public override void ConfigOptions(string value)
     {
-        foreach (string option in CompassBearingOptions)
+        foreach (string option in ElementOptionList)
         {
             if (option == value)
             {

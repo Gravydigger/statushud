@@ -9,7 +9,6 @@ public class StatusHudTimeElement : StatusHudElement
 {
     public const string name = "time";
     private const string textKey = "shud-time";
-    public static readonly string[] TimeFormatWords = ["12hr", "24hr"];
 
     protected readonly StatusHudTimeRenderer renderer;
 
@@ -26,11 +25,12 @@ public class StatusHudTimeElement : StatusHudElement
         timeFormat = "24hr";
 
         // Config error checking
-        if (!TimeFormatWords.Any(str => str.Contains(timeFormat)))
+        if (!ElementOptionList.Any(str => str.Contains(timeFormat)))
         {
-            system.capi.Logger.Warning("[{0}] {1} is not a valid value for timeFormat. Defaulting to 24hr", textKey, timeFormat);
+            system.capi.Logger.Warning(StatusHudSystem.PrintModName("[{0}] {1} is not a valid value for timeFormat. Defaulting to 24hr"), textKey, timeFormat);
         }
     }
+    public sealed override string[] ElementOptionList => ["12hr", "24hr"];
 
     public override string ElementName => name;
     public override string ElementOption => timeFormat;
@@ -47,7 +47,7 @@ public class StatusHudTimeElement : StatusHudElement
 
     public override void ConfigOptions(string value)
     {
-        if (TimeFormatWords.Any(word => value == word))
+        if (ElementOptionList.Any(word => value == word))
         {
             timeFormat = value;
         }

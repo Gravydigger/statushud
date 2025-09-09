@@ -15,8 +15,6 @@ public class StatusHudRiftActivityElement : StatusHudElement
     private const string textKey = "shud-riftactivity";
     private const string harmonyId = "shud-riftactivity";
 
-    public static readonly string[] RiftChangeOptions = ["true", "false"];
-
     private static CurrentPattern _riftActivityData;
     public readonly bool active;
     private readonly Harmony harmony;
@@ -55,6 +53,7 @@ public class StatusHudRiftActivityElement : StatusHudElement
         }
     }
 
+    public sealed override string[] ElementOptionList => ["true", "false"];
     public override string ElementName => name;
     public override string ElementOption => showRiftChange;
 

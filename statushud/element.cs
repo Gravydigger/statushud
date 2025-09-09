@@ -2,25 +2,18 @@ using System;
 
 namespace StatusHud;
 
-public abstract class StatusHudElement
+public abstract class StatusHudElement(StatusHudSystem system, bool fast = false)
 {
     private const string name = "element";
 
-    public readonly bool fast;
-    public readonly StatusHudPos pos;
+    public readonly bool fast = fast;
+    public readonly StatusHudPos pos = new();
 
-    protected readonly StatusHudSystem system;
-
-    protected StatusHudElement(StatusHudSystem system, bool fast = false)
-    {
-        this.system = system;
-        this.fast = fast;
-
-        pos = new StatusHudPos();
-    }
+    protected readonly StatusHudSystem system = system;
 
     public virtual string ElementName => name;
     public virtual string ElementOption => "";
+    public virtual string[] ElementOptionList => null;
 
     public void SetPos(StatusHudPos.HorizAlign horizAlign, int x, StatusHudPos.VertAlign vertAlign, int y, StatusHudPos.TextAlign textAlign, int orientOffset)
     {

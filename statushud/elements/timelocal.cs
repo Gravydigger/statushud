@@ -1,6 +1,5 @@
 using System;
 using System.Globalization;
-using System.Linq;
 
 namespace StatusHud;
 
@@ -9,7 +8,7 @@ public class StatusHudTimeLocalElement : StatusHudTimeElement
     public new const string name = "timelocal";
     private const string textKey = "shud-timelocal";
 
-    private new string timeFormat;
+    private readonly new string timeFormat;
 
     public StatusHudTimeLocalElement(StatusHudSystem system) : base(system)
     {
@@ -23,14 +22,6 @@ public class StatusHudTimeLocalElement : StatusHudTimeElement
     public override string GetTextKey()
     {
         return textKey;
-    }
-
-    public override void ConfigOptions(string value)
-    {
-        if (TimeFormatWords.Any(word => value == word))
-        {
-            timeFormat = value;
-        }
     }
 
     public override void Tick()

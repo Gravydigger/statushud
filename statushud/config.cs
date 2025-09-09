@@ -242,14 +242,14 @@ public class StatusHudConfigManager
                     break;
                 case "Rift Activity":
                     element.name = StatusHudRiftActivityElement.name;
-                    element.options = element.options == "True" ? StatusHudRiftActivityElement.RiftChangeOptions[0] : StatusHudRiftActivityElement.RiftChangeOptions[1];
+                    element.options = element.options == "True" ? "true" : "false";
                     break;
                 case "Altitude":
                     element.name = StatusHudAltitudeElement.name;
                     break;
                 case "Compass":
                     element.name = StatusHudCompassElement.name;
-                    element.options = element.options == "Relative" ? StatusHudCompassElement.CompassBearingOptions[0] : StatusHudCompassElement.CompassBearingOptions[1];
+                    element.options = element.options == "Relative" ? "relative" : "absolute";
                     break;
             }
         }

@@ -125,16 +125,14 @@ public class StatusHudSystem : ModSystem
         return element;
     }
 
-    public bool Unset(Type type)
+    public void Unset(Type type)
     {
         StatusHudElement element = elements.FirstOrDefault(e => e.GetType() == type);
-        if (element == null) return false;
+        if (element == null) return ;
 
         (element.fast ? fastElements : slowElements).Remove(element);
         element.Dispose();
         elements.Remove(element);
-
-        return false;
     }
 
     // Will load elements from file
