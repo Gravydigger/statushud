@@ -122,6 +122,7 @@ public abstract class StatusHudRenderer : IRenderer
     {
         pingMesh.Dispose();
         hiddenMesh.Dispose();
+        GC.SuppressFinalize(this);
     }
 
     public void Pos(StatusHudPos pos)

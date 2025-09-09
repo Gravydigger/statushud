@@ -90,13 +90,17 @@ public class StatusHudPingRenderer : StatusHudRenderer
 
     protected override void Render()
     {
-        if (showHidden || system.capi.IsSinglePlayer)
+        switch (showHidden)
         {
-            RenderHidden(system.textures.texturesDict["network"].TextureId);
-        }
-        else
-        {
-            system.capi.Render.RenderTexture(system.textures.texturesDict["network"].TextureId, x, y, w, h);
+            case true when system.capi.IsSinglePlayer:
+                RenderHidden(system.textures.texturesDict["network"].TextureId);
+                break;
+            case false when system.capi.IsSinglePlayer:
+                system.capi.Render.RenderTexture(system.textures.texturesDict["empty"].TextureId, x, y, w, h);
+                break;
+            default:
+                system.capi.Render.RenderTexture(system.textures.texturesDict["network"].TextureId, x, y, w, h);
+                break;
         }
     }
 
