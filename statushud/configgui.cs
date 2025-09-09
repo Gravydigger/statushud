@@ -408,7 +408,7 @@ public class StatusHudConfigGui : GuiDialog
     private static Tuple<StatusHudPos.VertAlign, StatusHudPos.HorizAlign> AlignmentNameToPos(string name)
     {
         Tuple<StatusHudPos.VertAlign, StatusHudPos.HorizAlign> pos;
-        HudAlign align = (HudAlign)name.ToInt((int)HudAlign.TrueCenter);
+        HudAlign align = Enum.Parse<HudAlign>(name);
 
         switch (align)
         {
@@ -454,7 +454,7 @@ public class StatusHudConfigGui : GuiDialog
         element.Ping();
 
         capi.Logger.Debug(
-            StatusHudSystem.PrintModName($"Element {selectedElementName} set to {Lang.GetL("en", translatedHudAlign[int.Parse(value)])} alignment"));
+            StatusHudSystem.PrintModName($"Element {selectedElementName} set to {value} alignment"));
     }
 
     private void OnEnable(bool on)

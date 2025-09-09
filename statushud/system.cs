@@ -128,7 +128,7 @@ public class StatusHudSystem : ModSystem
     public void Unset(Type type)
     {
         StatusHudElement element = elements.FirstOrDefault(e => e.GetType() == type);
-        if (element == null) return ;
+        if (element == null) return;
 
         (element.fast ? fastElements : slowElements).Remove(element);
         element.Dispose();
@@ -194,32 +194,40 @@ public class StatusHudSystem : ModSystem
         int sideX = (int)Math.Round(iconSize * 0.75f);
         int sideMinimapX = sideX + 256;
         int toolbarMidpoint = (int)(310 * RuntimeEnv.GUIScale);
-        int bottomY = (int)Math.Round(iconSize * 0.375f);
+        int yOffset = (int)Math.Round(iconSize * 0.375f);
         int offset = (int)Math.Round(iconSize * Config.elementScale * 1.5f);
 
-        SetPos(Set(typeof(StatusHudDateElement)), StatusHudPos.HorizAlign.Left, sideX, StatusHudPos.VertAlign.Bottom, bottomY, StatusHudPos.TextAlign.Up, 0);
+        SetPos(Set(typeof(StatusHudDateElement)), StatusHudPos.HorizAlign.Left, sideX, StatusHudPos.VertAlign.Bottom, yOffset, StatusHudPos.TextAlign.Up, 0);
 
-        SetPos(Set(typeof(StatusHudTimeElement)), StatusHudPos.HorizAlign.Left, sideX + offset, StatusHudPos.VertAlign.Bottom, bottomY, StatusHudPos.TextAlign.Up, 0);
+        SetPos(Set(typeof(StatusHudTimeElement)), StatusHudPos.HorizAlign.Left, sideX + offset, StatusHudPos.VertAlign.Bottom, yOffset,
+            StatusHudPos.TextAlign.Up, 0);
 
-        SetPos(Set(typeof(StatusHudWeatherElement)), StatusHudPos.HorizAlign.Left, sideX + (int)(offset * 2f), StatusHudPos.VertAlign.Bottom, bottomY, StatusHudPos.TextAlign.Up,
+        SetPos(Set(typeof(StatusHudWeatherElement)), StatusHudPos.HorizAlign.Left, sideX + (int)(offset * 2f), StatusHudPos.VertAlign.Bottom, yOffset,
+            StatusHudPos.TextAlign.Up,
             0);
 
-        SetPos(Set(typeof(StatusHudWindElement)), StatusHudPos.HorizAlign.Left, sideX + (int)(offset * 3f), StatusHudPos.VertAlign.Bottom, bottomY, StatusHudPos.TextAlign.Up, 0);
-
-        SetPos(Set(typeof(StatusHudArmourElement)), StatusHudPos.HorizAlign.Center, sideX + toolbarMidpoint + offset, StatusHudPos.VertAlign.Bottom, bottomY,
+        SetPos(Set(typeof(StatusHudWindElement)), StatusHudPos.HorizAlign.Left, sideX + (int)(offset * 3f), StatusHudPos.VertAlign.Bottom, yOffset,
             StatusHudPos.TextAlign.Up, 0);
 
-        SetPos(Set(typeof(StatusHudStabilityElement)), StatusHudPos.HorizAlign.Center, sideX + toolbarMidpoint + offset * 2, StatusHudPos.VertAlign.Bottom, bottomY,
+        SetPos(Set(typeof(StatusHudArmourElement)), StatusHudPos.HorizAlign.Center, sideX + toolbarMidpoint + offset, StatusHudPos.VertAlign.Bottom, yOffset,
             StatusHudPos.TextAlign.Up, 0);
 
-        SetPos(Set(typeof(StatusHudRoomElement)), StatusHudPos.HorizAlign.Center, -1 * (sideX + toolbarMidpoint + offset), StatusHudPos.VertAlign.Bottom, bottomY,
+        SetPos(Set(typeof(StatusHudStabilityElement)), StatusHudPos.HorizAlign.Center, sideX + toolbarMidpoint + offset * 2, StatusHudPos.VertAlign.Bottom,
+            yOffset,
             StatusHudPos.TextAlign.Up, 0);
 
-        SetPos(Set(typeof(StatusHudSleepElement)), StatusHudPos.HorizAlign.Right, sideMinimapX + offset, StatusHudPos.VertAlign.Top, iconSize, StatusHudPos.TextAlign.Up, 0);
+        SetPos(Set(typeof(StatusHudRoomElement)), StatusHudPos.HorizAlign.Center, -1 * (sideX + toolbarMidpoint + offset), StatusHudPos.VertAlign.Bottom,
+            yOffset,
+            StatusHudPos.TextAlign.Up, 0);
 
-        SetPos(Set(typeof(StatusHudWetElement)), StatusHudPos.HorizAlign.Right, sideMinimapX, StatusHudPos.VertAlign.Top, iconSize, StatusHudPos.TextAlign.Up, 0);
+        SetPos(Set(typeof(StatusHudSleepElement)), StatusHudPos.HorizAlign.Right, sideMinimapX + offset, StatusHudPos.VertAlign.Top, yOffset,
+            StatusHudPos.TextAlign.Down, 0);
 
-        SetPos(Set(typeof(StatusHudTimeLocalElement)), StatusHudPos.HorizAlign.Right, sideX, StatusHudPos.VertAlign.Bottom, bottomY, StatusHudPos.TextAlign.Up, 0);
+        SetPos(Set(typeof(StatusHudWetElement)), StatusHudPos.HorizAlign.Right, sideMinimapX, StatusHudPos.VertAlign.Top, yOffset, StatusHudPos.TextAlign.Down,
+            0);
+
+        SetPos(Set(typeof(StatusHudTimeLocalElement)), StatusHudPos.HorizAlign.Right, sideX, StatusHudPos.VertAlign.Bottom, yOffset, StatusHudPos.TextAlign.Up,
+            0);
     }
 
     public void SaveConfig()
