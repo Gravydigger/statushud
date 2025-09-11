@@ -14,18 +14,17 @@ public class StatusHudConfigGui : GuiDialog
     private readonly StatusHudSystem system;
     private readonly string[] translatedElementNames;
 
-    private readonly string[] translatedHudAlign = Enum.GetValues(typeof(HudAlign))
-        .Cast<HudAlign>()
+    private readonly string[] translatedHudAlign = Enum.GetValues<HudAlign>()
         .Select(e => Lang.Get($"statushudcont:{e}"))
         .ToArray();
 
     private readonly string[] translatedTextAlign =
-        Enum.GetValues(typeof(StatusHudPos.TextAlign))
-            .Cast<StatusHudPos.TextAlign>()
+        Enum.GetValues<StatusHudPos.TextAlign>()
             .Select(e => Lang.Get($"statushudcont:{e}"))
             .ToArray();
 
     private bool elementScaleChange;
+    private bool offsetChange;
     private float scaled;
     private int selectedElementIndex;
     private string selectedElementName;
@@ -206,13 +205,6 @@ public class StatusHudConfigGui : GuiDialog
         SingleComposer.GetNumberInput("shud-ypos").Interval = 100f;
     }
 
-    private void OnOptionalConfig(string code, bool selected)
-    {
-        StatusHudElement element = GetElementFromName(selectedElementName);
-
-        element?.ConfigOptions(code);
-    }
-
     private StatusHudElement GetElementFromName(string name)
     {
         return system.elements.FirstOrDefault(e => e.ElementName == name);
@@ -311,9 +303,9 @@ public class StatusHudConfigGui : GuiDialog
 
         return true;
     }
-
     private void OnElementScale(string value)
     {
+        // Avoid infinite loop when setting value for number input
         if (elementScaleChange)
         {
             elementScaleChange = false;
@@ -397,12 +389,24 @@ public class StatusHudConfigGui : GuiDialog
 
     private void OnTextAlignOffsetChange(string value)
     {
+        // Avoid infinite loop when setting value for number input
+        if (offsetChange)
+        {
+            offsetChange = false;
+            return;
+        }
+        offsetChange = true;
+
+        int offset = Math.Clamp(value.ToInt(), -StatusHudSystem.iconSize,
+            Math.Max(system.capi.Render.FrameWidth, system.capi.Render.FrameHeight));
+        SingleComposer.GetNumberInput("shud-textalignoffset").SetValue(offset);
+
         StatusHudElement element = GetElementFromName(selectedElementName);
         if (element == null) return;
 
-        element.pos.textAlignOffset = value.ToInt();
+        element.pos.textAlignOffset = offset;
         element.SetPos();
-        capi.Logger.Debug(StatusHudSystem.PrintModName($"Element text alignment offset changed to {element.pos.textAlignOffset}"));
+        capi.Logger.Debug(StatusHudSystem.PrintModName($"Element text alignment offset changed to {offset}"));
     }
 
     private static Tuple<StatusHudPos.VertAlign, StatusHudPos.HorizAlign> AlignmentNameToPos(string name)
@@ -480,6 +484,13 @@ public class StatusHudConfigGui : GuiDialog
                 Lang.Get($"statushudcont:{selectedElementName}-name"))));
             capi.Logger.Debug(StatusHudSystem.PrintModName($"Element {selectedElementName} removed"));
         }
+    }
+
+    private void OnOptionalConfig(string code, bool selected)
+    {
+        StatusHudElement element = GetElementFromName(selectedElementName);
+
+        element?.ConfigOptions(code);
     }
 
     private enum HudAlign
