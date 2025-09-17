@@ -12,6 +12,7 @@ public sealed class StatusHudArmourElement : StatusHudElement
     private const string textKey = "shud-armour";
 
     // Hard-coded.
+    // https://github.com/anegostudios/vssurvivalmod/blob/master/Systems/WearableStats.cs#L135-L152
     private static readonly int[] Slots =
     [
         12, // Head.

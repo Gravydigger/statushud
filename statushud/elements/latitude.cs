@@ -12,12 +12,8 @@ public class StatusHudLatitudeElement : StatusHudElement
 
     public float needleOffset;
 
-    protected WeatherSystemBase weatherSystem;
-
     public StatusHudLatitudeElement(StatusHudSystem system) : base(system)
     {
-        weatherSystem = this.system.capi.ModLoader.GetModSystem<WeatherSystemBase>();
-
         renderer = new StatusHudLatitudeRenderer(this.system, this);
         this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 

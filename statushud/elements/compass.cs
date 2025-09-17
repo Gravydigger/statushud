@@ -27,7 +27,7 @@ public class StatusHudCompassElement : StatusHudElement
         }
     }
 
-    public override string[] ElementOptionList => ["relative", "absolute"];
+    public sealed override string[] ElementOptionList => ["relative", "absolute"];
     public override string ElementName => Name;
     public override string ElementOption => compassBearing;
 
