@@ -29,18 +29,26 @@ public class StatusHudSystem : ModSystem
     private List<StatusHudElement> slowElements;
     private long slowListenerId;
 
-    public StatusHudTextures textures { get; private set; }
+    public static Dictionary<string, Type> ElementTypes { get; } = typeof(StatusHudElement).Assembly.GetTypes()
+        .Where(t => t.IsSubclassOf(typeof(StatusHudElement)))
+        .ToDictionary(t => (string)t.GetField("Name", BindingFlags.Public | BindingFlags.Static)?.GetValue(null), t => t);
 
-    public static Dictionary<string, Type> ElementTypes { get; private set; }
+    public StatusHudTextures textures { get; private set; }
 
     public StatusHudConfig Config => configManager.Config;
     public string Uuid { get; private set; }
 
-    // private static Dictionary<string, Type> LoadElementTypes()
-    // {
-    //     return typeof(StatusHudElement).Assembly.GetTypes().Where(t => t.IsSubclassOf(typeof(StatusHudElement)))
-    //         .ToDictionary(t => (string)t.GetField("Name", BindingFlags.Public | BindingFlags.Static)?.GetValue(null), t => t);
-    // }
+    public static void AddElementType(Type elementType)
+    {
+        if (!elementType.IsSubclassOf(typeof(StatusHudElement))) return;
+        if (ElementTypes.ContainsValue(elementType)) return;
+
+        string elementName = (string)elementType.GetField("Name", BindingFlags.Public | BindingFlags.Static)?.GetValue(null);
+
+        if (elementName == null) return;
+
+        ElementTypes.Add(elementName, elementType);
+    }
 
     public override bool ShouldLoad(EnumAppSide side)
     {
@@ -197,8 +205,6 @@ public class StatusHudSystem : ModSystem
         handled = EnumHandling.PassThrough;
 
         textures.LoadAllTextures();
-        ElementTypes = typeof(StatusHudElement).Assembly.GetTypes().Where(t => t.IsSubclassOf(typeof(StatusHudElement)))
-            .ToDictionary(t => (string)t.GetField("Name", BindingFlags.Public | BindingFlags.Static)?.GetValue(null), t => t);
 
         dialog = new StatusHudConfigGui(capi, this);
 
