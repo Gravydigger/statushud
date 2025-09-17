@@ -93,10 +93,10 @@ public abstract class StatusHudRenderer : IRenderer
             prog.Uniform("extraGlow", 0);
             prog.Uniform("applyColor", 0);
             prog.Uniform("noTexture", 0f);
-            prog.BindTexture2D("tex2d", system.textures.texturesDict["ping"].TextureId, 0);
+            prog.BindTexture2D("tex2d", system.textures.TexturesDict["ping"].TextureId, 0);
 
-            float w = (float)GuiElement.scaled(system.textures.texturesDict["ping"].Width) * pingScale;
-            float h = (float)GuiElement.scaled(system.textures.texturesDict["ping"].Height) * pingScale;
+            float w = (float)GuiElement.scaled(system.textures.TexturesDict["ping"].Width) * pingScale;
+            float h = (float)GuiElement.scaled(system.textures.TexturesDict["ping"].Height) * pingScale;
 
             pingMatrix.Set(system.capi.Render.CurrentModelviewMatrix)
                 .Translate(x + this.w / 2f, y + this.h / 2f, 50)
@@ -203,12 +203,12 @@ public abstract class StatusHudRenderer : IRenderer
 
     private float SolveW()
     {
-        return (float)GuiElement.scaled(StatusHudSystem.iconSize * system.Config.elementScale);
+        return (float)GuiElement.scaled(StatusHudSystem.IconSize * system.Config.elementScale);
     }
 
     private float SolveH()
     {
-        return (float)GuiElement.scaled(StatusHudSystem.iconSize * system.Config.elementScale);
+        return (float)GuiElement.scaled(StatusHudSystem.IconSize * system.Config.elementScale);
     }
 
     protected void RenderHidden(int textureId)

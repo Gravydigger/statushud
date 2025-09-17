@@ -11,7 +11,7 @@ namespace StatusHud;
 
 public class StatusHudRiftActivityElement : StatusHudElement
 {
-    public const string name = "riftactivity";
+    public const string Name = "riftactivity";
     private const string textKey = "shud-riftactivity";
     private const string harmonyId = "shud-riftactivity";
 
@@ -35,7 +35,7 @@ public class StatusHudRiftActivityElement : StatusHudElement
 
         // When a player first activates this element when already in a world, the element hasn't gotten the rift data yet.
         // Until the player gets rift data, show the element with the unknown icon
-        textureId = this.system.textures.texturesDict["rift_unknown"].TextureId;
+        textureId = system.textures.TexturesDict["rift_unknown"].TextureId;
 
         active = this.system.capi.World.Config.GetString("temporalRifts") != "off";
 
@@ -54,7 +54,7 @@ public class StatusHudRiftActivityElement : StatusHudElement
     }
 
     public sealed override string[] ElementOptionList => ["true", "false"];
-    public override string ElementName => name;
+    public override string ElementName => Name;
     public override string ElementOption => showRiftChange;
 
     public static void ReceiveData(SpawnPatternPacket msg)
@@ -124,11 +124,11 @@ public class StatusHudRiftActivityElement : StatusHudElement
     {
         try
         {
-            textureId = system.textures.texturesDict["rift_" + activity].TextureId;
+            textureId = system.textures.TexturesDict["rift_" + activity].TextureId;
         }
         catch (KeyNotFoundException)
         {
-            system.capi.Logger.Error("For {0} element, texture rift_{1} is not valid", name, activity);
+            system.capi.Logger.Error("For {0} element, texture rift_{1} is not valid", Name, activity);
             throw;
         }
     }
@@ -168,7 +168,7 @@ public class StatusHudRiftActivityRenderer : StatusHudRenderer
         }
         else if (showHidden)
         {
-            RenderHidden(system.textures.texturesDict["rift_calm"].TextureId);
+            RenderHidden(system.textures.TexturesDict["rift_calm"].TextureId);
         }
     }
 

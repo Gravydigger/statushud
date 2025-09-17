@@ -2,31 +2,26 @@ using System;
 using System.Globalization;
 using Vintagestory.API.Client;
 using Vintagestory.API.MathTools;
-using Vintagestory.GameContent;
 
 namespace StatusHud;
 
 public class StatusHudAltitudeElement : StatusHudElement
 {
-    public const string name = "altitude";
+    public const string Name = "altitude";
     private const string textKey = "shud-altitude";
     private readonly StatusHudAltitudeRenderer renderer;
 
     public float needleOffset;
 
-    protected WeatherSystemBase weatherSystem;
-
     public StatusHudAltitudeElement(StatusHudSystem system) : base(system)
     {
-        weatherSystem = this.system.capi.ModLoader.GetModSystem<WeatherSystemBase>();
-
         renderer = new StatusHudAltitudeRenderer(this.system, this);
         this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
         needleOffset = 0;
     }
 
-    public override string ElementName => name;
+    public override string ElementName => Name;
 
     public override StatusHudRenderer GetRenderer()
     {
@@ -44,7 +39,7 @@ public class StatusHudAltitudeElement : StatusHudElement
         renderer.SetText(altitude.ToString(CultureInfo.InvariantCulture));
 
         float ratio = -(altitude / (system.capi.World.BlockAccessor.MapSizeY / 2));
-        needleOffset = GameMath.Clamp(ratio, -1, 1) * (StatusHudSystem.iconSize * system.Config.elementScale / 2f) * 0.75f;
+        needleOffset = GameMath.Clamp(ratio, -1, 1) * (StatusHudSystem.IconSize * system.Config.elementScale / 2f) * 0.75f;
     }
 
     public override void Dispose()
@@ -81,8 +76,9 @@ public class StatusHudAltitudeRenderer : StatusHudRenderer
 
     protected override void Render()
     {
-        system.capi.Render.RenderTexture(system.textures.texturesDict["altitude"].TextureId, x, y, w, h);
-        system.capi.Render.RenderTexture(system.textures.texturesDict["altitude_needle"].TextureId, x, y + GuiElement.scaled(element.needleOffset), w, h);
+        system.capi.Render.RenderTexture(system.textures.TexturesDict["altitude"].TextureId, x, y, w, h);
+        system.capi.Render.RenderTexture(system.textures.TexturesDict["altitude_needle"].TextureId, x, y + GuiElement.scaled(element.needleOffset), w,
+            h);
     }
 
     public override void Dispose()

@@ -9,7 +9,7 @@ namespace StatusHud;
 
 public class StatusHudTempstormElement : StatusHudElement
 {
-    public const string name = "tempstorm";
+    public const string Name = "tempstorm";
     private const string textKey = "shud-tempstorm";
     private const string harmonyId = "shud-tempstorm";
 
@@ -37,7 +37,7 @@ public class StatusHudTempstormElement : StatusHudElement
 
         active = false;
         firstLoad = true;
-        textureId = this.system.textures.texturesDict["empty"].TextureId;
+        textureId = system.textures.TexturesDict["empty"].TextureId;
 
         if (stabilitySystem == null) return;
 
@@ -47,7 +47,7 @@ public class StatusHudTempstormElement : StatusHudElement
             postfix: new HarmonyMethod(typeof(StatusHudTempstormElement).GetMethod(nameof(ReceiveData))));
     }
 
-    public override string ElementName => name;
+    public override string ElementName => Name;
 
     public static void ReceiveData(TemporalStormRunTimeData data)
     {
@@ -89,7 +89,7 @@ public class StatusHudTempstormElement : StatusHudElement
             float hoursLeft = (float)((_data.nextStormTotalDays - system.capi.World.Calendar.TotalDays) * system.capi.World.Calendar.HoursPerDay);
 
             active = true;
-            textureId = system.textures.texturesDict["tempstorm_incoming"].TextureId;
+            textureId = system.textures.TexturesDict["tempstorm_incoming"].TextureId;
 
             TimeSpan ts = TimeSpan.FromHours(Math.Max(hoursLeft, 0));
             renderer.SetText(ts.ToString("h':'mm"));
@@ -103,7 +103,7 @@ public class StatusHudTempstormElement : StatusHudElement
                 double hoursLeft = (_data.stormActiveTotalDays - system.capi.World.Calendar.TotalDays) * system.capi.World.Calendar.HoursPerDay;
 
                 active = true;
-                textureId = system.textures.texturesDict["tempstorm_duration"].TextureId;
+                textureId = system.textures.TexturesDict["tempstorm_duration"].TextureId;
 
                 TimeSpan ts = TimeSpan.FromHours(Math.Max(hoursLeft, 0));
                 renderer.SetText(ts.ToString("h':'mm"));
@@ -112,7 +112,7 @@ public class StatusHudTempstormElement : StatusHudElement
             {
                 // Ending.
                 active = false;
-                textureId = system.textures.texturesDict["empty"].TextureId;
+                textureId = system.textures.TexturesDict["empty"].TextureId;
 
                 renderer.SetText("");
             }
@@ -160,7 +160,7 @@ public class StatusHudTempstormRenderer : StatusHudRenderer
         {
             if (showHidden)
             {
-                RenderHidden(system.textures.texturesDict["tempstorm_incoming"].TextureId);
+                RenderHidden(system.textures.TexturesDict["tempstorm_incoming"].TextureId);
             }
             return;
         }

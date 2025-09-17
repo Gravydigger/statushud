@@ -6,7 +6,7 @@ namespace StatusHud;
 
 public class StatusHudSleepElement : StatusHudElement
 {
-    public const string name = "sleep";
+    public const string Name = "sleep";
     private const string textKey = "shud-sleep";
 
     private const float threshold = 8; // Hard-coded in BlockBed.
@@ -23,7 +23,7 @@ public class StatusHudSleepElement : StatusHudElement
         active = false;
     }
 
-    public override string ElementName => name;
+    public override string ElementName => Name;
 
     public override StatusHudRenderer GetRenderer()
     {
@@ -101,12 +101,12 @@ public class StatusHudSleepRenderer : StatusHudRenderer
         {
             if (showHidden)
             {
-                RenderHidden(system.textures.texturesDict["sleep"].TextureId);
+                RenderHidden(system.textures.TexturesDict["sleep"].TextureId);
             }
             return;
         }
 
-        system.capi.Render.RenderTexture(system.textures.texturesDict["sleep"].TextureId, x, y, w, h);
+        system.capi.Render.RenderTexture(system.textures.TexturesDict["sleep"].TextureId, x, y, w, h);
     }
 
     public override void Dispose()

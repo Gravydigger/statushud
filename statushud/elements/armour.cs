@@ -8,7 +8,7 @@ namespace StatusHud;
 
 public sealed class StatusHudArmourElement : StatusHudElement
 {
-    public const string name = "armour";
+    public const string Name = "armour";
     private const string textKey = "shud-armour";
 
     // Hard-coded.
@@ -31,7 +31,7 @@ public sealed class StatusHudArmourElement : StatusHudElement
         active = false;
     }
 
-    public override string ElementName => name;
+    public override string ElementName => Name;
 
     public override StatusHudRenderer GetRenderer()
     {
@@ -122,12 +122,12 @@ public class StatusHudArmourRenderer : StatusHudRenderer
         {
             if (showHidden)
             {
-                RenderHidden(system.textures.texturesDict["armour"].TextureId);
+                RenderHidden(system.textures.TexturesDict["armour"].TextureId);
             }
             return;
         }
 
-        system.capi.Render.RenderTexture(system.textures.texturesDict["armour"].TextureId, x, y, w, h);
+        system.capi.Render.RenderTexture(system.textures.TexturesDict["armour"].TextureId, x, y, w, h);
     }
 
     public override void Dispose()

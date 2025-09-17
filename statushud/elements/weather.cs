@@ -9,7 +9,7 @@ namespace StatusHud;
 
 public class StatusHudWeatherElement : StatusHudElement
 {
-    public const string name = "weather";
+    public const string Name = "weather";
     private const string textKey = "shud-weather";
     private const float cfratio = 9f / 5f;
     private const float cfdiff = 32;
@@ -28,18 +28,19 @@ public class StatusHudWeatherElement : StatusHudElement
         this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
         tempScale = "C";
-        textureId = this.system.textures.texturesDict["empty"].TextureId;
+        textureId = system.textures.TexturesDict["empty"].TextureId;
 
         // Config error checking
         if (!ElementOptionList.Any(str => str.Contains(tempScale)))
         {
-            system.capi.Logger.Warning(StatusHudSystem.PrintModName("[{0}] {1} is not a valid value for temperatureFormat. Defaulting to C"), textKey, tempScale);
+            system.capi.Logger.Warning(StatusHudSystem.PrintModName("[{0}] {1} is not a valid value for temperatureFormat. Defaulting to C"), textKey,
+                tempScale);
         }
     }
 
     public sealed override string[] ElementOptionList => ["C", "F", "K"];
     public override string ElementOption => tempScale;
-    public override string ElementName => name;
+    public override string ElementName => Name;
 
     public override StatusHudRenderer GetRenderer()
     {
@@ -93,20 +94,20 @@ public class StatusHudWeatherElement : StatusHudElement
                 case EnumPrecipitationType.Rain:
                 {
                     textureId = cc.Rainfall >= 0.5
-                        ? system.textures.texturesDict["weather_rain_heavy"].TextureId
-                        : system.textures.texturesDict["weather_rain_light"].TextureId;
+                        ? system.textures.TexturesDict["weather_rain_heavy"].TextureId
+                        : system.textures.TexturesDict["weather_rain_light"].TextureId;
                     break;
                 }
                 case EnumPrecipitationType.Snow:
                 {
                     textureId = cc.Rainfall >= 0.5
-                        ? system.textures.texturesDict["weather_snow_heavy"].TextureId
-                        : system.textures.texturesDict["weather_snow_light"].TextureId;
+                        ? system.textures.TexturesDict["weather_snow_heavy"].TextureId
+                        : system.textures.TexturesDict["weather_snow_light"].TextureId;
                     break;
                 }
                 case EnumPrecipitationType.Hail:
                 {
-                    textureId = system.textures.texturesDict["weather_hail"].TextureId;
+                    textureId = system.textures.TexturesDict["weather_hail"].TextureId;
                     break;
                 }
                 case EnumPrecipitationType.Auto:
@@ -114,14 +115,14 @@ public class StatusHudWeatherElement : StatusHudElement
                     if (cc.Temperature < weatherSystem.WeatherDataSlowAccess.BlendedWeatherData.snowThresholdTemp)
                     {
                         textureId = cc.Rainfall >= 0.5
-                            ? system.textures.texturesDict["weather_snow_heavy"].TextureId
-                            : system.textures.texturesDict["weather_snow_light"].TextureId;
+                            ? system.textures.TexturesDict["weather_snow_heavy"].TextureId
+                            : system.textures.TexturesDict["weather_snow_light"].TextureId;
                     }
                     else
                     {
                         textureId = cc.Rainfall >= 0.5
-                            ? system.textures.texturesDict["weather_rain_heavy"].TextureId
-                            : system.textures.texturesDict["weather_rain_light"].TextureId;
+                            ? system.textures.TexturesDict["weather_rain_heavy"].TextureId
+                            : system.textures.TexturesDict["weather_rain_light"].TextureId;
                     }
                     break;
                 }
@@ -142,15 +143,15 @@ public class StatusHudWeatherElement : StatusHudElement
             if (weatherSim == null)
             {
                 // Simulation not available.
-                textureId = system.textures.texturesDict["empty"].TextureId;
+                textureId = system.textures.TexturesDict["empty"].TextureId;
                 return;
             }
 
             textureId = weatherSim.NewWePattern.config.Code switch
             {
-                "clearsky" => system.textures.texturesDict["weather_clear"].TextureId,
-                "overcast" => system.textures.texturesDict["weather_cloudy"].TextureId,
-                _ => system.textures.texturesDict["weather_fair"].TextureId
+                "clearsky" => system.textures.TexturesDict["weather_clear"].TextureId,
+                "overcast" => system.textures.TexturesDict["weather_cloudy"].TextureId,
+                _ => system.textures.TexturesDict["weather_fair"].TextureId
             };
         }
     }

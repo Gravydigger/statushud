@@ -187,68 +187,68 @@ public class StatusHudConfigManager
             switch (element.name)
             {
                 case "Date":
-                    element.name = StatusHudDateElement.name;
+                    element.name = StatusHudDateElement.Name;
                     break;
                 case "Time":
-                    element.name = StatusHudTimeElement.name;
+                    element.name = StatusHudTimeElement.Name;
                     break;
                 case "Weather":
-                    element.name = StatusHudWeatherElement.name;
+                    element.name = StatusHudWeatherElement.Name;
                     break;
                 case "Wind":
-                    element.name = StatusHudWindElement.name;
+                    element.name = StatusHudWindElement.Name;
                     break;
                 case "Stability":
-                    element.name = StatusHudStabilityElement.name;
+                    element.name = StatusHudStabilityElement.Name;
                     break;
                 case "Armour":
-                    element.name = StatusHudArmourElement.name;
+                    element.name = StatusHudArmourElement.Name;
                     break;
                 case "Room":
-                    element.name = StatusHudRoomElement.name;
+                    element.name = StatusHudRoomElement.Name;
                     break;
                 case "Sleep":
-                    element.name = StatusHudSleepElement.name;
+                    element.name = StatusHudSleepElement.Name;
                     break;
                 case "Wetness":
-                    element.name = StatusHudWetElement.name;
+                    element.name = StatusHudWetElement.Name;
                     break;
                 case "Time (Local)":
-                    element.name = StatusHudTimeLocalElement.name;
+                    element.name = StatusHudTimeLocalElement.Name;
                     break;
                 case "Body heat":
-                    element.name = StatusHudBodyHeatElement.name;
+                    element.name = StatusHudBodyHeatElement.Name;
                     break;
                 case "Durability":
-                    element.name = StatusHudDurabilityElement.name;
+                    element.name = StatusHudDurabilityElement.Name;
                     break;
                 case "Latitude":
-                    element.name = StatusHudLatitudeElement.name;
+                    element.name = StatusHudLatitudeElement.Name;
                     break;
                 case "Light":
-                    element.name = StatusHudLightElement.name;
+                    element.name = StatusHudLightElement.Name;
                     break;
                 case "Ping":
-                    element.name = StatusHudPingElement.name;
+                    element.name = StatusHudPingElement.Name;
                     break;
                 case "Players":
-                    element.name = StatusHudPlayersElement.name;
+                    element.name = StatusHudPlayersElement.Name;
                     break;
                 case "Speed":
-                    element.name = StatusHudSpeedElement.name;
+                    element.name = StatusHudSpeedElement.Name;
                     break;
                 case "Temporal Storm":
-                    element.name = StatusHudTempstormElement.name;
+                    element.name = StatusHudTempstormElement.Name;
                     break;
                 case "Rift Activity":
-                    element.name = StatusHudRiftActivityElement.name;
+                    element.name = StatusHudRiftActivityElement.Name;
                     element.options = element.options == "True" ? "true" : "false";
                     break;
                 case "Altitude":
-                    element.name = StatusHudAltitudeElement.name;
+                    element.name = StatusHudAltitudeElement.Name;
                     break;
                 case "Compass":
-                    element.name = StatusHudCompassElement.name;
+                    element.name = StatusHudCompassElement.Name;
                     element.options = element.options == "Relative" ? "relative" : "absolute";
                     break;
             }
@@ -261,7 +261,7 @@ public class StatusHudConfigManager
         StatusHudConfig newConfig = new()
         {
             version = 4,
-            elementScale = (float)Math.Clamp(Math.Round((double)(configV3.iconSize / StatusHudSystem.iconSize)), 0.5f, 2f),
+            elementScale = (float)Math.Clamp(Math.Round((double)(configV3.iconSize / StatusHudSystem.IconSize)), 0.5f, 2f),
             showHidden = configV3.showHidden
         };
 

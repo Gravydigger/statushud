@@ -5,7 +5,7 @@ namespace StatusHud;
 
 public class StatusHudDurabilityElement : StatusHudElement
 {
-    public const string name = "durability";
+    public const string Name = "durability";
     private const string textKey = "shud-durability";
 
     private readonly StatusHudDurabilityRenderer renderer;
@@ -18,7 +18,7 @@ public class StatusHudDurabilityElement : StatusHudElement
         this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
     }
 
-    public override string ElementName => name;
+    public override string ElementName => Name;
 
     public override StatusHudRenderer GetRenderer()
     {
@@ -88,12 +88,12 @@ public class StatusHudDurabilityRenderer : StatusHudRenderer
         {
             if (showHidden)
             {
-                RenderHidden(system.textures.texturesDict["durability"].TextureId);
+                RenderHidden(system.textures.TexturesDict["durability"].TextureId);
             }
             return;
         }
 
-        system.capi.Render.RenderTexture(system.textures.texturesDict["durability"].TextureId, x, y, w, h);
+        system.capi.Render.RenderTexture(system.textures.TexturesDict["durability"].TextureId, x, y, w, h);
     }
 
     public override void Dispose()

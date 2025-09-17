@@ -6,7 +6,7 @@ namespace StatusHud;
 
 public class StatusHudStabilityElement : StatusHudElement
 {
-    public const string name = "stability";
+    public const string Name = "stability";
     private const string textKey = "shud-stability";
 
     private const float maxStability = 1.5f; // Hard-coded in SystemTemporalStability.
@@ -26,7 +26,7 @@ public class StatusHudStabilityElement : StatusHudElement
         active = false;
     }
 
-    public override string ElementName => name;
+    public override string ElementName => Name;
 
     public override StatusHudRenderer GetRenderer()
     {
@@ -102,12 +102,12 @@ public class StatusHudStabilityRenderer : StatusHudRenderer
         {
             if (showHidden)
             {
-                RenderHidden(system.textures.texturesDict["stability"].TextureId);
+                RenderHidden(system.textures.TexturesDict["stability"].TextureId);
             }
             return;
         }
 
-        system.capi.Render.RenderTexture(system.textures.texturesDict["stability"].TextureId, x, y, w, h);
+        system.capi.Render.RenderTexture(system.textures.TexturesDict["stability"].TextureId, x, y, w, h);
     }
 
     public override void Dispose()

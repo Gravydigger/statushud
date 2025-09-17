@@ -6,38 +6,41 @@ using statushud;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Config;
+using Vintagestory.API.Util;
 
 namespace StatusHud;
 
+// ReSharper disable once ClassNeverInstantiated.Global
 public class StatusHudSystem : ModSystem
 {
-    public const string domain = "statushudcont";
-    public const int iconSize = 32;
+    public const string Domain = "statushudcont";
+    public const int IconSize = 32;
     private const int slowListenInterval = 1000;
     private const int fastListenInterval = 100;
-
-    public static readonly Dictionary<string, Type> ElementTypes =
-        typeof(StatusHudElement).Assembly.GetTypes()
-            .Where(t => t.IsSubclassOf(typeof(StatusHudElement)))
-            .ToDictionary(
-                t => (string)t.GetField("name", BindingFlags.Public | BindingFlags.Static)?.GetValue(null),
-                t => t
-            );
 
     public ICoreClientAPI capi;
 
     private StatusHudConfigManager configManager;
     private StatusHudConfigGui dialog;
 
-    public List<StatusHudElement> elements;
+    internal List<StatusHudElement> elements;
     private List<StatusHudElement> fastElements;
     private long fastListenerId;
     private List<StatusHudElement> slowElements;
     private long slowListenerId;
-    public StatusHudTextures textures;
+
+    public StatusHudTextures textures { get; private set; }
+
+    public static Dictionary<string, Type> ElementTypes { get; private set; }
 
     public StatusHudConfig Config => configManager.Config;
     public string Uuid { get; private set; }
+
+    // private static Dictionary<string, Type> LoadElementTypes()
+    // {
+    //     return typeof(StatusHudElement).Assembly.GetTypes().Where(t => t.IsSubclassOf(typeof(StatusHudElement)))
+    //         .ToDictionary(t => (string)t.GetField("Name", BindingFlags.Public | BindingFlags.Static)?.GetValue(null), t => t);
+    // }
 
     public override bool ShouldLoad(EnumAppSide side)
     {
@@ -54,7 +57,7 @@ public class StatusHudSystem : ModSystem
         elements = [];
         slowElements = [];
         fastElements = [];
-        textures = new StatusHudTextures(this.capi, iconSize * Config.elementScale);
+        textures = new StatusHudTextures(this.capi, IconSize * Config.elementScale);
 
         configManager.LoadElements(this);
         configManager.Save();
@@ -63,8 +66,9 @@ public class StatusHudSystem : ModSystem
         fastListenerId = this.capi.Event.RegisterGameTickListener(FastTick, fastListenInterval);
 
         capi.Event.PlayerJoin += SetUuid;
+        // Used to check for new elements for other mods
+        capi.Event.IsPlayerReady += PostLoad;
 
-        dialog = new StatusHudConfigGui(capi, this);
         capi.Input.RegisterHotKey("statushudconfiggui", "Status Hud Menu", GlKeys.U, HotkeyType.GUIOrOtherControls);
         capi.Input.SetHotKeyHandler("statushudconfiggui", ToggleConfigGui);
 
@@ -85,6 +89,7 @@ public class StatusHudSystem : ModSystem
         textures.Dispose();
         dialog.Dispose();
         capi.Event.PlayerJoin -= SetUuid;
+        capi.Event.IsPlayerReady -= PostLoad;
     }
 
     public static string PrintModName(string text)
@@ -187,15 +192,34 @@ public class StatusHudSystem : ModSystem
         return true;
     }
 
+    private bool PostLoad(ref EnumHandling handled)
+    {
+        handled = EnumHandling.PassThrough;
+
+        textures.LoadAllTextures();
+        ElementTypes = typeof(StatusHudElement).Assembly.GetTypes().Where(t => t.IsSubclassOf(typeof(StatusHudElement)))
+            .ToDictionary(t => (string)t.GetField("Name", BindingFlags.Public | BindingFlags.Static)?.GetValue(null), t => t);
+
+        dialog = new StatusHudConfigGui(capi, this);
+
+        capi.Logger.VerboseDebug(PrintModName("Currently loaded element types:"));
+        ElementTypes.Foreach(e => capi.Logger.VerboseDebug($"\t{e.Value}"));
+
+        capi.Logger.VerboseDebug(PrintModName("Textures Loaded:"));
+        textures.TexturesDict.Foreach(e => capi.Logger.VerboseDebug($"\t{e.Key}"));
+
+        return true;
+    }
+
     public void InstallDefault()
     {
         Clear();
 
-        int sideX = (int)Math.Round(iconSize * 0.75f);
+        int sideX = (int)Math.Round(IconSize * 0.75f);
         int sideMinimapX = sideX + 256;
         int toolbarMidpoint = (int)(310 * RuntimeEnv.GUIScale);
-        int yOffset = (int)Math.Round(iconSize * 0.375f);
-        int offset = (int)Math.Round(iconSize * Config.elementScale * 1.5f);
+        int yOffset = (int)Math.Round(IconSize * 0.375f);
+        int offset = (int)Math.Round(IconSize * Config.elementScale * 1.5f);
 
         SetPos(Set(typeof(StatusHudDateElement)), StatusHudPos.HorizAlign.Left, sideX, StatusHudPos.VertAlign.Bottom, yOffset, StatusHudPos.TextAlign.Up, 0);
 

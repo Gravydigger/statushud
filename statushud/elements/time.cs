@@ -7,7 +7,7 @@ namespace StatusHud;
 
 public class StatusHudTimeElement : StatusHudElement
 {
-    public const string name = "time";
+    public const string Name = "time";
     private const string textKey = "shud-time";
 
     protected readonly StatusHudTimeRenderer renderer;
@@ -21,7 +21,7 @@ public class StatusHudTimeElement : StatusHudElement
         renderer = new StatusHudTimeRenderer(system, this);
         this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
-        textureId = this.system.textures.texturesDict["empty"].TextureId;
+        textureId = system.textures.TexturesDict["empty"].TextureId;
         timeFormat = "24hr";
 
         // Config error checking
@@ -32,7 +32,7 @@ public class StatusHudTimeElement : StatusHudElement
     }
     public sealed override string[] ElementOptionList => ["12hr", "24hr"];
 
-    public override string ElementName => name;
+    public override string ElementName => Name;
     public override string ElementOption => timeFormat;
 
     public override StatusHudRenderer GetRenderer()
@@ -73,11 +73,11 @@ public class StatusHudTimeElement : StatusHudElement
 
         textureId = system.capi.World.Calendar.SunPosition.Y switch
         {
-            < -5 => system.textures.texturesDict["time_night"].TextureId,
-            < 5 => system.textures.texturesDict["time_twilight"].TextureId,
-            < 15 => system.textures.texturesDict["time_day_low"].TextureId,
-            < 30 => system.textures.texturesDict["time_day_mid"].TextureId,
-            _ => system.textures.texturesDict["time_day_high"].TextureId
+            < -5 => system.textures.TexturesDict["time_night"].TextureId,
+            < 5 => system.textures.TexturesDict["time_twilight"].TextureId,
+            < 15 => system.textures.TexturesDict["time_day_low"].TextureId,
+            < 30 => system.textures.TexturesDict["time_day_mid"].TextureId,
+            _ => system.textures.TexturesDict["time_day_high"].TextureId
         };
     }
 

@@ -5,7 +5,7 @@ namespace StatusHud;
 
 public class StatusHudLightElement : StatusHudElement
 {
-    public const string name = "light";
+    public const string Name = "light";
     private const string textKey = "shud-light";
 
     private readonly StatusHudLightRenderer renderer;
@@ -18,7 +18,7 @@ public class StatusHudLightElement : StatusHudElement
         this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
     }
 
-    public override string ElementName => name;
+    public override string ElementName => Name;
 
     public override StatusHudRenderer GetRenderer()
     {
@@ -34,7 +34,8 @@ public class StatusHudLightElement : StatusHudElement
     {
         if (system.capi.World.Player.CurrentBlockSelection != null)
         {
-            renderer.SetText(system.capi.World.BlockAccessor.GetLightLevel(system.capi.World.Player.CurrentBlockSelection.Position, EnumLightLevelType.MaxTimeOfDayLight)
+            renderer.SetText(system.capi.World.BlockAccessor
+                .GetLightLevel(system.capi.World.Player.CurrentBlockSelection.Position, EnumLightLevelType.MaxTimeOfDayLight)
                 .ToString());
             active = true;
         }
@@ -87,12 +88,12 @@ public class StatusHudLightRenderer : StatusHudRenderer
         {
             if (showHidden)
             {
-                RenderHidden(system.textures.texturesDict["light"].TextureId);
+                RenderHidden(system.textures.TexturesDict["light"].TextureId);
             }
             return;
         }
 
-        system.capi.Render.RenderTexture(system.textures.texturesDict["light"].TextureId, x, y, w, h);
+        system.capi.Render.RenderTexture(system.textures.TexturesDict["light"].TextureId, x, y, w, h);
     }
 
     public override void Dispose()

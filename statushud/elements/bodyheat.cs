@@ -6,7 +6,7 @@ namespace StatusHud;
 
 public class StatusHudBodyHeatElement : StatusHudElement
 {
-    public const string name = "bodyheat";
+    public const string Name = "bodyheat";
     private const string textKey = "shud-bodyheat";
 
     private const float cfratio = 9f / 5f;
@@ -23,7 +23,7 @@ public class StatusHudBodyHeatElement : StatusHudElement
         renderer = new StatusHudBodyHeatRenderer(this.system, this);
         this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
-        textureId = this.system.textures.texturesDict["empty"].TextureId;
+        textureId = system.textures.TexturesDict["empty"].TextureId;
 
         tempScale = "C";
         active = false;
@@ -31,13 +31,14 @@ public class StatusHudBodyHeatElement : StatusHudElement
         // Config error checking
         if (!ElementOptionList.Any(str => str.Contains(tempScale)))
         {
-            system.capi.Logger.Warning(StatusHudSystem.PrintModName("[{0}] {1} is not a valid value for temperatureFormat. Defaulting to C"), textKey, tempScale);
+            system.capi.Logger.Warning(StatusHudSystem.PrintModName("[{0}] {1} is not a valid value for temperatureFormat. Defaulting to C"), textKey,
+                tempScale);
         }
     }
 
     public sealed override string[] ElementOptionList => ["C", "F"];
     public override string ElementOption => tempScale;
-    public override string ElementName => name;
+    public override string ElementName => Name;
 
     public override StatusHudRenderer GetRenderer()
     {
@@ -105,7 +106,9 @@ public class StatusHudBodyHeatElement : StatusHudElement
     private void UpdateTexture(float tempDiff)
     {
         // If body temp ~33C, the player will start freezing
-        textureId = tempDiff > -4 ? system.textures.texturesDict["bodyheat"].TextureId : system.textures.texturesDict["bodyheat_cold"].TextureId;
+        textureId = tempDiff > -4
+            ? system.textures.TexturesDict["bodyheat"].TextureId
+            : system.textures.TexturesDict["bodyheat_cold"].TextureId;
     }
 }
 
@@ -141,7 +144,7 @@ public class StatusHudBodyHeatRenderer : StatusHudRenderer
         {
             if (showHidden)
             {
-                RenderHidden(system.textures.texturesDict["bodyheat"].TextureId);
+                RenderHidden(system.textures.TexturesDict["bodyheat"].TextureId);
             }
             return;
         }

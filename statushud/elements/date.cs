@@ -7,7 +7,7 @@ namespace StatusHud;
 
 public class StatusHudDateElement : StatusHudElement
 {
-    public const string name = "date";
+    public const string Name = "date";
     private const string textKey = "shud-date";
 
     private readonly string[] monthNames =
@@ -36,10 +36,10 @@ public class StatusHudDateElement : StatusHudElement
 
         this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
 
-        textureId = this.system.textures.texturesDict["empty"].TextureId;
+        textureId = system.textures.TexturesDict["empty"].TextureId;
     }
 
-    public override string ElementName => name;
+    public override string ElementName => Name;
 
     public override StatusHudRenderer GetRenderer()
     {
@@ -69,10 +69,10 @@ public class StatusHudDateElement : StatusHudElement
         // Season.
         textureId = system.capi.World.Calendar.GetSeason(system.capi.World.Player.Entity.Pos.AsBlockPos) switch
         {
-            EnumSeason.Spring => system.textures.texturesDict["date_spring"].TextureId,
-            EnumSeason.Summer => system.textures.texturesDict["date_summer"].TextureId,
-            EnumSeason.Fall => system.textures.texturesDict["date_autumn"].TextureId,
-            EnumSeason.Winter => system.textures.texturesDict["date_winter"].TextureId,
+            EnumSeason.Spring => system.textures.TexturesDict["date_spring"].TextureId,
+            EnumSeason.Summer => system.textures.TexturesDict["date_summer"].TextureId,
+            EnumSeason.Fall => system.textures.TexturesDict["date_autumn"].TextureId,
+            EnumSeason.Winter => system.textures.TexturesDict["date_winter"].TextureId,
             _ => textureId
         };
     }

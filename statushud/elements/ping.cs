@@ -7,7 +7,7 @@ namespace StatusHud;
 
 public class StatusHudPingElement : StatusHudElement
 {
-    public const string name = "ping";
+    public const string Name = "ping";
     private const string textKey = "shud-ping";
 
     private const int maxPing = 999;
@@ -21,7 +21,7 @@ public class StatusHudPingElement : StatusHudElement
         this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
     }
 
-    public override string ElementName => name;
+    public override string ElementName => Name;
 
     public override StatusHudRenderer GetRenderer()
     {
@@ -93,13 +93,13 @@ public class StatusHudPingRenderer : StatusHudRenderer
         switch (showHidden)
         {
             case true when system.capi.IsSinglePlayer:
-                RenderHidden(system.textures.texturesDict["network"].TextureId);
+                RenderHidden(system.textures.TexturesDict["network"].TextureId);
                 break;
             case false when system.capi.IsSinglePlayer:
-                system.capi.Render.RenderTexture(system.textures.texturesDict["empty"].TextureId, x, y, w, h);
+                system.capi.Render.RenderTexture(system.textures.TexturesDict["empty"].TextureId, x, y, w, h);
                 break;
             default:
-                system.capi.Render.RenderTexture(system.textures.texturesDict["network"].TextureId, x, y, w, h);
+                system.capi.Render.RenderTexture(system.textures.TexturesDict["network"].TextureId, x, y, w, h);
                 break;
         }
     }

@@ -83,7 +83,7 @@ public sealed class StatusHudText : HudElement
             _ => area
         };
 
-        float iconSize = StatusHudSystem.iconSize * config.elementScale;
+        float iconSize = StatusHudSystem.IconSize * config.elementScale;
         float iconHalf = iconSize / 2f;
         float frameWidth = capi.Render.FrameWidth;
         float frameHeight = capi.Render.FrameHeight;
@@ -146,16 +146,16 @@ public sealed class StatusHudText : HudElement
         switch (pos.textAlign)
         {
             case StatusHudPos.TextAlign.Up:
-                offsetY = (int)-((StatusHudSystem.iconSize + pos.textAlignOffset) * config.elementScale / 1.25f);
+                offsetY = (int)-((StatusHudSystem.IconSize + pos.textAlignOffset) * config.elementScale / 1.25f);
                 break;
             case StatusHudPos.TextAlign.Left:
-                offsetX = (int)-((StatusHudSystem.iconSize + pos.textAlignOffset) * config.elementScale);
+                offsetX = (int)-((StatusHudSystem.IconSize + pos.textAlignOffset) * config.elementScale);
                 break;
             case StatusHudPos.TextAlign.Right:
-                offsetX = (int)((StatusHudSystem.iconSize + pos.textAlignOffset) * config.elementScale);
+                offsetX = (int)((StatusHudSystem.IconSize + pos.textAlignOffset) * config.elementScale);
                 break;
             case StatusHudPos.TextAlign.Down:
-                offsetY = (int)((StatusHudSystem.iconSize + pos.textAlignOffset) * config.elementScale / 1.25f);
+                offsetY = (int)((StatusHudSystem.IconSize + pos.textAlignOffset) * config.elementScale / 1.25f);
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
@@ -174,7 +174,7 @@ public sealed class StatusHudText : HudElement
     {
         SingleComposer?.Dispose();
         ElementBounds dialogBounds = ElementBounds.Fixed(area, x + offsetX, y + offsetY, width, height);
-        ElementBounds textBounds = ElementBounds.Fixed(EnumDialogArea.CenterMiddle, 0, 0, width, height - StatusHudSystem.iconSize * config.elementScale / 4f);
+        ElementBounds textBounds = ElementBounds.Fixed(EnumDialogArea.CenterMiddle, 0, 0, width, height - StatusHudSystem.IconSize * config.elementScale / 4f);
         SingleComposer = capi.Gui.CreateCompo(dialogName, dialogBounds)
             .AddDynamicText("", font, textBounds, key)
             .Compose();
@@ -187,7 +187,7 @@ public sealed class StatusHudText : HudElement
         return new CairoFont()
             .WithColor([colour.R, colour.G, colour.B, colour.A])
             .WithFont(GuiStyle.StandardFontName)
-            .WithFontSize(StatusHudSystem.iconSize * config.elementScale / 2f)
+            .WithFontSize(StatusHudSystem.IconSize * config.elementScale / 2f)
             .WithWeight(FontWeight.Bold)
             .WithOrientation(EnumTextOrientation.Center)
             .WithStroke([0, 0, 0, 0.5], 2);

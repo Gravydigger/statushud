@@ -123,7 +123,7 @@ public class StatusHudConfigGui : GuiDialog
             // TimeLocal uses the same lang options as Time
             if (element.GetType() == typeof(StatusHudTimeLocalElement))
             {
-                elementName = StatusHudTimeElement.name;
+                elementName = StatusHudTimeElement.Name;
             }
 
             optionsValue = element.ElementOptionList;
@@ -397,7 +397,7 @@ public class StatusHudConfigGui : GuiDialog
         }
         offsetChange = true;
 
-        int offset = Math.Clamp(value.ToInt(), -StatusHudSystem.iconSize,
+        int offset = Math.Clamp(value.ToInt(), -StatusHudSystem.IconSize,
             Math.Max(system.capi.Render.FrameWidth, system.capi.Render.FrameHeight));
         SingleComposer.GetNumberInput("shud-textalignoffset").SetValue(offset);
 

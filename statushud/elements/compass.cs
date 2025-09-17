@@ -7,7 +7,7 @@ namespace StatusHud;
 
 public class StatusHudCompassElement : StatusHudElement
 {
-    public const string name = "compass";
+    public const string Name = "compass";
     private const string textKey = "shud-compass";
     private readonly StatusHudCompassRenderer renderer;
     private string compassBearing;
@@ -22,12 +22,13 @@ public class StatusHudCompassElement : StatusHudElement
         // Config error checking
         if (!ElementOptionList.Any(str => str.Contains(compassBearing)))
         {
-            system.capi.Logger.Warning(StatusHudSystem.PrintModName("[{0}] {1} is not a valid value for temperatureFormat. Defaulting to relative"), textKey, compassBearing);
+            system.capi.Logger.Warning(StatusHudSystem.PrintModName("[{0}] {1} is not a valid value for temperatureFormat. Defaulting to relative"), textKey,
+                compassBearing);
         }
     }
 
     public override string[] ElementOptionList => ["relative", "absolute"];
-    public override string ElementName => name;
+    public override string ElementName => Name;
     public override string ElementOption => compassBearing;
 
     public override StatusHudRenderer GetRenderer()
@@ -88,14 +89,14 @@ public class StatusHudCompassRenderer : StatusHudRenderer
         int direction = (Modulo((int)Math.Round(-system.capi.World.Player.CameraYaw * GameMath.RAD2DEG), 360) + 180) % 360;
         text.Set(direction + "°");
 
-        system.capi.Render.RenderTexture(system.textures.texturesDict["compass"].TextureId, x, y, w, h);
+        system.capi.Render.RenderTexture(system.textures.TexturesDict["compass"].TextureId, x, y, w, h);
 
         IShaderProgram prog = system.capi.Render.GetEngineShader(EnumShaderProgram.Gui);
         prog.Uniform("rgbaIn", ColorUtil.WhiteArgbVec);
         prog.Uniform("extraGlow", 0);
         prog.Uniform("applyColor", 0);
         prog.Uniform("noTexture", 0f);
-        prog.BindTexture2D("tex2d", system.textures.texturesDict["compass_needle"].TextureId, 0);
+        prog.BindTexture2D("tex2d", system.textures.TexturesDict["compass_needle"].TextureId, 0);
 
         float angle = system.capi.World.Player.CameraYaw;
 

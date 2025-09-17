@@ -6,7 +6,7 @@ namespace StatusHud;
 
 public class StatusHudLatitudeElement : StatusHudElement
 {
-    public const string name = "latitude";
+    public const string Name = "latitude";
     private const string textKey = "shud-latitude";
     private readonly StatusHudLatitudeRenderer renderer;
 
@@ -24,7 +24,7 @@ public class StatusHudLatitudeElement : StatusHudElement
         needleOffset = 0;
     }
 
-    public override string ElementName => name;
+    public override string ElementName => Name;
 
     public override StatusHudRenderer GetRenderer()
     {
@@ -40,7 +40,7 @@ public class StatusHudLatitudeElement : StatusHudElement
     {
         double latitude = system.capi.World.Calendar.OnGetLatitude(system.capi.World.Player.Entity.Pos.Z);
         renderer.SetText((int)Math.Round(latitude * 900, 0) / 10f + "°");
-        needleOffset = (float)(-latitude * (StatusHudSystem.iconSize * system.Config.elementScale / 2f) * 0.75f);
+        needleOffset = (float)(-latitude * (StatusHudSystem.IconSize * system.Config.elementScale / 2f) * 0.75f);
     }
 
     public override void Dispose()
@@ -78,8 +78,9 @@ public class StatusHudLatitudeRenderer : StatusHudRenderer
 
     protected override void Render()
     {
-        system.capi.Render.RenderTexture(system.textures.texturesDict["latitude"].TextureId, x, y, w, h);
-        system.capi.Render.RenderTexture(system.textures.texturesDict["latitude_needle"].TextureId, x, y + GuiElement.scaled(element.needleOffset), w, h);
+        system.capi.Render.RenderTexture(system.textures.TexturesDict["latitude"].TextureId, x, y, w, h);
+        system.capi.Render.RenderTexture(system.textures.TexturesDict["latitude_needle"].TextureId, x, y + GuiElement.scaled(element.needleOffset), w,
+            h);
     }
 
     public override void Dispose()

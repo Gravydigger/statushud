@@ -8,14 +8,13 @@ namespace StatusHud;
 public class StatusHudTextures
 {
     private readonly ICoreClientAPI capi;
-    public readonly Dictionary<string, LoadedTexture> texturesDict;
 
     public StatusHudTextures(ICoreClientAPI capi, float size)
     {
         this.capi = capi;
         int size1 = (int)size;
 
-        texturesDict = new Dictionary<string, LoadedTexture>();
+        TexturesDict = new Dictionary<string, LoadedTexture>();
 
         // Generate empty texture.
         LoadedTexture empty = new(this.capi);
@@ -24,7 +23,7 @@ public class StatusHudTextures
         this.capi.Gui.LoadOrUpdateCairoTexture(surface, true, ref empty);
         surface.Dispose();
 
-        texturesDict.Add("empty", empty);
+        TexturesDict.Add("empty", empty);
 
         // Generate ping texture.
         LoadedTexture ping = new(this.capi);
@@ -46,34 +45,37 @@ public class StatusHudTextures
         context.Dispose();
         surface.Dispose();
 
-        texturesDict.Add("ping", ping);
+        TexturesDict.Add("ping", ping);
 
         // Load Texture files
         LoadAllTextures();
     }
 
-    public void Dispose()
+    public Dictionary<string, LoadedTexture> TexturesDict { get; }
+
+    internal void Dispose()
     {
-        foreach (var texture in texturesDict)
+        foreach (var texture in TexturesDict)
         {
             texture.Value.Dispose();
         }
-        texturesDict.Clear();
+        TexturesDict.Clear();
     }
 
-    private void LoadAllTextures()
+    internal void LoadAllTextures()
     {
-        var assetLocations = capi.Assets.GetLocations("textures/", StatusHudSystem.domain);
+        var assetLocations = capi.Assets.GetLocations("textures/", StatusHudSystem.Domain);
 
         foreach (AssetLocation asset in assetLocations)
         {
-            LoadedTexture texture = new(capi);
-
             // Get asset name without file extension
             string name = asset.GetName().Split('.')[0];
 
+            if (TexturesDict.ContainsKey(name)) continue;
+
+            LoadedTexture texture = new(capi);
             capi.Render.GetOrLoadTexture(asset, ref texture);
-            texturesDict.Add(name, texture);
+            TexturesDict.Add(name, texture);
         }
         assetLocations.Clear();
     }

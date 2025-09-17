@@ -5,19 +5,19 @@ namespace StatusHud;
 
 public class StatusHudTimeLocalElement : StatusHudTimeElement
 {
-    public new const string name = "timelocal";
+    public new const string Name = "timelocal";
     private const string textKey = "shud-timelocal";
 
     private readonly new string timeFormat;
 
     public StatusHudTimeLocalElement(StatusHudSystem system) : base(system)
     {
-        textureId = this.system.textures.texturesDict["time_local"].TextureId;
+        textureId = system.textures.TexturesDict["time_local"].TextureId;
         timeFormat = base.timeFormat;
     }
     public override string ElementOption => timeFormat;
 
-    public override string ElementName => name;
+    public override string ElementName => Name;
 
     public override string GetTextKey()
     {

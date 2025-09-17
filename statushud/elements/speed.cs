@@ -7,7 +7,7 @@ namespace StatusHud;
 
 public class StatusHudSpeedElement : StatusHudElement
 {
-    public const string name = "speed";
+    public const string Name = "speed";
     private const string textKey = "shud-speed";
 
     private readonly StatusHudSpeedRenderer renderer;
@@ -18,7 +18,7 @@ public class StatusHudSpeedElement : StatusHudElement
         this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
     }
 
-    public override string ElementName => name;
+    public override string ElementName => Name;
 
     public override StatusHudRenderer GetRenderer()
     {
@@ -79,7 +79,7 @@ public class StatusHudSpeedRenderer : StatusHudRenderer
         {
             text.Set(((int)Math.Round(system.capi.World.Player.Entity.Pos.Motion.Length() * 1000) / 10f).ToString(CultureInfo.InvariantCulture));
         }
-        system.capi.Render.RenderTexture(system.textures.texturesDict["speed"].TextureId, x, y, w, h);
+        system.capi.Render.RenderTexture(system.textures.TexturesDict["speed"].TextureId, x, y, w, h);
     }
 
     public override void Dispose()

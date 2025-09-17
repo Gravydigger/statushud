@@ -8,7 +8,7 @@ namespace StatusHud;
 
 public class StatusHudWindElement : StatusHudElement
 {
-    public const string name = "wind";
+    public const string Name = "wind";
     private const string textKey = "shud-wind";
     private readonly StatusHudWindRenderer renderer;
 
@@ -28,7 +28,7 @@ public class StatusHudWindElement : StatusHudElement
         dirAngle = 0;
     }
 
-    public override string ElementName => name;
+    public override string ElementName => Name;
 
     public override StatusHudRenderer GetRenderer()
     {
@@ -98,14 +98,14 @@ public class StatusHudWindRenderer : StatusHudRenderer
     {
         if (element.directional)
         {
-            system.capi.Render.RenderTexture(system.textures.texturesDict["wind_dir"].TextureId, x, y, w, h);
+            system.capi.Render.RenderTexture(system.textures.TexturesDict["wind_dir"].TextureId, x, y, w, h);
 
             IShaderProgram prog = system.capi.Render.GetEngineShader(EnumShaderProgram.Gui);
             prog.Uniform("rgbaIn", ColorUtil.WhiteArgbVec);
             prog.Uniform("extraGlow", 0);
             prog.Uniform("applyColor", 0);
             prog.Uniform("noTexture", 0f);
-            prog.BindTexture2D("tex2d", system.textures.texturesDict["wind_dir_arrow"].TextureId, 0);
+            prog.BindTexture2D("tex2d", system.textures.TexturesDict["wind_dir_arrow"].TextureId, 0);
 
             float angle = element.dirAngle - system.capi.World.Player.CameraYaw + GameMath.PI;
 
@@ -123,7 +123,7 @@ public class StatusHudWindRenderer : StatusHudRenderer
         }
         else
         {
-            system.capi.Render.RenderTexture(system.textures.texturesDict["wind"].TextureId, x, y, w, h);
+            system.capi.Render.RenderTexture(system.textures.TexturesDict["wind"].TextureId, x, y, w, h);
         }
     }
 

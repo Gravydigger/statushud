@@ -4,7 +4,7 @@ namespace StatusHud;
 
 public class StatusHudPlayersElement : StatusHudElement
 {
-    public const string name = "players";
+    public const string Name = "players";
     private const string textKey = "shud-players";
 
     private readonly StatusHudPlayersRenderer renderer;
@@ -15,7 +15,7 @@ public class StatusHudPlayersElement : StatusHudElement
         this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
     }
 
-    public override string ElementName => name;
+    public override string ElementName => Name;
 
     public override StatusHudRenderer GetRenderer()
     {
@@ -64,7 +64,7 @@ public class StatusHudPlayersRenderer : StatusHudRenderer
 
     protected override void Render()
     {
-        system.capi.Render.RenderTexture(system.textures.texturesDict["players"].TextureId, x, y, w, h);
+        system.capi.Render.RenderTexture(system.textures.TexturesDict["players"].TextureId, x, y, w, h);
     }
 
     public override void Dispose()

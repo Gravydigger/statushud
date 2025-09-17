@@ -6,7 +6,7 @@ namespace StatusHud;
 
 public class StatusHudRoomElement : StatusHudElement
 {
-    public const string name = "room";
+    public const string Name = "room";
     private const string textKey = "shud-room";
 
     private readonly StatusHudRoomRenderer renderer;
@@ -21,7 +21,7 @@ public class StatusHudRoomElement : StatusHudElement
         this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
     }
 
-    public override string ElementName => name;
+    public override string ElementName => Name;
 
     public override StatusHudRenderer GetRenderer()
     {
@@ -97,16 +97,18 @@ public class StatusHudRoomRenderer : StatusHudRenderer
         {
             if (showHidden)
             {
-                RenderHidden(system.textures.texturesDict["room_room"].TextureId);
+                RenderHidden(system.textures.TexturesDict["room_room"].TextureId);
             }
             return;
         }
 
-        system.capi.Render.RenderTexture(element.cellar ? system.textures.texturesDict["room_cellar"].TextureId : system.textures.texturesDict["room_room"].TextureId, x, y, w, h);
+        system.capi.Render.RenderTexture(
+            element.cellar ? system.textures.TexturesDict["room_cellar"].TextureId : system.textures.TexturesDict["room_room"].TextureId, x,
+            y, w, h);
 
         if (element.greenhouse)
         {
-            system.capi.Render.RenderTexture(system.textures.texturesDict["room_greenhouse"].TextureId, x, ghy, w, h);
+            system.capi.Render.RenderTexture(system.textures.TexturesDict["room_greenhouse"].TextureId, x, ghy, w, h);
         }
     }
 
@@ -114,6 +116,6 @@ public class StatusHudRoomRenderer : StatusHudRenderer
     {
         base.Update();
 
-        ghy = (float)(y - GuiElement.scaled(StatusHudSystem.iconSize * system.Config.elementScale));
+        ghy = (float)(y - GuiElement.scaled(StatusHudSystem.IconSize * system.Config.elementScale));
     }
 }
