@@ -56,51 +56,33 @@ public class StatusHudConfigElement(
     public int y = y;
 }
 
-public class StatusHudConfigManager
+internal class StatusHudConfigManager
 {
     private const string filename = "statushud.json";
-    private const int version = 4;
+    private const int configVersion = 4;
     private readonly StatusHudSystem system;
 
-    public StatusHudConfigManager(StatusHudSystem system)
+    internal StatusHudConfigManager(StatusHudSystem system)
     {
         this.system = system;
 
         Load();
-
-        if (Config == null)
-        {
-            Config = new StatusHudConfig();
-            system.capi.Logger.Debug(StatusHudSystem.PrintModName($"Generated new config file {filename}"));
-        }
-
-        // Someone is loading a new config version for an old mod version
-        if (Config.version > version)
-        {
-            system.capi.Logger.Error(StatusHudSystem.PrintModName($"Expected mod config version is {version}, got {Config.version}."
-                                                                  + "\nOverwriting config with default config."));
-            system.InstallDefault();
-        }
-
-        else if (Config.version <= 1 || Config.elements.Count == 0)
-        {
-            // Install default layout
-            Config.version = version;
-            system.InstallDefault();
-        }
-
-        Config.version = version;
     }
 
     public StatusHudConfig Config { get; private set; }
 
-    public void Load()
+    internal void Load()
     {
         int modConfigVersion = GetVersion();
 
         switch (modConfigVersion)
         {
             case <= 0:
+                Config = new StatusHudConfig
+                {
+                    version = configVersion
+                };
+                system.capi.Logger.Debug(StatusHudSystem.PrintModName($"Generated new config file {filename}"));
                 break;
             case <= 3:
             {
@@ -116,8 +98,18 @@ public class StatusHudConfigManager
                 }
                 break;
             }
-            default:
+            case configVersion:
                 Config = system.capi.LoadModConfig<StatusHudConfig>(filename);
+                break;
+            default:
+                // Someone is loading a new config version for an old mod version
+                system.capi.Logger.Error(
+                    StatusHudSystem.PrintModName(
+                        $"Expected mod config version is {configVersion}, got {Config.version}. Overwriting config with default config."));
+                Config = new StatusHudConfig
+                {
+                    version = configVersion
+                };
                 break;
         }
     }
@@ -143,7 +135,7 @@ public class StatusHudConfigManager
         }
     }
 
-    public void LoadElements(StatusHudSystem system)
+    internal void LoadElements(StatusHudSystem system)
     {
         foreach (StatusHudConfigElement configElement in Config.elements)
         {
@@ -157,7 +149,7 @@ public class StatusHudConfigManager
         }
     }
 
-    public void Save()
+    internal void Save()
     {
         Config.elements.Clear();
 

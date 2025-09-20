@@ -60,15 +60,22 @@ public class StatusHudSystem : ModSystem
         base.StartClientSide(capi);
         this.capi = capi;
 
-        configManager = new StatusHudConfigManager(this);
-
         elements = [];
         slowElements = [];
         fastElements = [];
+
+        configManager = new StatusHudConfigManager(this);
         textures = new StatusHudTextures(this.capi, IconSize * Config.elementScale);
 
-        configManager.LoadElements(this);
-        configManager.Save();
+        if (configManager.Config.elements.Count == 0)
+        {
+            InstallDefault();
+            configManager.Save();
+        }
+        else
+        {
+            configManager.LoadElements(this);
+        }
 
         slowListenerId = this.capi.Event.RegisterGameTickListener(SlowTick, slowListenInterval);
         fastListenerId = this.capi.Event.RegisterGameTickListener(FastTick, fastListenInterval);
@@ -148,7 +155,7 @@ public class StatusHudSystem : ModSystem
         elements.Remove(element);
     }
 
-    // Will load elements from file
+    // Will load elements from file.
     public void LoadConfig()
     {
         Clear();
@@ -173,8 +180,10 @@ public class StatusHudSystem : ModSystem
 
     private void Clear()
     {
-        fastElements?.Clear();
-        slowElements?.Clear();
+        if (elements.Count <= 0) return;
+
+        fastElements.Clear();
+        slowElements.Clear();
 
         foreach (StatusHudElement element in elements)
         {
