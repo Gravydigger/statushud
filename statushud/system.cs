@@ -232,7 +232,7 @@ public class StatusHudSystem : ModSystem
 
         int sideX = (int)Math.Round(IconSize * 0.75f);
         int sideMinimapX = sideX + 256;
-        int toolbarMidpoint = (int)(310 * RuntimeEnv.GUIScale);
+        const int toolbarMidpoint = 390;
         int yOffset = (int)Math.Round(IconSize * 0.375f);
         int offset = (int)Math.Round(IconSize * Config.elementScale * 1.5f);
 
