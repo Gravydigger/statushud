@@ -8,7 +8,7 @@ namespace StatusHud;
 public sealed class StatusHudText : HudElement
 {
     private const string dialogNamePrefix = "d-";
-    private readonly Vec4f colour = new(0.91f, 0.87f, 0.81f, 1);
+    private readonly Vec4f colour;
     private readonly StatusHudConfig config;
 
     private readonly string dialogName;
@@ -19,12 +19,15 @@ public sealed class StatusHudText : HudElement
     private GuiElementDynamicText text;
     private float width;
 
-    public StatusHudText(ICoreClientAPI capi, string key, StatusHudConfig config) : base(capi)
+    public StatusHudText(ICoreClientAPI capi, string key, StatusHudConfig config, Vec4f colour = null) : base(capi)
     {
         this.key = key;
         this.config = config;
 
         dialogName = dialogNamePrefix + this.key;
+
+        this.colour = colour ?? new Vec4f(0.91f, 0.87f, 0.81f, 1);
+
         font = InitFont();
     }
 
@@ -191,5 +194,10 @@ public sealed class StatusHudText : HudElement
             .WithWeight(FontWeight.Bold)
             .WithOrientation(EnumTextOrientation.Center)
             .WithStroke([0, 0, 0, 0.5], 2);
+    }
+
+    public void SetFontColour(Vec4f colour)
+    {
+        font.Color = [colour.R, colour.G, colour.B, colour.A];
     }
 }
