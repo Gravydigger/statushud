@@ -40,7 +40,8 @@ public class StatusHudConfigGui : GuiDialog
 
         translatedElementNames = elementNames.Select(e => Lang.Get($"statushudcont:{e}-name")).ToArray();
 
-        ReloadElementInputs(GetElementFromName(selectedElementName));
+        ComposeDialog();
+        ReloadGuiInputs(GetElementFromName(selectedElementName));
     }
     public override string ToggleKeyCombinationCode => "statushudconfiggui";
 
@@ -50,7 +51,8 @@ public class StatusHudConfigGui : GuiDialog
 
         if (scaled == RuntimeEnv.GUIScale) return;
         scaled = RuntimeEnv.GUIScale;
-        ReloadElementInputs(GetElementFromName(selectedElementName));
+        ComposeDialog();
+        ReloadGuiInputs(GetElementFromName(selectedElementName));
     }
 
     private void ComposeDialog()
@@ -210,9 +212,8 @@ public class StatusHudConfigGui : GuiDialog
         return system.elements.FirstOrDefault(e => e.ElementName == name);
     }
 
-    private void ReloadElementInputs(StatusHudElement element)
+    private void ReloadGuiInputs(StatusHudElement element)
     {
-        ComposeDialog();
         if (element == null)
         {
             SingleComposer.GetToggleButton("shud-enablebutton").SetValue(false);
@@ -283,7 +284,7 @@ public class StatusHudConfigGui : GuiDialog
     private bool OnDefault()
     {
         system.InstallDefault();
-        ReloadElementInputs(GetElementFromName(selectedElementName));
+        ReloadGuiInputs(GetElementFromName(selectedElementName));
 
         const string message = "HUD set to default layout";
         capi.ShowChatMessage(StatusHudSystem.PrintModName(Lang.Get($"statushudcont:{message}")));
@@ -295,7 +296,7 @@ public class StatusHudConfigGui : GuiDialog
     private bool OnRestore()
     {
         system.LoadConfig();
-        ReloadElementInputs(GetElementFromName(selectedElementName));
+        ReloadGuiInputs(GetElementFromName(selectedElementName));
 
         const string message = "HUD restored from disk";
         capi.ShowChatMessage(StatusHudSystem.PrintModName(Lang.Get($"statushudcont:{message}")));
@@ -368,7 +369,8 @@ public class StatusHudConfigGui : GuiDialog
         }
 
         capi.Logger.Debug(StatusHudSystem.PrintModName($"Element {name} selected"));
-        ReloadElementInputs(GetElementFromName(name));
+        ComposeDialog();
+        ReloadGuiInputs(GetElementFromName(name));
     }
 
     private void OnTextAlignChange(string name, bool selected)
@@ -454,8 +456,9 @@ public class StatusHudConfigGui : GuiDialog
         if (element == null) return;
 
         var align = AlignmentNameToPos(value);
-        element.SetPos(align.Item2, element.pos.x, align.Item1, element.pos.y, element.pos.textAlign, element.pos.textAlignOffset);
+        element.SetPos(align.Item2, 0, align.Item1, 0, element.pos.textAlign, 0);
         element.Ping();
+        ReloadGuiInputs(element);
 
         capi.Logger.Debug(
             StatusHudSystem.PrintModName($"Element {selectedElementName} set to {value} alignment"));

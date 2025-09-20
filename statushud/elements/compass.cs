@@ -22,7 +22,7 @@ public class StatusHudCompassElement : StatusHudElement
         // Config error checking
         if (!ElementOptionList.Any(str => str.Contains(compassBearing)))
         {
-            system.capi.Logger.Warning(StatusHudSystem.PrintModName("[{0}] {1} is not a valid value for temperatureFormat. Defaulting to relative"), textKey,
+            system.capi.Logger.Warning(StatusHudSystem.PrintModName("[{0}] {1} is not a valid value for compassBearing. Defaulting to relative"), textKey,
                 compassBearing);
         }
     }
