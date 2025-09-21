@@ -1,3 +1,4 @@
+using System;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.GameContent;
@@ -28,38 +29,6 @@ public class StatusHudRoomElement : StatusHudElement
 
     public override void Tick()
     {
-        EntityPlayer entity = system.capi.World.Player.Entity;
-        if (entity == null)
-        {
-            inside = false;
-            cellar = false;
-            greenhouse = false;
-            return;
-        }
-
-        Room room = entity.World.Api.ModLoader.GetModSystem<RoomRegistry>().GetRoomForPosition(entity.Pos.AsBlockPos);
-        if (room == null)
-        {
-            inside = false;
-            cellar = false;
-            greenhouse = false;
-            return;
-        }
-
-        if (room.ExitCount == 0)
-        {
-            // Inside.
-            inside = true;
-            cellar = room.IsSmallRoom;
-            greenhouse = room.SkylightCount > room.NonSkylightCount; // No room flag available, based on FruitTreeRootBH.
-        }
-        else
-        {
-            // Outside.
-            inside = false;
-            cellar = false;
-            greenhouse = false;
-        }
     }
 
     public override void Dispose()
@@ -71,12 +40,10 @@ public class StatusHudRoomElement : StatusHudElement
 
 public class StatusHudRoomRenderer : StatusHudRenderer
 {
-    private readonly StatusHudRoomElement element;
     private float ghy;
 
     public StatusHudRoomRenderer(StatusHudSystem system, StatusHudRoomElement element) : base(system)
     {
-        this.element = element;
     }
 
     public override void Reload()
@@ -85,7 +52,13 @@ public class StatusHudRoomRenderer : StatusHudRenderer
 
     protected override void Render()
     {
-        if (!element.inside)
+        Room room;
+        try
+        {
+            EntityPlayer entity = system.capi.World.Player.Entity;
+            room = entity.World.Api.ModLoader.GetModSystem<RoomRegistry>().GetRoomForPosition(entity.Pos.AsBlockPos);
+        }
+        catch (Exception e)
         {
             if (showHidden)
             {
@@ -93,14 +66,28 @@ public class StatusHudRoomRenderer : StatusHudRenderer
             }
             return;
         }
-
-        system.capi.Render.RenderTexture(
-            element.cellar ? system.textures.TexturesDict["room_cellar"].TextureId : system.textures.TexturesDict["room_room"].TextureId, x,
-            y, w, h);
-
-        if (element.greenhouse)
+        
+        if (room.ExitCount == 0)
         {
-            system.capi.Render.RenderTexture(system.textures.TexturesDict["room_greenhouse"].TextureId, x, ghy, w, h);
+            // Inside.
+            system.capi.Render.RenderTexture(
+                room.IsSmallRoom ? system.textures.TexturesDict["room_cellar"].TextureId : system.textures.TexturesDict["room_room"].TextureId, x,
+                y, w, h);
+            
+            // No room flag available, based on FruitTreeRootBH.
+            if (room.SkylightCount > room.NonSkylightCount)
+            {
+                system.capi.Render.RenderTexture(system.textures.TexturesDict["room_greenhouse"].TextureId, x, ghy, w, h);
+            } 
+            
+        }
+        else
+        {
+            // Outside.
+            if (showHidden)
+            {
+                RenderHidden(system.textures.TexturesDict["room_room"].TextureId);
+            }
         }
     }
 
