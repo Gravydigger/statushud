@@ -43,13 +43,13 @@ public class StatusHudConfigElement(
     StatusHudPos.HorizAlign horizAlign,
     StatusHudPos.VertAlign vertAlign,
     StatusHudPos.TextAlign textAlign,
-    int orientOffset,
+    int textOffset,
     string elementOptions)
 {
     public StatusHudPos.HorizAlign horizAlign = horizAlign;
     public string name = name;
     public string options = elementOptions;
-    public int orientOffset = orientOffset;
+    public int textOffset = textOffset;
     public StatusHudPos.TextAlign textAlign = textAlign;
     public StatusHudPos.VertAlign vertAlign = vertAlign;
     public int x = x;
@@ -145,7 +145,7 @@ internal class StatusHudConfigManager
 
             element.ConfigOptions(configElement.options);
             StatusHudSystem.SetPos(element, configElement.horizAlign, configElement.x, configElement.vertAlign, configElement.y,
-                configElement.textAlign, configElement.orientOffset);
+                configElement.textAlign, configElement.textOffset);
         }
     }
 

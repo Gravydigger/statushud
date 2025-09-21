@@ -196,8 +196,9 @@ public sealed class StatusHudText : HudElement
             .WithStroke([0, 0, 0, 0.5], 2);
     }
 
-    public void SetFontColour(Vec4f colour)
-    {
-        font.Color = [colour.R, colour.G, colour.B, colour.A];
-    }
+    // To be implemented
+    // public void SetFontColour(Vec4f colour)
+    // {
+    //     font.Color = [colour.R, colour.G, colour.B, colour.A];
+    // }
 }

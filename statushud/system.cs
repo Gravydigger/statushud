@@ -38,6 +38,7 @@ public class StatusHudSystem : ModSystem
     public StatusHudConfig Config => configManager.Config;
     public string Uuid { get; private set; }
 
+    // Used if other mods want to add elements to StatusHud
     public static void AddElementType(Type elementType)
     {
         if (!elementType.IsSubclassOf(typeof(StatusHudElement))) return;
