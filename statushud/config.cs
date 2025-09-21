@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text.Json;
 using Vintagestory.API.Config;
@@ -7,6 +8,8 @@ using Vintagestory.API.Config;
 namespace StatusHud;
 
 // For config versions 3 or lower
+[SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
+[SuppressMessage("ReSharper", "FieldCanBeMadeReadOnly.Global")]
 public class StatusHudConfigV3
 {
     // ReSharper disable once CollectionNeverUpdated.Global
@@ -18,6 +21,8 @@ public class StatusHudConfigV3
 }
 
 // For config versions 3 or lower
+[SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
+[SuppressMessage("ReSharper", "FieldCanBeMadeReadOnly.Global")]
 public class StatusHudConfigElementV3(string name, int x, int y, int halign, int valign, string elementOptions)
 {
     public int halign = halign;
@@ -49,8 +54,8 @@ public class StatusHudConfigElement(
     public StatusHudPos.HorizAlign horizAlign = horizAlign;
     public string name = name;
     public string options = elementOptions;
-    public int textOffset = textOffset;
     public StatusHudPos.TextAlign textAlign = textAlign;
+    public int textOffset = textOffset;
     public StatusHudPos.VertAlign vertAlign = vertAlign;
     public int x = x;
     public int y = y;
@@ -141,7 +146,11 @@ internal class StatusHudConfigManager
         {
             StatusHudElement element = system.Set(Type.GetType(configElement.name));
 
-            if (element == null) continue;
+            if (element == null)
+            {
+                system.capi.Logger.Warning(StatusHudSystem.PrintModName($"Unable to load element {configElement.name}."));
+                continue;
+            }
 
             element.ConfigOptions(configElement.options);
             StatusHudSystem.SetPos(element, configElement.horizAlign, configElement.x, configElement.vertAlign, configElement.y,

@@ -1,4 +1,3 @@
-using System;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.GameContent;
@@ -54,7 +53,7 @@ public class StatusHudRoomRenderer : StatusHudRenderer
             EntityPlayer entity = system.capi.World.Player.Entity;
             room = entity.World.Api.ModLoader.GetModSystem<RoomRegistry>().GetRoomForPosition(entity.Pos.AsBlockPos);
         }
-        catch (Exception e)
+        catch
         {
             if (showHidden)
             {
@@ -62,20 +61,19 @@ public class StatusHudRoomRenderer : StatusHudRenderer
             }
             return;
         }
-        
+
         if (room.ExitCount == 0)
         {
             // Inside.
             system.capi.Render.RenderTexture(
                 room.IsSmallRoom ? system.textures.TexturesDict["room_cellar"].TextureId : system.textures.TexturesDict["room_room"].TextureId, x,
                 y, w, h);
-            
+
             // No room flag available, based on FruitTreeRootBH.
             if (room.SkylightCount > room.NonSkylightCount)
             {
                 system.capi.Render.RenderTexture(system.textures.TexturesDict["room_greenhouse"].TextureId, x, ghy, w, h);
-            } 
-            
+            }
         }
         else
         {

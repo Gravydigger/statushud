@@ -40,7 +40,7 @@ As I work on maintaining this mod, there are a few goals that I wish to achieve 
 - ~~Add support for multiple languages~~ ✅ Done as of 3.2.0
 - ~~Set native GUI to correcly scale with varying GUI scales~~ ✅ Done as of 4.0.0
 - ~~Change element text orientation in relation to icon~~ ✅ Done as of 4.0.0
-- Allow running elements from other mods
+- ~~Allow running elements from other mods~~ ✅ Done as of 4.0.0 (Documentation pending)
 
 ## Resources
 ### Creating your own translation
