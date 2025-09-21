@@ -10,10 +10,6 @@ public class StatusHudRoomElement : StatusHudElement
     public const string Name = "room";
     private readonly StatusHudRoomRenderer renderer;
 
-    public bool cellar;
-    public bool greenhouse;
-    public bool inside;
-
     public StatusHudRoomElement(StatusHudSystem system) : base(system)
     {
         renderer = new StatusHudRoomRenderer(system, this);
