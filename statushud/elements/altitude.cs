@@ -8,7 +8,6 @@ namespace StatusHud;
 public class StatusHudAltitudeElement : StatusHudElement
 {
     public const string Name = "altitude";
-    private const string textKey = "shud-altitude";
     private readonly StatusHudAltitudeRenderer renderer;
 
     public float needleOffset;
@@ -26,11 +25,6 @@ public class StatusHudAltitudeElement : StatusHudElement
     public override StatusHudRenderer GetRenderer()
     {
         return renderer;
-    }
-
-    public static string GetTextKey()
-    {
-        return textKey;
     }
 
     public override void Tick()
@@ -51,11 +45,12 @@ public class StatusHudAltitudeElement : StatusHudElement
 
 public class StatusHudAltitudeRenderer : StatusHudRenderer
 {
+    private const string textKey = "shud-altitude";
     private readonly StatusHudAltitudeElement element;
     public StatusHudAltitudeRenderer(StatusHudSystem system, StatusHudAltitudeElement element) : base(system)
     {
         this.element = element;
-        text = new StatusHudText(this.system.capi, StatusHudAltitudeElement.GetTextKey(), system.Config);
+        text = new StatusHudText(this.system.capi, textKey, system.Config);
     }
 
     public override void Reload()

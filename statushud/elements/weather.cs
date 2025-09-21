@@ -10,7 +10,6 @@ namespace StatusHud;
 public class StatusHudWeatherElement : StatusHudElement
 {
     public const string Name = "weather";
-    private const string textKey = "shud-weather";
     private const float cfratio = 9f / 5f;
     private const float cfdiff = 32;
     private const float ckdiff = 273.15f;
@@ -18,7 +17,7 @@ public class StatusHudWeatherElement : StatusHudElement
 
     private readonly WeatherSystemBase weatherSystem;
     private string tempScale;
-    public int textureId;
+    internal int textureId;
 
     public StatusHudWeatherElement(StatusHudSystem system) : base(system)
     {
@@ -33,7 +32,7 @@ public class StatusHudWeatherElement : StatusHudElement
         // Config error checking
         if (!ElementOptionList.Any(str => str.Contains(tempScale)))
         {
-            system.capi.Logger.Warning(StatusHudSystem.PrintModName("[{0}] {1} is not a valid value for temperatureFormat. Defaulting to C"), textKey,
+            system.capi.Logger.Warning(StatusHudSystem.PrintModName("[{0}] {1} is not a valid value for temperatureFormat. Defaulting to C"), Name,
                 tempScale);
         }
     }
@@ -45,11 +44,6 @@ public class StatusHudWeatherElement : StatusHudElement
     public override StatusHudRenderer GetRenderer()
     {
         return renderer;
-    }
-
-    public virtual string GetTextKey()
-    {
-        return textKey;
     }
 
     public override void ConfigOptions(string value)
@@ -159,12 +153,13 @@ public class StatusHudWeatherElement : StatusHudElement
 
 public class StatusHudWeatherRenderer : StatusHudRenderer
 {
+    private const string textKey = "shud-weather";
     private readonly StatusHudWeatherElement element;
 
     public StatusHudWeatherRenderer(StatusHudSystem system, StatusHudWeatherElement element) : base(system)
     {
         this.element = element;
-        text = new StatusHudText(this.system.capi, this.element.GetTextKey(), system.Config);
+        text = new StatusHudText(this.system.capi, textKey, system.Config);
     }
 
     public override void Reload()

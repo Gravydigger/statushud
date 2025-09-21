@@ -12,7 +12,6 @@ namespace StatusHud;
 public class StatusHudRiftActivityElement : StatusHudElement
 {
     public const string Name = "riftactivity";
-    private const string textKey = "shud-riftactivity";
     private const string harmonyId = "shud-riftactivity";
 
     private static CurrentPattern _riftActivityData;
@@ -65,11 +64,6 @@ public class StatusHudRiftActivityElement : StatusHudElement
     public override StatusHudRenderer GetRenderer()
     {
         return renderer;
-    }
-
-    public static string GetTextKey()
-    {
-        return textKey;
     }
 
     public override void ConfigOptions(string value)
@@ -136,12 +130,13 @@ public class StatusHudRiftActivityElement : StatusHudElement
 
 public class StatusHudRiftActivityRenderer : StatusHudRenderer
 {
+    private const string textKey = "shud-riftactivity";
     private readonly StatusHudRiftActivityElement element;
 
     public StatusHudRiftActivityRenderer(StatusHudSystem system, StatusHudRiftActivityElement element) : base(system)
     {
         this.element = element;
-        text = new StatusHudText(this.system.capi, StatusHudRiftActivityElement.GetTextKey(), system.Config);
+        text = new StatusHudText(this.system.capi, textKey, system.Config);
     }
 
     public override void Reload()

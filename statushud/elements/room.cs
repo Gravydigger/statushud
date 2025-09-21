@@ -7,12 +7,10 @@ namespace StatusHud;
 public class StatusHudRoomElement : StatusHudElement
 {
     public const string Name = "room";
-    private const string textKey = "shud-room";
-
     private readonly StatusHudRoomRenderer renderer;
+
     public bool cellar;
     public bool greenhouse;
-
     public bool inside;
 
     public StatusHudRoomElement(StatusHudSystem system) : base(system)
@@ -26,11 +24,6 @@ public class StatusHudRoomElement : StatusHudElement
     public override StatusHudRenderer GetRenderer()
     {
         return renderer;
-    }
-
-    public virtual string GetTextKey()
-    {
-        return textKey;
     }
 
     public override void Tick()
@@ -58,7 +51,7 @@ public class StatusHudRoomElement : StatusHudElement
             // Inside.
             inside = true;
             cellar = room.IsSmallRoom;
-            greenhouse = room.SkylightCount > room.NonSkylightCount; // No room flag avaiable, based on FruitTreeRootBH.
+            greenhouse = room.SkylightCount > room.NonSkylightCount; // No room flag available, based on FruitTreeRootBH.
         }
         else
         {
@@ -79,7 +72,6 @@ public class StatusHudRoomElement : StatusHudElement
 public class StatusHudRoomRenderer : StatusHudRenderer
 {
     private readonly StatusHudRoomElement element;
-
     private float ghy;
 
     public StatusHudRoomRenderer(StatusHudSystem system, StatusHudRoomElement element) : base(system)

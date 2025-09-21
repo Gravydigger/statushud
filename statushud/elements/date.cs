@@ -8,7 +8,6 @@ namespace StatusHud;
 public class StatusHudDateElement : StatusHudElement
 {
     public const string Name = "date";
-    private const string textKey = "shud-date";
 
     private readonly string[] monthNames =
     [
@@ -46,11 +45,6 @@ public class StatusHudDateElement : StatusHudElement
         return renderer;
     }
 
-    public static string GetTextKey()
-    {
-        return textKey;
-    }
-
     public override void Tick()
     {
         int day = ((GameCalendar)system.capi.World.Calendar).DayOfMonth;
@@ -86,12 +80,13 @@ public class StatusHudDateElement : StatusHudElement
 
 public class StatusHudDateRenderer : StatusHudRenderer
 {
+    private const string textKey = "shud-date";
     private readonly StatusHudDateElement element;
 
     public StatusHudDateRenderer(StatusHudSystem system, StatusHudDateElement element) : base(system)
     {
         this.element = element;
-        text = new StatusHudText(this.system.capi, StatusHudDateElement.GetTextKey(), system.Config);
+        text = new StatusHudText(this.system.capi, textKey, system.Config);
     }
 
     public override void Reload()

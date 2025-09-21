@@ -7,7 +7,6 @@ namespace StatusHud;
 public class StatusHudBodyHeatElement : StatusHudElement
 {
     public const string Name = "bodyheat";
-    private const string textKey = "shud-bodyheat";
 
     private const float cfratio = 9f / 5f;
     private const float tempIdeal = 37;
@@ -31,7 +30,7 @@ public class StatusHudBodyHeatElement : StatusHudElement
         // Config error checking
         if (!ElementOptionList.Any(str => str.Contains(tempScale)))
         {
-            system.capi.Logger.Warning(StatusHudSystem.PrintModName("[{0}] {1} is not a valid value for temperatureFormat. Defaulting to C"), textKey,
+            system.capi.Logger.Warning(StatusHudSystem.PrintModName("[{0}] {1} is not a valid value for temperatureFormat. Defaulting to C"), Name,
                 tempScale);
         }
     }
@@ -43,11 +42,6 @@ public class StatusHudBodyHeatElement : StatusHudElement
     public override StatusHudRenderer GetRenderer()
     {
         return renderer;
-    }
-
-    public static string GetTextKey()
-    {
-        return textKey;
     }
 
     public override void ConfigOptions(string value)
@@ -114,12 +108,13 @@ public class StatusHudBodyHeatElement : StatusHudElement
 
 public class StatusHudBodyHeatRenderer : StatusHudRenderer
 {
+    private const string textKey = "shud-bodyheat";
     private readonly StatusHudBodyHeatElement element;
 
     public StatusHudBodyHeatRenderer(StatusHudSystem system, StatusHudBodyHeatElement element) : base(system)
     {
         this.element = element;
-        text = new StatusHudText(this.system.capi, StatusHudBodyHeatElement.GetTextKey(), system.Config);
+        text = new StatusHudText(this.system.capi, textKey, system.Config);
     }
 
     public override void Reload()

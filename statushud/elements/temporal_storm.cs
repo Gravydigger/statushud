@@ -10,7 +10,6 @@ namespace StatusHud;
 public class StatusHudTempstormElement : StatusHudElement
 {
     public const string Name = "tempstorm";
-    private const string textKey = "shud-tempstorm";
     private const string harmonyId = "shud-tempstorm";
 
     // Hard-coded values from SystemTemporalStability.
@@ -57,11 +56,6 @@ public class StatusHudTempstormElement : StatusHudElement
     public override StatusHudRenderer GetRenderer()
     {
         return renderer;
-    }
-
-    public virtual string GetTextKey()
-    {
-        return textKey;
     }
 
     public override void Tick()
@@ -130,12 +124,13 @@ public class StatusHudTempstormElement : StatusHudElement
 
 public class StatusHudTempstormRenderer : StatusHudRenderer
 {
+    private const string textKey = "shud-tempstorm";
     private readonly StatusHudTempstormElement element;
 
     public StatusHudTempstormRenderer(StatusHudSystem system, StatusHudTempstormElement element) : base(system)
     {
         this.element = element;
-        text = new StatusHudText(this.system.capi, this.element.GetTextKey(), system.Config);
+        text = new StatusHudText(this.system.capi, textKey, system.Config);
     }
 
     public override void Reload()

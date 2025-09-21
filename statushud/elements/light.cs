@@ -6,7 +6,6 @@ namespace StatusHud;
 public class StatusHudLightElement : StatusHudElement
 {
     public const string Name = "light";
-    private const string textKey = "shud-light";
 
     private readonly StatusHudLightRenderer renderer;
 
@@ -23,11 +22,6 @@ public class StatusHudLightElement : StatusHudElement
     public override StatusHudRenderer GetRenderer()
     {
         return renderer;
-    }
-
-    public virtual string GetTextKey()
-    {
-        return textKey;
     }
 
     public override void Tick()
@@ -58,12 +52,13 @@ public class StatusHudLightElement : StatusHudElement
 
 public class StatusHudLightRenderer : StatusHudRenderer
 {
+    private const string textKey = "shud-light";
     private readonly StatusHudLightElement element;
 
     public StatusHudLightRenderer(StatusHudSystem system, StatusHudLightElement element) : base(system)
     {
         this.element = element;
-        text = new StatusHudText(this.system.capi, this.element.GetTextKey(), system.Config);
+        text = new StatusHudText(this.system.capi, textKey, system.Config);
     }
 
     public override void Reload()

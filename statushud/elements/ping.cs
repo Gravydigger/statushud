@@ -8,7 +8,6 @@ namespace StatusHud;
 public class StatusHudPingElement : StatusHudElement
 {
     public const string Name = "ping";
-    private const string textKey = "shud-ping";
 
     private const int maxPing = 999;
 
@@ -26,11 +25,6 @@ public class StatusHudPingElement : StatusHudElement
     public override StatusHudRenderer GetRenderer()
     {
         return renderer;
-    }
-
-    public virtual string GetTextKey()
-    {
-        return textKey;
     }
 
     public override void Tick()
@@ -67,9 +61,10 @@ public class StatusHudPingElement : StatusHudElement
 
 public class StatusHudPingRenderer : StatusHudRenderer
 {
+    private const string textKey = "shud-ping";
     public StatusHudPingRenderer(StatusHudSystem system, StatusHudPingElement element) : base(system)
     {
-        text = new StatusHudText(this.system.capi, element.GetTextKey(), system.Config);
+        text = new StatusHudText(this.system.capi, textKey, system.Config);
     }
 
     public override void Reload()

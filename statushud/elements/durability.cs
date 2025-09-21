@@ -6,10 +6,7 @@ namespace StatusHud;
 public class StatusHudDurabilityElement : StatusHudElement
 {
     public const string Name = "durability";
-    private const string textKey = "shud-durability";
-
     private readonly StatusHudDurabilityRenderer renderer;
-
     public bool active;
 
     public StatusHudDurabilityElement(StatusHudSystem system) : base(system, true)
@@ -23,11 +20,6 @@ public class StatusHudDurabilityElement : StatusHudElement
     public override StatusHudRenderer GetRenderer()
     {
         return renderer;
-    }
-
-    public static string GetTextKey()
-    {
-        return textKey;
     }
 
     public override void Tick()
@@ -58,12 +50,13 @@ public class StatusHudDurabilityElement : StatusHudElement
 
 public class StatusHudDurabilityRenderer : StatusHudRenderer
 {
+    private const string textKey = "shud-durability";
     private readonly StatusHudDurabilityElement element;
 
     public StatusHudDurabilityRenderer(StatusHudSystem system, StatusHudDurabilityElement element) : base(system)
     {
         this.element = element;
-        text = new StatusHudText(this.system.capi, StatusHudDurabilityElement.GetTextKey(), system.Config);
+        text = new StatusHudText(this.system.capi, textKey, system.Config);
     }
 
     public override void Reload()

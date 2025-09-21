@@ -7,8 +7,6 @@ namespace StatusHud;
 public class StatusHudStabilityElement : StatusHudElement
 {
     public const string Name = "stability";
-    private const string textKey = "shud-stability";
-
     private const float maxStability = 1.5f; // Hard-coded in SystemTemporalStability.
     private readonly StatusHudStabilityRenderer renderer;
 
@@ -31,11 +29,6 @@ public class StatusHudStabilityElement : StatusHudElement
     public override StatusHudRenderer GetRenderer()
     {
         return renderer;
-    }
-
-    public static string GetTextKey()
-    {
-        return textKey;
     }
 
     public override void Tick()
@@ -72,12 +65,13 @@ public class StatusHudStabilityElement : StatusHudElement
 
 public class StatusHudStabilityRenderer : StatusHudRenderer
 {
+    private const string textKey = "shud-stability";
     private readonly StatusHudStabilityElement element;
 
     public StatusHudStabilityRenderer(StatusHudSystem system, StatusHudStabilityElement element) : base(system)
     {
         this.element = element;
-        text = new StatusHudText(this.system.capi, StatusHudStabilityElement.GetTextKey(), system.Config);
+        text = new StatusHudText(this.system.capi, textKey, system.Config);
     }
 
     public override void Reload()

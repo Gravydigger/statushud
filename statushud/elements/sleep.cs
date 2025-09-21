@@ -7,7 +7,6 @@ namespace StatusHud;
 public class StatusHudSleepElement : StatusHudElement
 {
     public const string Name = "sleep";
-    private const string textKey = "shud-sleep";
 
     private const float threshold = 8; // Hard-coded in BlockBed.
     private const float ratio = 0.75f; // Hard-coded in EntityBehaviorTiredness.
@@ -28,11 +27,6 @@ public class StatusHudSleepElement : StatusHudElement
     public override StatusHudRenderer GetRenderer()
     {
         return renderer;
-    }
-
-    public static string GetTextKey()
-    {
-        return textKey;
     }
 
     public override void Tick()
@@ -70,12 +64,13 @@ public class StatusHudSleepElement : StatusHudElement
 
 public class StatusHudSleepRenderer : StatusHudRenderer
 {
+    private const string textKey = "shud-sleep";
     private readonly StatusHudSleepElement element;
 
     public StatusHudSleepRenderer(StatusHudSystem system, StatusHudSleepElement element) : base(system)
     {
         this.element = element;
-        text = new StatusHudText(this.system.capi, StatusHudSleepElement.GetTextKey(), system.Config);
+        text = new StatusHudText(this.system.capi, textKey, system.Config);
     }
 
     public override void Reload()

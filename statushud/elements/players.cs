@@ -5,8 +5,6 @@ namespace StatusHud;
 public class StatusHudPlayersElement : StatusHudElement
 {
     public const string Name = "players";
-    private const string textKey = "shud-players";
-
     private readonly StatusHudPlayersRenderer renderer;
 
     public StatusHudPlayersElement(StatusHudSystem system) : base(system)
@@ -20,11 +18,6 @@ public class StatusHudPlayersElement : StatusHudElement
     public override StatusHudRenderer GetRenderer()
     {
         return renderer;
-    }
-
-    public static string GetTextKey()
-    {
-        return textKey;
     }
 
     public override void Tick()
@@ -41,9 +34,10 @@ public class StatusHudPlayersElement : StatusHudElement
 
 public class StatusHudPlayersRenderer : StatusHudRenderer
 {
+    private const string textKey = "shud-players";
     public StatusHudPlayersRenderer(StatusHudSystem system, StatusHudPlayersElement element) : base(system)
     {
-        text = new StatusHudText(this.system.capi, StatusHudPlayersElement.GetTextKey(), system.Config);
+        text = new StatusHudText(this.system.capi, textKey, system.Config);
     }
 
     public override void Reload()

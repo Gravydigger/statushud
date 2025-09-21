@@ -1,13 +1,11 @@
 using System;
 using Vintagestory.API.Client;
-using Vintagestory.GameContent;
 
 namespace StatusHud;
 
 public class StatusHudLatitudeElement : StatusHudElement
 {
     public const string Name = "latitude";
-    private const string textKey = "shud-latitude";
     private readonly StatusHudLatitudeRenderer renderer;
 
     public float needleOffset;
@@ -27,11 +25,6 @@ public class StatusHudLatitudeElement : StatusHudElement
         return renderer;
     }
 
-    public virtual string GetTextKey()
-    {
-        return textKey;
-    }
-
     public override void Tick()
     {
         double latitude = system.capi.World.Calendar.OnGetLatitude(system.capi.World.Player.Entity.Pos.Z);
@@ -48,12 +41,13 @@ public class StatusHudLatitudeElement : StatusHudElement
 
 public class StatusHudLatitudeRenderer : StatusHudRenderer
 {
+    private const string textKey = "shud-latitude";
     private readonly StatusHudLatitudeElement element;
 
     public StatusHudLatitudeRenderer(StatusHudSystem system, StatusHudLatitudeElement element) : base(system)
     {
         this.element = element;
-        text = new StatusHudText(this.system.capi, this.element.GetTextKey(), system.Config);
+        text = new StatusHudText(this.system.capi, textKey, system.Config);
     }
 
     public override void Reload()

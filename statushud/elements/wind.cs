@@ -9,12 +9,10 @@ namespace StatusHud;
 public class StatusHudWindElement : StatusHudElement
 {
     public const string Name = "wind";
-    private const string textKey = "shud-wind";
     private readonly StatusHudWindRenderer renderer;
 
     private readonly WeatherSystemBase weatherSystem;
     public float dirAngle;
-
     public bool directional;
 
     public StatusHudWindElement(StatusHudSystem system) : base(system)
@@ -33,11 +31,6 @@ public class StatusHudWindElement : StatusHudElement
     public override StatusHudRenderer GetRenderer()
     {
         return renderer;
-    }
-
-    public virtual string GetTextKey()
-    {
-        return textKey;
     }
 
     public override void Tick()
@@ -70,12 +63,13 @@ public class StatusHudWindElement : StatusHudElement
 
 public class StatusHudWindRenderer : StatusHudRenderer
 {
+    private const string textKey = "shud-wind";
     private readonly StatusHudWindElement element;
 
     public StatusHudWindRenderer(StatusHudSystem system, StatusHudWindElement element) : base(system)
     {
         this.element = element;
-        text = new StatusHudText(this.system.capi, this.element.GetTextKey(), system.Config);
+        text = new StatusHudText(this.system.capi, textKey, system.Config);
     }
 
     public override void Reload()

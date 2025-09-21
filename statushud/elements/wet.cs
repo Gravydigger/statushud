@@ -6,8 +6,6 @@ namespace StatusHud;
 public class StatusHudWetElement : StatusHudElement
 {
     public const string Name = "wet";
-    private const string textKey = "shud-wet";
-
     private readonly StatusHudWetRenderer renderer;
 
     public bool active;
@@ -25,11 +23,6 @@ public class StatusHudWetElement : StatusHudElement
     public override StatusHudRenderer GetRenderer()
     {
         return renderer;
-    }
-
-    public virtual string GetTextKey()
-    {
-        return textKey;
     }
 
     public override void Tick()
@@ -62,12 +55,13 @@ public class StatusHudWetElement : StatusHudElement
 
 public class StatusHudWetRenderer : StatusHudRenderer
 {
+    private const string textKey = "shud-wet";
     private readonly StatusHudWetElement element;
 
     public StatusHudWetRenderer(StatusHudSystem system, StatusHudWetElement element) : base(system)
     {
         this.element = element;
-        text = new StatusHudText(this.system.capi, this.element.GetTextKey(), system.Config);
+        text = new StatusHudText(this.system.capi, textKey, system.Config);
     }
 
     public override void Reload()

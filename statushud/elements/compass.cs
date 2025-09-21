@@ -8,7 +8,6 @@ namespace StatusHud;
 public class StatusHudCompassElement : StatusHudElement
 {
     public const string Name = "compass";
-    private const string textKey = "shud-compass";
     private readonly StatusHudCompassRenderer renderer;
     private string compassBearing;
 
@@ -22,7 +21,7 @@ public class StatusHudCompassElement : StatusHudElement
         // Config error checking
         if (!ElementOptionList.Any(str => str.Contains(compassBearing)))
         {
-            system.capi.Logger.Warning(StatusHudSystem.PrintModName("[{0}] {1} is not a valid value for compassBearing. Defaulting to relative"), textKey,
+            system.capi.Logger.Warning(StatusHudSystem.PrintModName("[{0}] {1} is not a valid value for compassBearing. Defaulting to relative"), Name,
                 compassBearing);
         }
     }
@@ -34,11 +33,6 @@ public class StatusHudCompassElement : StatusHudElement
     public override StatusHudRenderer GetRenderer()
     {
         return renderer;
-    }
-
-    public static string GetTextKey()
-    {
-        return textKey;
     }
 
     public override void ConfigOptions(string value)
@@ -65,12 +59,13 @@ public class StatusHudCompassElement : StatusHudElement
 
 public class StatusHudCompassRenderer : StatusHudRenderer
 {
+    private const string textKey = "shud-compass";
     private readonly StatusHudCompassElement element;
 
     public StatusHudCompassRenderer(StatusHudSystem system, StatusHudCompassElement element) : base(system)
     {
         this.element = element;
-        text = new StatusHudText(this.system.capi, StatusHudCompassElement.GetTextKey(), system.Config);
+        text = new StatusHudText(this.system.capi, textKey, system.Config);
     }
 
     public override void Reload()

@@ -9,7 +9,6 @@ namespace StatusHud;
 public sealed class StatusHudArmourElement : StatusHudElement
 {
     public const string Name = "armour";
-    private const string textKey = "shud-armour";
 
     // Hard-coded.
     // https://github.com/anegostudios/vssurvivalmod/blob/master/Systems/WearableStats.cs#L135-L152
@@ -37,11 +36,6 @@ public sealed class StatusHudArmourElement : StatusHudElement
     public override StatusHudRenderer GetRenderer()
     {
         return renderer;
-    }
-
-    public string GetTextKey()
-    {
-        return textKey;
     }
 
     public override void Tick()
@@ -93,12 +87,13 @@ public sealed class StatusHudArmourElement : StatusHudElement
 
 public class StatusHudArmourRenderer : StatusHudRenderer
 {
+    private const string textKey = "shud-armour";
     private readonly StatusHudArmourElement element;
 
     public StatusHudArmourRenderer(StatusHudSystem system, StatusHudArmourElement element) : base(system)
     {
         this.element = element;
-        text = new StatusHudText(this.system.capi, this.element.GetTextKey(), system.Config);
+        text = new StatusHudText(this.system.capi, textKey, system.Config);
     }
 
     public override void Reload()
