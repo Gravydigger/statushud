@@ -43,7 +43,7 @@ As I work on maintaining this mod, there are a few goals that I wish to achieve 
 - ~~Allow running elements from other mods~~ ✅ Done as of 4.0.0 (Documentation pending)
 
 ## Resources
-### Creating your own translation
+### Creating Your Own Translation
 - In your _Mods_ folder (`VintagestoryData/Mods/`), create a new folder with the name of your choice. In this example, it will be called `mylangtranslation`.
 - In this new `mylangtranslation` folder, create a file called `modinfo.json`, and open it in the text editor of your choice.
 - In this new `modinfo.json` file, enter the following:
@@ -72,6 +72,9 @@ As I work on maintaining this mod, there are a few goals that I wish to achieve 
 - **Notes:**
   - Any missing entries will default back to the English Translation.
   - Feel free to send me your translation for your language as a [Github Issue](https://github.com/Gravydigger/statushud/issues) if you want to add it to _Status Hud Continued_.
+
+### Creating Your Own Custom Elements
+Check out the [Status HUD Example Element](https://github.com/Gravydigger/statushud-element-example) for documentation and an example element.
 
 ### Config File Layout
 Upon running the mod, a `statushud.json` config file will be created in the game's **ModConfig** directory. The available options are:
