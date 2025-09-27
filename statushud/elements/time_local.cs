@@ -8,12 +8,9 @@ public class StatusHudTimeLocalElement : StatusHudTimeElement
     public new const string Name = "timelocal";
     private const string textKey = "shud-timelocal";
 
-    private readonly new string timeFormat;
-
     public StatusHudTimeLocalElement(StatusHudSystem system) : base(system)
     {
         textureId = system.textures.TexturesDict["time_local"].TextureId;
-        timeFormat = base.timeFormat;
     }
     public override string ElementOption => timeFormat;
 

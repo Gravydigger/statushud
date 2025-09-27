@@ -129,7 +129,7 @@ public class StatusHudConfigGui : GuiDialog
             }
 
             optionsValue = element.ElementOptionList;
-            optionIndex = Math.Max(optionsName.IndexOf(elementName), 0);
+            optionIndex = Math.Max(element.ElementOptionList.IndexOf(element.ElementOption), 0);
 
             optionsText = Lang.Get($"statushudcont:{elementName}-opt-text");
             optionsTooltip = Lang.Get($"statushudcont:{elementName}-opt-tooltip");
@@ -192,7 +192,7 @@ public class StatusHudConfigGui : GuiDialog
                 .AddNumberInput(textAlignOffsetInputBounds, OnTextAlignOffsetChange, key: "shud-textalignoffset")
                 .AddIf(optionsValue.Length > 0)
                 .AddStaticText(optionsText, CairoFont.WhiteSmallishText(), optionalConfigTextBounds)
-                .AddDropDown(optionsValue, optionsName, optionIndex, OnOptionalConfig, optionalConfigDropdownBounds)
+                .AddDropDown(optionsValue, optionsName, optionIndex, OnOptionalConfig, optionalConfigDropdownBounds, "shud-options")
                 .AddAutoSizeHoverText(optionsTooltip, CairoFont.WhiteSmallText(), tooltipLength, optionalConfigDropdownBounds.FlatCopy())
                 .EndIf()
                 .EndChildElements()
@@ -230,6 +230,9 @@ public class StatusHudConfigGui : GuiDialog
             SingleComposer.GetTextInput("shud-ypos").SetValue(element.pos.y);
             SingleComposer.GetDropDown("shud-textalign").SetSelectedValue(element.pos.textAlign.ToString());
             SingleComposer.GetNumberInput("shud-textalignoffset").SetValue(element.pos.textAlignOffset);
+
+            if (element.ElementOptionList != null)
+                SingleComposer.GetDropDown("shud-options").SetSelectedValue(element.ElementOption);
 
             HudAlign alignDisplayVal = HudAlign.TrueCenter;
 
