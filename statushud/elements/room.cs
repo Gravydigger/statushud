@@ -1,5 +1,4 @@
 using Vintagestory.API.Client;
-using Vintagestory.API.Common;
 using Vintagestory.GameContent;
 
 namespace StatusHud;
@@ -9,10 +8,14 @@ public class StatusHudRoomElement : StatusHudElement
     public const string Name = "room";
     private readonly StatusHudRoomRenderer renderer;
 
+    private readonly IClientWorldAccessor world;
+    internal Room room;
+
     public StatusHudRoomElement(StatusHudSystem system) : base(system)
     {
         renderer = new StatusHudRoomRenderer(system, this);
         this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
+        world = system.capi.World;
     }
 
     public override string ElementName => Name;
@@ -24,6 +27,11 @@ public class StatusHudRoomElement : StatusHudElement
 
     public override void Tick()
     {
+        if (world.Player == null)
+        {
+            return;
+        }
+        room = world.Api.ModLoader.GetModSystem<RoomRegistry>().GetRoomForPosition(world.Player.Entity.Pos.AsBlockPos);
     }
 
     public override void Dispose()
@@ -35,36 +43,26 @@ public class StatusHudRoomElement : StatusHudElement
 
 public class StatusHudRoomRenderer : StatusHudRenderer
 {
+    private readonly StatusHudRoomElement element;
     private float ghy;
 
     public StatusHudRoomRenderer(StatusHudSystem system, StatusHudRoomElement element) : base(system)
     {
+        this.element = element;
     }
 
     public override void Reload()
     {
+        // Intentionally left blank.
     }
 
     protected override void Render()
     {
-        Room room;
-        try
-        {
-            EntityPlayer entity = system.capi.World.Player.Entity;
-            room = entity.World.Api.ModLoader.GetModSystem<RoomRegistry>().GetRoomForPosition(entity.Pos.AsBlockPos);
-        }
-        catch
-        {
-            if (showHidden)
-            {
-                RenderHidden(system.textures.TexturesDict["room_room"].TextureId);
-            }
-            return;
-        }
-
-        if (room.ExitCount == 0)
+        if (element.room is { ExitCount: 0 })
         {
             // Inside.
+            Room room = element.room;
+
             system.capi.Render.RenderTexture(
                 room.IsSmallRoom ? system.textures.TexturesDict["room_cellar"].TextureId : system.textures.TexturesDict["room_room"].TextureId, x,
                 y, w, h);
