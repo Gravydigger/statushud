@@ -15,8 +15,8 @@ public class StatusHudSystem : ModSystem
 {
     public const string Domain = "statushudcont";
     public const int IconSize = 32;
-    private const int slowListenInterval = 1000;
-    private const int fastListenInterval = 100;
+    public const int SlowListenInterval = 1000;
+    public const int FastListenInterval = 100;
 
     public ICoreClientAPI capi;
 
@@ -78,8 +78,8 @@ public class StatusHudSystem : ModSystem
             configManager.LoadElements(this);
         }
 
-        slowListenerId = this.capi.Event.RegisterGameTickListener(SlowTick, slowListenInterval);
-        fastListenerId = this.capi.Event.RegisterGameTickListener(FastTick, fastListenInterval);
+        slowListenerId = this.capi.Event.RegisterGameTickListener(SlowTick, SlowListenInterval);
+        fastListenerId = this.capi.Event.RegisterGameTickListener(FastTick, FastListenInterval);
 
         capi.Event.PlayerJoin += SetUuid;
         // Used to check for new elements for other mods

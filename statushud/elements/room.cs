@@ -14,6 +14,7 @@ public class StatusHudRoomElement : StatusHudElement
     private readonly IClientWorldAccessor world;
     private readonly RoomRegistry roomRegistry;
     private readonly Thread roomUpdateThread;
+    private readonly int updateInterval;
     private volatile bool isRunning;
 
     private BlockPos currentPosition;
@@ -33,6 +34,9 @@ public class StatusHudRoomElement : StatusHudElement
         this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
         world = system.capi.World;
         roomRegistry = world.Api.ModLoader.GetModSystem<RoomRegistry>();
+
+        // Match the update interval to the tick frequency
+        updateInterval = fast ? StatusHudSystem.FastListenInterval : StatusHudSystem.SlowListenInterval;
 
         // Start background thread for room updates
         isRunning = true;
@@ -79,8 +83,8 @@ public class StatusHudRoomElement : StatusHudElement
                     _isGreenhouse = room?.SkylightCount > room?.NonSkylightCount;
                 }
 
-                // Update every 100ms
-                Thread.Sleep(100);
+                // Sleep for the appropriate interval (matches tick frequency)
+                Thread.Sleep(updateInterval);
             }
         }
         catch (ThreadInterruptedException)
