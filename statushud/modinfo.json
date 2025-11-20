@@ -7,6 +7,9 @@
     "Gravydigger",
     "Rangelost"
   ],
+  "contributors": [
+    "dizzyd"
+  ],
   "description": "Displays status information on the HUD.",
   "side": "Client",
   "dependencies": {
