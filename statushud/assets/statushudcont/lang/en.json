@@ -52,7 +52,7 @@
   "health-name": "Health",
   "health-desc": "The 'Health' element display's the players current and maximum health points.",
   "hunger-name": "Hunger",
-  "hunger-desc": "The 'Hunger' element display's the players current satiety.",
+  "hunger-desc": "The 'Hunger' element display's the players current and maximum satiety.",
   "latitude-name": "Latitude",
   "latitude-desc": "The 'Latitude' element displays the player's current latitude (in degrees).",
   "light-name": "Light",
