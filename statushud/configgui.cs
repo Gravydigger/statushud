@@ -221,7 +221,7 @@ public class StatusHudConfigGui : GuiDialog
             SingleComposer.GetNumberInput("shud-ypos").SetValue(0);
             SingleComposer.GetNumberInput("shud-textalignoffset").SetValue(0);
             SingleComposer.GetDropDown("shud-textalign").SetSelectedValue(nameof(StatusHudPos.TextAlign.Up));
-            SingleComposer.GetDropDown("shud-align").SetSelectedValue(nameof(HudAlign.TrueCenter));
+            SingleComposer.GetDropDown("shud-align").SetSelectedValue(nameof(HudAlign.CenterCenter));
         }
         else
         {
@@ -234,7 +234,7 @@ public class StatusHudConfigGui : GuiDialog
             if (element.ElementOptionList != null)
                 SingleComposer.GetDropDown("shud-options").SetSelectedValue(element.ElementOption);
 
-            HudAlign alignDisplayVal = HudAlign.TrueCenter;
+            HudAlign alignDisplayVal = HudAlign.CenterCenter;
 
             alignDisplayVal = element.pos.vertAlign switch
             {
@@ -248,7 +248,7 @@ public class StatusHudConfigGui : GuiDialog
                 StatusHudPos.VertAlign.Middle => element.pos.horizAlign switch
                 {
                     StatusHudPos.HorizAlign.Left => HudAlign.CenterLeft,
-                    StatusHudPos.HorizAlign.Center => HudAlign.TopCenter,
+                    StatusHudPos.HorizAlign.Center => HudAlign.CenterCenter,
                     StatusHudPos.HorizAlign.Right => HudAlign.CenterRight,
                     _ => alignDisplayVal
                 },
@@ -445,7 +445,7 @@ public class StatusHudConfigGui : GuiDialog
             case HudAlign.BottomRight:
                 pos = new Tuple<StatusHudPos.VertAlign, StatusHudPos.HorizAlign>(StatusHudPos.VertAlign.Bottom, StatusHudPos.HorizAlign.Right);
                 break;
-            case HudAlign.TrueCenter:
+            case HudAlign.CenterCenter:
             default:
                 pos = new Tuple<StatusHudPos.VertAlign, StatusHudPos.HorizAlign>(StatusHudPos.VertAlign.Middle, StatusHudPos.HorizAlign.Center);
                 break;
@@ -505,7 +505,7 @@ public class StatusHudConfigGui : GuiDialog
         TopCenter,
         TopRight,
         CenterLeft,
-        TrueCenter,
+        CenterCenter,
         CenterRight,
         BottomLeft,
         BottomCenter,
