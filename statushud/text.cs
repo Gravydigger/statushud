@@ -177,7 +177,8 @@ public sealed class StatusHudText : HudElement
     {
         SingleComposer?.Dispose();
         ElementBounds dialogBounds = ElementBounds.Fixed(area, x + offsetX, y + offsetY, width, height);
-        ElementBounds textBounds = ElementBounds.Fixed(EnumDialogArea.CenterMiddle, 0, 0, width, height - StatusHudSystem.IconSize * config.elementScale / 4f);
+        ElementBounds textBounds = ElementBounds.Fixed(EnumDialogArea.CenterMiddle, 0, 0, width,
+            height - StatusHudSystem.IconSize * config.elementScale / 4f);
         SingleComposer = capi.Gui.CreateCompo(dialogName, dialogBounds)
             .AddDynamicText("", font, textBounds, key)
             .Compose();
@@ -196,7 +197,7 @@ public sealed class StatusHudText : HudElement
             .WithStroke([0, 0, 0, 0.5], 2);
     }
 
-    // To be implemented
+    // TODO: To be implemented
     // public void SetFontColour(Vec4f colour)
     // {
     //     font.Color = [colour.R, colour.G, colour.B, colour.A];

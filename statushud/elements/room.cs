@@ -10,23 +10,21 @@ public class StatusHudRoomElement : StatusHudElement
 {
     public const string Name = "room";
     private readonly StatusHudRoomRenderer renderer;
-
-    private readonly IClientWorldAccessor world;
     private readonly RoomRegistry roomRegistry;
     private readonly Thread roomUpdateThread;
     private readonly int updateInterval;
-    private volatile bool isRunning;
+
+    private readonly IClientWorldAccessor world;
+
+    // TODO: Fix for https://github.com/Gravydigger/statushud/issues/28 & https://github.com/anegostudios/VintageStory-Issues/issues/7607.
+    // May be possible to remove after 7607 is resolved.
+    // Thread-safe room state flags using volatile for atomic reads/writes.
+    private volatile bool _inRoom;
+    private volatile bool _isGreenhouse;
+    private volatile bool _isSmallRoom;
 
     private BlockPos currentPosition;
-
-    // Thread-safe room state flags using volatile for atomic reads/writes
-    private volatile bool _inRoom;
-    private volatile bool _isSmallRoom;
-    private volatile bool _isGreenhouse;
-
-    internal bool InRoom => _inRoom;
-    internal bool IsSmallRoom => _isSmallRoom;
-    internal bool IsGreenhouse => _isGreenhouse;
+    private volatile bool isRunning;
 
     public StatusHudRoomElement(StatusHudSystem system) : base(system)
     {
@@ -35,10 +33,10 @@ public class StatusHudRoomElement : StatusHudElement
         world = system.capi.World;
         roomRegistry = world.Api.ModLoader.GetModSystem<RoomRegistry>();
 
-        // Match the update interval to the tick frequency
+        // Match the update interval to the tick frequency.
         updateInterval = fast ? StatusHudSystem.FastListenInterval : StatusHudSystem.SlowListenInterval;
 
-        // Start background thread for room updates
+        // Start background thread for room updates.
         isRunning = true;
         roomUpdateThread = new Thread(RoomUpdateLoop)
         {
@@ -47,6 +45,10 @@ public class StatusHudRoomElement : StatusHudElement
         };
         roomUpdateThread.Start();
     }
+
+    internal bool InRoom => _inRoom;
+    internal bool IsSmallRoom => _isSmallRoom;
+    internal bool IsGreenhouse => _isGreenhouse;
 
     public override string ElementName => Name;
 
@@ -62,7 +64,7 @@ public class StatusHudRoomElement : StatusHudElement
             return;
         }
 
-        // Just update the position to check
+        // Just update the position to check.
         currentPosition = world.Player.Entity.Pos.AsBlockPos;
     }
 
@@ -77,19 +79,19 @@ public class StatusHudRoomElement : StatusHudElement
                 {
                     Room room = roomRegistry.GetRoomForPosition(pos);
 
-                    // Atomic writes via volatile fields
+                    // Atomic writes via volatile fields.
                     _inRoom = room?.ExitCount == 0;
                     _isSmallRoom = room?.IsSmallRoom == true;
                     _isGreenhouse = room?.SkylightCount > room?.NonSkylightCount;
                 }
 
-                // Sleep for the appropriate interval (matches tick frequency)
+                // Sleep for the appropriate interval (matches tick frequency).
                 Thread.Sleep(updateInterval);
             }
         }
         catch (ThreadInterruptedException)
         {
-            // Thread was interrupted, exit gracefully
+            // Thread was interrupted, exit gracefully.
         }
         catch (Exception ex)
         {
@@ -101,7 +103,7 @@ public class StatusHudRoomElement : StatusHudElement
     {
         isRunning = false;
 
-        // Wait for thread to stop (with timeout)
+        // Wait for thread to stop (with timeout).
         if (roomUpdateThread?.IsAlive == true)
         {
             roomUpdateThread.Interrupt();
@@ -137,13 +139,16 @@ public class StatusHudRoomRenderer : StatusHudRenderer
         {
             // Inside.
             system.capi.Render.RenderTexture(
-                element.IsSmallRoom ? system.textures.TexturesDict["room_cellar"].TextureId : system.textures.TexturesDict["room_room"].TextureId, x,
+                element.IsSmallRoom
+                    ? system.textures.TexturesDict["room_cellar"].TextureId
+                    : system.textures.TexturesDict["room_room"].TextureId, x,
                 y, w, h);
 
             // No room flag available, based on FruitTreeRootBH.
             if (element.IsGreenhouse)
             {
-                system.capi.Render.RenderTexture(system.textures.TexturesDict["room_greenhouse"].TextureId, x, ghy, w, h);
+                system.capi.Render.RenderTexture(system.textures.TexturesDict["room_greenhouse"].TextureId, x, ghy, w,
+                    h);
             }
         }
         else
