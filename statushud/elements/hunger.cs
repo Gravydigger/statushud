@@ -31,7 +31,7 @@ public class StatusHudHungerElement : StatusHudElement
 
         if (hunger == null || maxHunger == null) return;
 
-        renderer.SetText(hunger + " / " + maxHunger);
+        renderer.SetText((int)hunger + " / " + (int)maxHunger);
     }
 
     public override void Dispose()
