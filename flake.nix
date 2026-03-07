@@ -28,7 +28,7 @@
           name = "csharp-dev";
 
           packages = with pkgs; [
-            dotnet-sdk_8
+            dotnet-sdk_10
             omnisharp-roslyn
             mono
             msbuild

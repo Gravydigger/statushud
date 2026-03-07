@@ -2,7 +2,7 @@
   "type": "code",
   "name": "Status HUD",
   "modid": "statushudcont",
-  "version": "4.1.1",
+  "version": "4.2.0",
   "authors": [
     "Gravydigger",
     "Rangelost"
@@ -13,6 +13,6 @@
   "description": "Displays status information on the HUD.",
   "side": "Client",
   "dependencies": {
-    "game": "1.21.0"
+    "game": "1.22.0-rc.1"
   }
 }

@@ -2,7 +2,6 @@ using System;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Config;
-using Vintagestory.GameContent;
 
 namespace StatusHud;
 
@@ -40,7 +39,8 @@ public sealed class StatusHudArmourElement : StatusHudElement
 
     public override void Tick()
     {
-        IInventory inventory = system.capi.World.Player.InventoryManager.GetOwnInventory(GlobalConstants.characterInvClassName);
+        IInventory inventory =
+            system.capi.World.Player.InventoryManager.GetOwnInventory(GlobalConstants.characterInvClassName);
 
         if (inventory == null)
         {
@@ -54,11 +54,16 @@ public sealed class StatusHudArmourElement : StatusHudElement
         {
             ItemSlot slot = inventory[i];
 
-            if (slot.Empty || slot.Itemstack.Item is not ItemWearable) continue;
+            if (slot.Empty) continue;
+
+            IWearableStatsSupplier wearableStats =
+                slot.Itemstack.Collectible.GetCollectibleInterface<IWearableStatsSupplier>();
+
+            if (wearableStats == null || !wearableStats.IsArmorType(slot)) continue;
 
             int max = slot.Itemstack.Collectible.GetMaxDurability(slot.Itemstack);
 
-            // For cases like the night vision mask, where the armour has no durability
+            // For cases like the night vision mask, where the armour has no durability.
             if (max <= 0) continue;
 
             average += slot.Itemstack.Collectible.GetRemainingDurability(slot.Itemstack) / (float)max;
