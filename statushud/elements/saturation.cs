@@ -146,12 +146,12 @@ public class StatusHudSaturationRenderer : StatusHudRenderer
         {
             if (showHidden)
             {
-                RenderHidden(system.textures.TexturesDict["light"].TextureId);
+                RenderHidden(system.textures.TexturesDict["saturation"].TextureId);
             }
             return;
         }
 
-        system.capi.Render.RenderTexture(system.textures.TexturesDict["light"].TextureId, x, y, w, h);
+        system.capi.Render.RenderTexture(system.textures.TexturesDict["saturation"].TextureId, x, y, w, h);
     }
 
     public override void Dispose()
