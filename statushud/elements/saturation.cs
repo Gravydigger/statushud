@@ -93,11 +93,9 @@ public class StatusHudSaturationElement : StatusHudElement
         if (sat > 0 && satDelaySec > 0)
         {
             satDelaySec -= _satLossMultiplier;
-            string msg = $"{Math.Round(satDelaySec, 1)}s";
-
-            renderer.SetText(msg);
-            system.capi.Logger.Notification(msg + " " + sat + " " + _satLossMultiplier);
             active = true;
+
+            renderer.SetText($"{Math.Round(satDelaySec, 1)}s");
         }
         else
         {
