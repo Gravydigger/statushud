@@ -48,6 +48,9 @@ public class StatusHudSaturationElement : StatusHudElement
 
     public override void Tick()
     {
+        // Details found in:
+        // https://github.com/anegostudios/vsessentialsmod/blob/master/Entity/Behavior/BehaviorHunger.cs#L288
+
         ITreeAttribute hungerTree = system.capi.World.Player.Entity.WatchedAttributes.GetTreeAttribute("hunger");
 
         if (hungerTree == null) return;
@@ -90,6 +93,8 @@ public class StatusHudSaturationElement : StatusHudElement
             prevSat = sat;
         }
 
+        // Since hunger is normally only checked every 10 seconds, and this element is updated every second,
+        // try and estimate when the saturation pause ends.
         if (sat > 0 && satDelaySec > 0)
         {
             satDelaySec -= _satLossMultiplier;
