@@ -26,6 +26,7 @@ _Status HUD Continued_ offers a collection of various elements to display on the
 - **`Players`**: displays the number of players currently online;
 - **`Rift Activity`**: displays the number of hours until the next change in activity, and changes icons depending on the current activity. If rifts are turned off, this element is hidden. When adding this element to the HUD, a reload may be required;
 - **`Room`**: displays a house icon when the player is inside a room (house for large room, cabin for small room or cellar), and a sun icon above when inside a greenhouse. If the player is outside, this element is hidden;
+- **`Saturation`**: displays an estimate of the delay until the player's hunger will start to decrease;
 - **`Sleep`**: displays a countdown until the next time the player is able to sleep. If the player can sleep, this element is hidden;
 - **`Speed`**: displays the player's current speed (in m/s);
 - **`Stability`**: displays the temporal stability (e.g. `76%`) at the player's position if it is below 150%. If the temporal stability is 150%, this element is hidden;

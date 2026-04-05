@@ -70,7 +70,7 @@
   "room-name": "Room",
   "room-desc": "The 'Room' element displays a house icon when inside a room, a cabin icon when inside a small room (cellar), or a sun icon when inside a greenhouse. Otherwise, it is hidden.",
   "saturation-name": "Saturation",
-  "saturation-desc": "The 'Saturation' element displays the delay until the player's hunger will start to decrease.",
+  "saturation-desc": "The 'Saturation' element displays an estimate of the delay until the player's hunger will start to decrease.",
   "sleep-name": "Sleep",
   "sleep-desc": "The 'Sleep' element displays a countdown until the next time the player is able to sleep. If the player can sleep, it is hidden.",
   "speed-name": "Speed",
