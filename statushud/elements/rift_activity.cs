@@ -90,7 +90,7 @@ public class StatusHudRiftActivityElement : StatusHudElement
 
         if (showRiftChange.ToLower().ToBool())
         {
-            double hours = system.capi.World.Calendar.TotalHours;
+            double hours = system.capi.World.Calendar.ElapsedHours;
             double nextRiftChange = Math.Max(_riftActivityData.UntilTotalHours - hours, 0);
 
             TimeSpan ts = TimeSpan.FromHours(nextRiftChange);
