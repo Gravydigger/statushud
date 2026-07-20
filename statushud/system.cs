@@ -77,7 +77,7 @@ public class StatusHudSystem : ModSystem
         }
         else
         {
-            configManager.LoadElements(this);
+            configManager.LoadElements();
         }
 
         slowListenerId = this.capi.Event.RegisterGameTickListener(SlowTick, SlowListenInterval);
@@ -163,7 +163,7 @@ public class StatusHudSystem : ModSystem
     {
         Clear();
         configManager.Load();
-        configManager.LoadElements(this);
+        configManager.LoadElements();
     }
 
     public void ReloadElements()

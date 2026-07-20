@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Reflection;
 using System.Text.Json;
 using Vintagestory.API.Config;
 
@@ -140,7 +141,7 @@ internal class StatusHudConfigManager
         }
     }
 
-    internal void LoadElements(StatusHudSystem system)
+    internal void LoadElements()
     {
         foreach (StatusHudConfigElement configElement in Config.elements)
         {
@@ -148,12 +149,14 @@ internal class StatusHudConfigManager
 
             if (element == null)
             {
-                system.capi.Logger.Warning(StatusHudSystem.PrintModName($"Unable to load element {configElement.name}."));
+                system.capi.Logger.Warning(
+                    StatusHudSystem.PrintModName($"Unable to load element {configElement.name}."));
                 continue;
             }
 
             element.ConfigOptions(configElement.options);
-            StatusHudSystem.SetPos(element, configElement.horizAlign, configElement.x, configElement.vertAlign, configElement.y,
+            StatusHudSystem.SetPos(element, configElement.horizAlign, configElement.x, configElement.vertAlign,
+                configElement.y,
                 configElement.textAlign, configElement.textOffset);
         }
     }
@@ -162,10 +165,21 @@ internal class StatusHudConfigManager
     {
         Config.elements.Clear();
 
+        string statusHudAssemblyName = Assembly.GetExecutingAssembly().GetName().Name;
+
         foreach (StatusHudElement element in system.elements)
         {
+            string configElementName = element.GetType().FullName;
+
+            // If a custom element is being used, add the assembly name. Otherwise, ignore it to keep config looking clean.
+            // (yes, I know I could have used `element.GetType().AssemblyQualifiedName` but where is the fun in that?)
+            if (element.GetType().Assembly.GetName().Name != statusHudAssemblyName)
+            {
+                configElementName += $", {element.GetType().Assembly.GetName().Name}";
+            }
+
             Config.elements.Add(new StatusHudConfigElement(
-                element.GetType().ToString(),
+                configElementName,
                 element.pos.x,
                 element.pos.y,
                 element.pos.horizAlign,
@@ -262,14 +276,17 @@ internal class StatusHudConfigManager
         StatusHudConfig newConfig = new()
         {
             version = 4,
-            elementScale = (float)Math.Clamp(Math.Round((double)(configV3.iconSize / StatusHudSystem.IconSize)), 0.5f, 2f),
+            elementScale = (float)Math.Clamp(Math.Round((double)(configV3.iconSize / StatusHudSystem.IconSize)), 0.5f,
+                2f),
             showHidden = configV3.showHidden
         };
 
         foreach (StatusHudConfigElementV3 oldElement in configV3.elements)
         {
             StatusHudConfigElement newElement = new(
-                StatusHudSystem.ElementTypes.TryGetValue(oldElement.name, out Type value) ? value.ToString() : "invalid",
+                StatusHudSystem.ElementTypes.TryGetValue(oldElement.name, out Type value)
+                    ? value.ToString()
+                    : "invalid",
                 oldElement.x,
                 oldElement.y,
                 (StatusHudPos.HorizAlign)oldElement.halign,
