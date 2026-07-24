@@ -17,6 +17,7 @@ _Status HUD Continued_ offers a collection of various elements to display on the
 - **`Body heat`**: displays the player's current deviation in body heat. If it is at normal body temperature (37°C), this element is hidden;
 - **`Compass`**: displays the player's facing direction (in degrees) in relation to North;
 - **`Date`**: displays the current date (e.g. `1 Jul`) and an icon for the current season (sprout for spring, sun for summer, leaf for autumn, and snowflake for winter);
+- **`Distance`**: displays the distance between you and the block you are looking at in X,Y, and Z coordinates.
 - **`Durability`**: displays the selected item's remaining durability. If the item does not have durability, it is hidden;
 - **`Health`**: display's the players current and maximum health points;
 - **`Hunger`**: display's the players current and maximum satiety;
@@ -43,7 +44,7 @@ As I work on maintaining this mod, there are a few goals that I wish to achieve 
 - ~~Add support for multiple languages~~ ✅ Done as of 3.2.0
 - ~~Set native GUI to correcly scale with varying GUI scales~~ ✅ Done as of 4.0.0
 - ~~Change element text orientation in relation to icon~~ ✅ Done as of 4.0.0
-- ~~Allow running elements from other mods~~ ✅ Done as of 4.0.0 (Documentation pending)
+- ~~Allow running elements from other mods~~ ✅ Done as of 4.0.0
 
 ## Resources
 ### Creating Your Own Translation

@@ -36,6 +36,7 @@
 
           # Suppress .NET's telemetry
           DOTNET_CLI_TELEMETRY_OPTOUT = "1";
+          DOTNET_ROOT = "${pkgs.dotnet-sdk_10}/share/dotnet";
 
           shellHook = ''
             echo "C# dev shell — .NET $(dotnet --version)"
