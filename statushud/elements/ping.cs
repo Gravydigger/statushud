@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using Vintagestory.API.Client;
 using Vintagestory.Client.NoObf;
 
@@ -12,7 +11,6 @@ public class StatusHudPingElement : StatusHudElement
     private const int maxPing = 999;
 
     private readonly StatusHudPingRenderer renderer;
-    private ClientPlayer player;
 
     public StatusHudPingElement(StatusHudSystem system) : base(system, true)
     {
@@ -35,16 +33,7 @@ public class StatusHudPingElement : StatusHudElement
             return;
         }
 
-        if (player == null)
-        {
-            var players = system.capi.World.AllOnlinePlayers;
-
-            // Get the clients player object
-            player = (ClientPlayer)players.FirstOrDefault(p => p.PlayerUID == system.Uuid);
-            renderer.SetText("");
-
-            return;
-        }
+        ClientPlayer player = (ClientPlayer)system.capi.World.Player;
 
         int ping = (int)(player.Ping * 1000f);
         string msg = ping < maxPing ? $"{Math.Min(ping, maxPing)}" : "+" + maxPing;

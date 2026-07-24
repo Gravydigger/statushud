@@ -12,7 +12,7 @@ public class StatusHudSpeedElement : StatusHudElement
 
     public StatusHudSpeedElement(StatusHudSystem system) : base(system)
     {
-        renderer = new StatusHudSpeedRenderer(system, this);
+        renderer = new StatusHudSpeedRenderer(system);
         this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
     }
 
@@ -38,7 +38,7 @@ public class StatusHudSpeedRenderer : StatusHudRenderer
 {
     private const string textKey = "shud-speed";
 
-    public StatusHudSpeedRenderer(StatusHudSystem system, StatusHudSpeedElement element) : base(system)
+    public StatusHudSpeedRenderer(StatusHudSystem system) : base(system)
     {
         text = new StatusHudText(this.system.capi, textKey, system.Config);
     }
@@ -60,7 +60,8 @@ public class StatusHudSpeedRenderer : StatusHudRenderer
 
         text.Set(mount != null
             ? ((int)Math.Round(mount.Pos.Motion.Length() * 1000) / 10f).ToString(CultureInfo.InvariantCulture)
-            : ((int)Math.Round(system.capi.World.Player.Entity.Pos.Motion.Length() * 1000) / 10f).ToString(CultureInfo.InvariantCulture));
+            : ((int)Math.Round(system.capi.World.Player.Entity.Pos.Motion.Length() * 1000) / 10f).ToString(CultureInfo
+                .InvariantCulture));
         system.capi.Render.RenderTexture(system.textures.TexturesDict["speed"].TextureId, x, y, w, h);
     }
 

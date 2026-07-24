@@ -26,10 +26,12 @@ public class StatusHudLightElement : StatusHudElement
 
     public override void Tick()
     {
-        if (system.capi.World.Player.CurrentBlockSelection != null)
+        IClientWorldAccessor world = system.capi.World;
+
+        if (world.Player.CurrentBlockSelection != null)
         {
-            renderer.SetText(system.capi.World.BlockAccessor
-                .GetLightLevel(system.capi.World.Player.CurrentBlockSelection.Position, EnumLightLevelType.MaxTimeOfDayLight)
+            renderer.SetText(world.BlockAccessor
+                .GetLightLevel(world.Player.CurrentBlockSelection.Position, EnumLightLevelType.MaxTimeOfDayLight)
                 .ToString());
             active = true;
         }

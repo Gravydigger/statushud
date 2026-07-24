@@ -131,8 +131,8 @@ public class StatusHudWeatherElement : StatusHudElement
             int regionX = blockPos.X / system.capi.World.BlockAccessor.RegionSize;
             int regionZ = blockPos.Z / system.capi.World.BlockAccessor.RegionSize;
 
-            long index2d = weatherSystem.MapRegionIndex2D(regionX, regionZ);
-            weatherSystem.weatherSimByMapRegion.TryGetValue(index2d, out WeatherSimulationRegion weatherSim);
+            long index2D = weatherSystem.MapRegionIndex2D(regionX, regionZ);
+            weatherSystem.weatherSimByMapRegion.TryGetValue(index2D, out WeatherSimulationRegion weatherSim);
 
             if (weatherSim == null)
             {

@@ -9,7 +9,7 @@ public class StatusHudPlayersElement : StatusHudElement
 
     public StatusHudPlayersElement(StatusHudSystem system) : base(system)
     {
-        renderer = new StatusHudPlayersRenderer(system, this);
+        renderer = new StatusHudPlayersRenderer(system);
         this.system.capi.Event.RegisterRenderer(renderer, EnumRenderStage.Ortho);
     }
 
@@ -35,7 +35,7 @@ public class StatusHudPlayersElement : StatusHudElement
 public class StatusHudPlayersRenderer : StatusHudRenderer
 {
     private const string textKey = "shud-players";
-    public StatusHudPlayersRenderer(StatusHudSystem system, StatusHudPlayersElement element) : base(system)
+    public StatusHudPlayersRenderer(StatusHudSystem system) : base(system)
     {
         text = new StatusHudText(this.system.capi, textKey, system.Config);
     }

@@ -95,7 +95,7 @@ public class StatusHudTimeRenderer : StatusHudRenderer
     public StatusHudTimeRenderer(StatusHudSystem system, StatusHudTimeElement element) : base(system)
     {
         this.element = element;
-        text = new StatusHudText(this.system.capi, this.element.GetTextKey(), system.Config);
+        text = new StatusHudText(this.system.capi, element.GetTextKey(), system.Config);
     }
 
     public override void Reload()
