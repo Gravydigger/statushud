@@ -32,28 +32,29 @@ public class StatusHudDistanceElement : StatusHudElement
         EntityPlayer playerEntity = world.Player.Entity;
 
         BlockSelection blockSelection = new();
-        EntitySelection entitySelection = null;
+        EntitySelection entitySelection = new();
 
         // Same as creative: https://github.com/anegostudios/vscreativemod/blob/master/Core.cs#L64
         const float pickingRange = 100f;
 
-        // We can't use `Player.CurrentBlockSelection` as we'd be restricted to 4.5 blocks. Instead, use the same code to calculate it.
+        // We can't use `Player.CurrentBlockSelection` as we'd be restricted to 4.5 blocks in survival mode.
+        // Instead, use the same code to calculate it.
         system.capi.World.RayTraceForSelection(playerEntity.Pos.XYZ.Add(playerEntity.LocalEyePos),
             playerEntity.Pos.Pitch, playerEntity.Pos.Yaw, pickingRange, ref blockSelection, ref entitySelection);
 
-        if (blockSelection != null)
+        if (blockSelection != null || entitySelection != null)
         {
-            BlockPos distance = playerEntity.Pos.AsBlockPos - blockSelection.Position;
+            // Prefer block over entity.
+            BlockPos target = blockSelection == null ? entitySelection.Position.AsBlockPos : blockSelection.Position;
+            BlockPos distance = playerEntity.Pos.AsBlockPos - target;
 
             renderer.SetText($"{Math.Abs(distance.X)}/{Math.Abs(distance.Y)}/{Math.Abs(distance.Z)}");
             active = true;
         }
         else
         {
-            if (active)
-            {
-                renderer.SetText("");
-            }
+            if (!active) return;
+            renderer.SetText("");
             active = false;
         }
     }
